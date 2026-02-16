@@ -1,17 +1,47 @@
 import sqlite3
 import json
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import datetime
 import urllib.request
 import urllib.parse
 import urllib.error
 import time
 import argparse
-from typing import Dict, Any, List, Set, Tuple
+from typing import Dict, Any, List, Set, Tuple, Optional
 
 class YouTubeQuotaExceeded(Exception):
     """Exception raised when YouTube API quota is exceeded (HTTP 403)."""
     pass
+
+class KeyManager:
+    """Manages rotation of YouTube API keys."""
+    def __init__(self, keys: List[str]):
+        self.keys = [k.strip() for k in keys if k.strip()]
+        self.current_index = 0
+        self.exhausted_indices: Set[int] = set()
+
+    def get_current_key(self) -> Optional[str]:
+        if not self.keys:
+            return None
+        # Find first non-exhausted key
+        for i in range(len(self.keys)):
+            idx = (self.current_index + i) % len(self.keys)
+            if idx not in self.exhausted_indices:
+                self.current_index = idx # Update pointer
+                return self.keys[idx]
+        return None
+
+    def mark_current_exhausted(self):
+        """Marks the current key as exhausted (quota exceeded)."""
+        if self.keys:
+            log_message("WARNING", f"Key ending in ...{self.keys[self.current_index][-4:]} exhausted.")
+            self.exhausted_indices.add(self.current_index)
+            # Advance to next potentially valid key
+            self.current_index = (self.current_index + 1) % len(self.keys)
 
 # Configuration
 # Path: src/fetch_views.py -> database/vocarank.db
@@ -184,6 +214,7 @@ def main():
     parser.add_argument("--limit", type=int, default=0, help="Limit number of songs to process (0 = all)")
     parser.add_argument("--skip-youtube", action="store_true", help="Skip YouTube fetching")
     parser.add_argument("--skip-niconico", action="store_true", help="Skip Niconico fetching")
+    parser.add_argument("--mode", choices=['all', 'popular'], default='all', help="Mode: 'all' to update everything, 'popular' to update high-view songs.")
     args = parser.parse_args()
     
     if not os.path.exists(DB_PATH):
@@ -202,6 +233,24 @@ def main():
     """
     params = []
     
+    if args.mode == 'popular':
+        log_message("INFO", "Mode: POPULAR (fetching songs with >= 100,000 YouTube views)")
+        query += " AND youtube_views >= 100000"
+        
+        # Load popular key
+        pop_key = os.getenv("YOUTUBE_KEY_POPULAR")
+        if pop_key:
+            keys = [pop_key]
+        else:
+            log_message("WARNING", "YOUTUBE_KEY_POPULAR not found in .env. Falling back to general keys.")
+            keys = os.getenv("YOUTUBE_KEYS_GENERAL", "").split(",")
+            
+    else: # mode == all
+        log_message("INFO", "Mode: ALL (fetching all songs)")
+        keys = os.getenv("YOUTUBE_KEYS_GENERAL", "").split(",")
+
+    key_manager = KeyManager(keys)
+
     if args.skip_niconico:
         query += " AND pv_data LIKE '%Youtube%'"
         
@@ -266,18 +315,28 @@ def main():
                 pass
 
         # Fetch YouTube
-        if args.youtube_key and yt_ids_to_song and not yt_quota_active:
-            yt_views_map, quota_hit = fetch_youtube_views(list(yt_ids_to_song.keys()), args.youtube_key)
-            if quota_hit:
-                log_message("ERROR", "YouTube API quota exceeded. Stopping all fetching activities (including Niconico) to prevent further errors.")
-                yt_quota_active = True
-                # Break out of the chunks loop effectively stopping all processing
+        # Fetch YouTube
+        if yt_ids_to_song and not args.skip_youtube:
+            while True:
+                api_key = key_manager.get_current_key()
+                if not api_key:
+                    if not yt_quota_active:
+                         log_message("ERROR", "All YouTube keys exhausted or none provided. Stopping YouTube fetching.")
+                         yt_quota_active = True
+                    break
+
+                yt_views_map, quota_hit = fetch_youtube_views(list(yt_ids_to_song.keys()), api_key)
+                
+                if quota_hit:
+                    key_manager.mark_current_exhausted()
+                    continue # Retry with next key
+                
+                # Success
+                for ytid, views in yt_views_map.items():
+                    for sid in yt_ids_to_song[ytid]:
+                        song_updates[sid]['temp_yt_views'][ytid] = views
+                        song_updates[sid]['yt_changed'] = True
                 break
-            
-            for ytid, views in yt_views_map.items():
-                for sid in yt_ids_to_song[ytid]:
-                    song_updates[sid]['temp_yt_views'][ytid] = views
-                    song_updates[sid]['yt_changed'] = True
 
         # Fetch Niconico
         if nico_ids_to_song:
