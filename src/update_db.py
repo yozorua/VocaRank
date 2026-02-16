@@ -2,8 +2,7 @@ import sqlite3
 import json
 import os
 import datetime
-import urllib.request
-import urllib.error
+import requests
 import time
 from typing import Dict, Any, List, Tuple, Optional
 
@@ -12,7 +11,7 @@ DB_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../database'))
 DB_PATH = os.path.join(DB_DIR, 'vocarank.db')
 
 API_BASE = "https://vocadb.net/api"
-MAX_CONSECUTIVE_ERRORS = 20
+MAX_CONSECUTIVE_ERRORS = 20 # Stop if we get 20 errors in a row (e.g. reach end of song list)
 SLEEP_TIME = 0.5 # Be nice to the API
 
 def get_utc_now_iso() -> str:
@@ -31,17 +30,16 @@ def get_max_id(conn: sqlite3.Connection, table: str) -> int:
         return 0
 
 def make_request(url: str) -> Optional[Dict[str, Any]]:
-    """Helper to make HTTP GET request using urllib."""
+    """Helper to make HTTP GET request using requests."""
     try:
-        with urllib.request.urlopen(url) as response:
-            if response.status == 200:
-                return json.loads(response.read().decode('utf-8'))
+        response = requests.get(url, timeout=10)
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code == 404 or response.status_code == 403:
             return None
-    except urllib.error.HTTPError as e:
-        if e.code == 404 or e.code == 403:
+        else:
+            print(f"Warning: Failed to fetch {url}. Status: {response.status_code}")
             return None
-        print(f"Warning: Failed to fetch {url}. Status: {e.code}")
-        return None
     except Exception as e:
         print(f"Error requesting {url}: {e}")
         return None
@@ -78,10 +76,6 @@ def parse_names(names_list: List[Dict[str, str]]) -> Dict[str, str]:
 
 def transform_song_api(data: Dict[str, Any]) -> Tuple:
     """Transforms API song data to DB tuple."""
-    # API might return 'names' or 'additionalNames' based on fields requested.
-    # We requested 'AdditionalNames'.
-    # However, standard 'name' is also there.
-    
     names_list = data.get('names', [])
     if not names_list:
         names_list = data.get('additionalNames', [])
@@ -150,7 +144,6 @@ def transform_artist_api(data: Dict[str, Any]) -> Tuple:
 
 def update_loop(conn: sqlite3.Connection, table: str, fetch_func: callable, transform_func: callable, insert_sql: str):
     """Generic update loop for a table."""
-    # We use the passed connection but create a new cursor
     cursor = conn.cursor()
     
     max_id = get_max_id(conn, table)
@@ -183,12 +176,162 @@ def update_loop(conn: sqlite3.Connection, table: str, fetch_func: callable, tran
         
     print(f"[{table}] Finished. Added {updates_count} new records. (Stopped after {MAX_CONSECUTIVE_ERRORS} misses)")
 
+def fetch_new_songs_by_date(conn: sqlite3.Connection):
+    """
+    Fetches the most recently added songs from VocaDB and inserts them.
+    Stops when it encounters songs that are already in the database.
+    """
+    cursor = conn.cursor()
+    table = 'songs'
+    
+    print(f"[{table}] Fetching new songs by AdditionDate...")
+    
+    # We will fetch page by page
+    max_results = 100
+    start_index = 0
+    total_added = 0
+    
+    # Safety brake: Stop if we fetch too many pages (e.g., 50 pages = 5000 songs)
+    # just in case the DB is empty or something weird happens.
+    max_pages = 100 
+    
+    for page in range(max_pages):
+        url = f"{API_BASE}/songs?sort=AdditionDate&fields=Names,Artists,Tags,PVs&maxResults={max_results}&start={start_index}&lang=English"
+        data = make_request(url)
+        
+        if not data or 'items' not in data:
+            print(f"[{table}] Failed to fetch page {page}. Stopping.")
+            break
+            
+        items = data['items']
+        if not items:
+            print(f"[{table}] No more items found. Stopping.")
+            break
+            
+        print(f"[{table}] Page {page}: processing {len(items)} items...")
+        
+        existing_count_in_batch = 0
+        new_count_in_batch = 0
+        
+        for song_data in items:
+            song_id = song_data.get('id')
+            
+            # Check if exists
+            cursor.execute("SELECT 1 FROM songs WHERE id=?", (song_id,))
+            exists = cursor.fetchone()
+            
+            if exists:
+                existing_count_in_batch += 1
+                continue
+                
+            # Insert New
+            try:
+                record = transform_song_api(song_data)
+                
+                # Copy-paste insert logic
+                song_sql = '''
+                    INSERT OR REPLACE INTO songs (
+                        id, name_english, name_japanese, name_romaji, song_type, length_seconds,
+                        artist_ids, publish_date, original_song_id, pv_data, tag_ids,
+                        niconico_views, youtube_views, niconico_history, youtube_history, last_update_time
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                '''
+                cursor.execute(song_sql, record)
+                
+                # Insert Relations
+                artist_ids = json.loads(record[6])
+                tag_ids = json.loads(record[10])
+                
+                for aid in artist_ids:
+                    cursor.execute("INSERT OR IGNORE INTO song_artists (song_id, artist_id) VALUES (?, ?)", (song_id, aid))
+                    
+                for tid in tag_ids:
+                    cursor.execute("INSERT OR IGNORE INTO song_tags (song_id, tag_id) VALUES (?, ?)", (song_id, tid))
+                
+                new_count_in_batch += 1
+                # print(f"[{table}] Added ID {song_id}: {song_data.get('name')}")
+                
+            except Exception as e:
+                print(f"[{table}] Error inserting ID {song_id}: {e}")
+        
+        conn.commit()
+        total_added += new_count_in_batch
+        
+        # Stop Condition: If all items in this batch already exist, we are caught up.
+        if existing_count_in_batch == len(items):
+            print(f"[{table}] All items in batch already exist. We are caught up!")
+            break
+            
+        start_index += max_results
+        time.sleep(SLEEP_TIME)
+        
+    print(f"[{table}] Finished. Added {total_added} new records.")
+
 def main():
-    if not os.path.exists(DB_PATH):
-        print(f"Database not found at {DB_PATH}")
-        return
+    # Ensure DB directory exists
+    if not os.path.exists(DB_DIR):
+        os.makedirs(DB_DIR)
 
     conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    # --- Schema Creation ---
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS artists (
+            id INTEGER PRIMARY KEY,
+            artist_type TEXT,
+            name_default TEXT,
+            name_default_lang TEXT,
+            name_english TEXT,
+            name_japanese TEXT,
+            name_romaji TEXT
+        )
+    ''')
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS songs (
+            id INTEGER PRIMARY KEY,
+            name_english TEXT,
+            name_japanese TEXT,
+            name_romaji TEXT,
+            song_type TEXT,
+            length_seconds INTEGER,
+            artist_ids TEXT, 
+            publish_date TEXT,
+            original_song_id INTEGER,
+            pv_data TEXT,
+            tag_ids TEXT,
+            niconico_views INTEGER DEFAULT 0,
+            youtube_views INTEGER DEFAULT 0,
+            niconico_history TEXT DEFAULT '[]',
+            youtube_history TEXT DEFAULT '[]',
+            last_update_time TEXT
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS song_artists (
+            song_id INTEGER,
+            artist_id INTEGER,
+            PRIMARY KEY (song_id, artist_id),
+            FOREIGN KEY(song_id) REFERENCES songs(id),
+            FOREIGN KEY(artist_id) REFERENCES artists(id)
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS song_tags (
+            song_id INTEGER,
+            tag_id INTEGER,
+            PRIMARY KEY (song_id, tag_id),
+            FOREIGN KEY(song_id) REFERENCES songs(id)
+        )
+    ''')
+    conn.commit()
+
+
+    
+    # --- Update Loop ---
     
     # Update Artists
     artist_sql = '''
@@ -199,15 +342,8 @@ def main():
     '''
     update_loop(conn, 'artists', fetch_artist, transform_artist_api, artist_sql)
     
-    # Update Songs
-    song_sql = '''
-        INSERT OR REPLACE INTO songs (
-            id, name_english, name_japanese, name_romaji, song_type, length_seconds,
-            artist_ids, publish_date, original_song_id, pv_data, tag_ids,
-            niconico_views, youtube_views, niconico_history, youtube_history, last_update_time
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    '''
-    update_loop(conn, 'songs', fetch_song, transform_song_api, song_sql)
+    # Update Songs (New Logic)
+    fetch_new_songs_by_date(conn)
     
     conn.close()
 

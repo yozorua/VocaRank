@@ -20,7 +20,8 @@ DB_PATH = os.path.join(DB_DIR, 'vocarank.db')
 
 YOUTUBE_API_URL = "https://www.googleapis.com/youtube/v3/videos"
 NICONICO_API_URL = "https://snapshot.search.nicovideo.jp/api/v2/snapshot/video/contents/search"
-USER_AGENT = "VocaRank/1.0 (contact: your_email@example.com)" # Identify yourself
+# USER_AGENT = "VocaRank/1.0 (contact: your_email@example.com)" # Identify yourself
+USER_AGENT = "VocaRank/1.0"
 
 def log_message(level: str, message: str):
     """Prints a message with timestamp and color."""
