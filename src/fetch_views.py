@@ -43,7 +43,6 @@ class KeyManager:
             # Advance to next potentially valid key
             self.current_index = (self.current_index + 1) % len(self.keys)
 
-# Configuration
 # Path: src/fetch_views.py -> database/vocarank.db
 DB_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../database'))
 DB_PATH = os.path.join(DB_DIR, 'vocarank.db')
@@ -112,7 +111,7 @@ def fetch_youtube_views(video_ids: List[str], api_key: str) -> Tuple[Dict[str, i
     quota_exceeded = False
     log_message("INFO", f"Fetching YouTube views for {len(video_ids)} videos...")
     
-    # Batch size 50
+    
     for i in range(0, len(video_ids), 50):
         batch = video_ids[i:i+50]
         ids_str = ",".join(batch)
@@ -314,8 +313,7 @@ def main():
             except:
                 pass
 
-        # Fetch YouTube
-        # Fetch YouTube
+        
         if yt_ids_to_song and not args.skip_youtube:
             while True:
                 api_key = key_manager.get_current_key()
@@ -338,7 +336,7 @@ def main():
                         song_updates[sid]['yt_changed'] = True
                 break
 
-        # Fetch Niconico
+        
         if nico_ids_to_song:
             nico_views_map = fetch_niconico_views(list(nico_ids_to_song.keys()))
             for nicoid, views in nico_views_map.items():
@@ -346,7 +344,7 @@ def main():
                     song_updates[sid]['temp_nico_views'][nicoid] = views
                     song_updates[sid]['nico_changed'] = True
         
-        # Apply updates
+        
         for sid, up in song_updates.items():
             updates_sql = []
             params = []

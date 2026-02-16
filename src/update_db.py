@@ -275,7 +275,6 @@ def main():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    # --- Schema Creation ---
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS artists (
             id INTEGER PRIMARY KEY,
@@ -330,10 +329,7 @@ def main():
     conn.commit()
 
 
-    
-    # --- Update Loop ---
-    
-    # Update Artists
+
     artist_sql = '''
         INSERT OR REPLACE INTO artists (
             id, artist_type, name_default, name_default_lang,
@@ -342,7 +338,7 @@ def main():
     '''
     update_loop(conn, 'artists', fetch_artist, transform_artist_api, artist_sql)
     
-    # Update Songs (New Logic)
+    
     fetch_new_songs_by_date(conn)
     
     conn.close()
