@@ -423,6 +423,30 @@ def main():
         log_message("INFO", f"Processed {count_processed} / {len(rows)} songs...")
         time.sleep(0.5)
 
+    conn.commit()
+
+    # --- Daily Snapshot Logic ---
+    if args.mode == 'all':
+        today_date = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
+        log_message("INFO", f"Saving daily snapshots for {today_date}...")
+        
+        # We need to snapshot ALL songs that were processed (or even all songs in DB? 
+        # Ideally just the ones we updated, but for a true daily snapshot we might want everything.
+        # However, 'fetch_views --mode all' updates everything, so we can just iterate the 'rows' list again
+        # or do a bulk insert. A bulk insert from 'songs' table is fastest and ensures consistency.)
+        
+        try:
+            # Snapshot ALL songs (since mode=all implies we tried to update everything)
+            # We use INSERT OR REPLACE to update if run multiple times today
+            cursor.execute(f"""
+                INSERT OR REPLACE INTO daily_snapshots (date, song_id, niconico_views, youtube_views)
+                SELECT '{today_date}', id, niconico_views, youtube_views FROM songs
+            """)
+            conn.commit()
+            log_message("SUCCESS", f"Daily snapshots saved for {today_date}.")
+        except Exception as e:
+             log_message("ERROR", f"Failed to save daily snapshots: {e}")
+
     conn.close()
     log_message("SUCCESS", "Fetching complete.")
 

@@ -326,6 +326,17 @@ def main():
             FOREIGN KEY(song_id) REFERENCES songs(id)
         )
     ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS daily_snapshots (
+            date TEXT,
+            song_id INTEGER,
+            niconico_views INTEGER,
+            youtube_views INTEGER,
+            PRIMARY KEY (date, song_id),
+            FOREIGN KEY(song_id) REFERENCES songs(id)
+        )
+    ''')
     conn.commit()
 
 
