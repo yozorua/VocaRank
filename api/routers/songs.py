@@ -16,6 +16,7 @@ def search_songs(
     query: str = Query(..., min_length=1, description="Search keyword for song title"),
     limit: int = 10,
     song_type: Optional[str] = Query(None, description="Filter by song type (e.g. Original)"),
+    vocaloid_only: bool = Query(True, description="Filter for SynthV/Vocaloid songs only"),
     sort_by: str = Query('total_views', enum=['total_views', 'publish_date'], description="Sort by metric"),
     db: Session = Depends(get_db)
 ):
@@ -24,6 +25,8 @@ def search_songs(
     Returns rich metadata similar to rankings.
     """
     
+    from ..utils import SYNTH_TYPES
+
     # Base Query
     sql_query = """
         SELECT 
@@ -48,6 +51,14 @@ def search_songs(
     if song_type:
         sql_query += " AND s.song_type = :song_type"
         params["song_type"] = song_type
+
+    if vocaloid_only:
+        synth_list = "', '".join(SYNTH_TYPES)
+        sql_query += f""" AND EXISTS (
+            SELECT 1 FROM song_artists sa 
+            JOIN artists a ON sa.artist_id = a.id 
+            WHERE sa.song_id = s.id AND a.artist_type IN ('{synth_list}')
+        )"""
         
     if sort_by == 'total_views':
         sql_query += " ORDER BY total_views DESC"
@@ -55,8 +66,6 @@ def search_songs(
             sql_query += " ORDER BY s.publish_date DESC"
             
     sql_query += " LIMIT :limit"
-    
-    results = db.execute(text(sql_query), params).fetchall()
     
     results = db.execute(text(sql_query), params).fetchall()
     
@@ -99,4 +108,23 @@ def get_song(song_id: int, db: Session = Depends(get_db)):
     song = db.query(models.Song).filter(models.Song.id == song_id).first()
     if not song:
         raise HTTPException(status_code=404, detail="Song not found")
-    return song
+        
+    # Enrich with artist data
+    artists_map = get_artists_for_songs(db, [song.id])
+    am = artists_map.get(song.id, {'producers': [], 'vocalists': []})
+    artist_string = ", ".join(am['producers']) if am['producers'] else "Unknown"
+    vocaloid_string = ", ".join(am['vocalists']) if am['vocalists'] else "Unknown"
+    
+    yt_id, nico_id = extract_pvs(song.pv_data)
+    
+    # Return as dict to match schema with computed fields
+    return {
+        **song.__dict__,
+        "total_views": song.youtube_views + song.niconico_views,
+        "views_youtube": song.youtube_views,
+        "views_niconico": song.niconico_views,
+        "artist_string": artist_string,
+        "vocaloid_string": vocaloid_string,
+        "youtube_id": yt_id,
+        "niconico_id": nico_id
+    }

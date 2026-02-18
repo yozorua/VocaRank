@@ -1,0 +1,68 @@
+{
+  "Metadata": {
+    "title": "VocaRank - The Definitive Vocaloid Ranking",
+    "description": "Discover the most popular Vocaloid songs across YouTube and Niconico. Real-time rankings, detailed stats, and more."
+  },
+  "Home": {
+    "badge": "VOCALOID ANALYTICS",
+    "subtitle": "Track the pulse of the Vocaloid community. Real-time rankings from YouTube and Niconico aggregated in one place.",
+    "cta_ranking": "View Rankings",
+    "cta_search": "Search Database"
+  },
+  "LanguageSwitcher": {
+    "label": "Change language"
+  },
+  "RankingTable": {
+    "song": "Song",
+    "views": "Views",
+    "increment": "Gain",
+    "published": "Published",
+    "sort_youtube": "YouTube",
+    "sort_niconico": "Niconico",
+    "no_data_title": "Ranking Calculating...",
+    "no_data_desc": "We are currently collecting data for this period. Please check back later!"
+  },
+  "RankingPage": {
+    "title": "Song Rankings",
+    "description": "Discover the most popular Vocaloid songs right now.",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "total": "All Time",
+    "sort_total": "Total Views",
+    "sort_youtube": "YouTube Ranking",
+    "sort_niconico": "Niconico Ranking"
+  },
+  "SongDetail": {
+    "total_views": "Total Views",
+    "vocalist": "Vocalist",
+    "type": "Type",
+    "release_date": "Release Date"
+  },
+  "Navbar": {
+    "ranking": "Ranking",
+    "search": "Search",
+    "login": "Login"
+  },
+  "SearchPage": {
+    "title": "Search Songs",
+    "placeholder": "Enter song title (English, Japanese, Romaji)...",
+    "search": "Search",
+    "results_for": "Results for \"{query}\"",
+    "no_results": "No songs found."
+  },
+  "LoginPage": {
+    "title": "Login",
+    "description": "Sign in to access personalized features.",
+    "google_login": "Sign in with Google"
+  },
+  "ProfilePage": {
+    "title": "My Profile",
+    "loading": "Loading profile..."
+  },
+  "NotFound": {
+    "title": "Voice Not Found",
+    "description": "The page you are looking for has been deleted or does not exist.",
+    "back_home": "Return to Home"
+  }
+}

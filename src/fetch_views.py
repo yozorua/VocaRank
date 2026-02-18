@@ -220,7 +220,7 @@ def main():
         log_message("ERROR", f"Database not found at {DB_PATH}")
         return
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
     cursor = conn.cursor()
     
     log_message("INFO", "Scanning database for songs...")

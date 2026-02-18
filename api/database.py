@@ -9,7 +9,11 @@ SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
 
 # check_same_thread=False is needed for SQLite in multi-threaded environments (like FastAPI)
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    SQLALCHEMY_DATABASE_URL, 
+    connect_args={
+        "check_same_thread": False,
+        "timeout": 30 # Wait up to 30s for lock to clear
+    }
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

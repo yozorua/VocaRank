@@ -1,0 +1,72 @@
+{
+    "Metadata": {
+        "title": "VocaRank - Vocaloid 排行榜",
+        "description": "YouTube 和 Niconico 上最受歡迎的 Vocaloid 歌曲排行。即時更新、詳細統計數據。"
+    },
+    "Home": {
+        "badge": "VOCALOID ANALYTICS",
+        "subtitle": "掌握 Vocaloid 社群的脈動。即時彙整 YouTube 和 Niconico 的排行榜數據。",
+        "cta_ranking": "查看排行榜",
+        "cta_search": "搜尋資料庫"
+    },
+    "HomePage": {
+        "title": "VocaRank",
+        "subtitle": "終極 Vocaloid 排行榜平台。"
+    },
+    "LanguageSwitcher": {
+        "label": "切換語言"
+    },
+    "RankingTable": {
+        "song": "歌曲",
+        "views": "觀看數",
+        "increment": "增長",
+        "published": "發布日期",
+        "sort_youtube": "YouTube",
+        "sort_niconico": "Niconico",
+        "no_data_title": "排行榜計算中...",
+        "no_data_desc": "我們正在收集此期間的數據。請稍後再回來查看！"
+    },
+    "RankingPage": {
+        "title": "歌曲排行榜",
+        "description": "探索當下最熱門的 Vocaloid 歌曲。",
+        "daily": "本日",
+        "weekly": "本週",
+        "monthly": "本月",
+        "total": "總榜",
+        "sort_total": "總觀看數",
+        "sort_youtube": "YouTube 排行",
+        "sort_niconico": "Niconico 排行"
+    },
+    "SongDetail": {
+        "total_views": "總觀看數",
+        "vocalist": "主唱",
+        "type": "類型",
+        "release_date": "發布日期"
+    },
+    "Navbar": {
+        "ranking": "排行榜",
+        "search": "搜尋",
+        "login": "登入"
+    },
+    "SearchPage": {
+        "title": "搜尋歌曲",
+        "placeholder": "輸入歌曲標題（英文、日文、羅馬拼音）...",
+        "search": "搜尋",
+        "results_for": "搜尋結果：\"{query}\"",
+        "no_results": "找不到歌曲。"
+    },
+    "LoginPage": {
+        "title": "登入",
+        "description": "登入以使用個人化功能。",
+        "google_login": "使用 Google 登入"
+    },
+    "ProfilePage": {
+        "title": "個人檔案",
+        "loading": "正在載入個人檔案..."
+    },
+    "NotFound": {
+        "title": "Voice Not Found",
+        "description": "您尋找的頁面已被刪除或不存在。",
+        "back_home": "返回首頁"
+    }
+}

@@ -1,0 +1,72 @@
+{
+    "Metadata": {
+        "title": "VocaRank - ボーカロイドランキング",
+        "description": "YouTubeとニコニコ動画の人気ボカロ曲ランキング。リアルタイム更新、詳細な統計データなど。"
+    },
+    "Home": {
+        "badge": "VOCALOID ANALYTICS",
+        "subtitle": "ボカロ界の鼓動を感じよう。YouTubeとニコニコ動画のランキングをリアルタイムで集計。",
+        "cta_ranking": "ランキングを見る",
+        "cta_search": "データベース検索"
+    },
+    "HomePage": {
+        "title": "VocaRank",
+        "subtitle": "最も権威のあるボカロランキングプラットフォーム。"
+    },
+    "LanguageSwitcher": {
+        "label": "言語を変更"
+    },
+    "RankingTable": {
+        "song": "曲名",
+        "views": "再生数",
+        "increment": "増加数",
+        "published": "投稿日",
+        "sort_youtube": "YouTube",
+        "sort_niconico": "ニコニコ",
+        "no_data_title": "ランキング集計中...",
+        "no_data_desc": "現在、この期間のデータを収集中です。後ほどご確認ください！"
+    },
+    "RankingPage": {
+        "title": "楽曲ランキング",
+        "description": "今、最も人気のあるボカロ曲をチェック。",
+        "daily": "デイリー",
+        "weekly": "ウィークリー",
+        "monthly": "マンスリー",
+        "total": "全期間",
+        "sort_total": "総合再生数",
+        "sort_youtube": "YouTubeランキング",
+        "sort_niconico": "ニコニコランキング"
+    },
+    "SongDetail": {
+        "total_views": "総再生数",
+        "vocalist": "ボーカル",
+        "type": "種別",
+        "release_date": "投稿日"
+    },
+    "Navbar": {
+        "ranking": "ランキング",
+        "search": "検索",
+        "login": "ログイン"
+    },
+    "SearchPage": {
+        "title": "楽曲検索",
+        "placeholder": "曲名を入力（英語、日本語、ローマ字）...",
+        "search": "検索",
+        "results_for": "「{query}」の検索結果",
+        "no_results": "曲が見つかりませんでした。"
+    },
+    "LoginPage": {
+        "title": "ログイン",
+        "description": "パーソナライズされた機能にアクセスするにはログインしてください。",
+        "google_login": "Googleでログイン"
+    },
+    "ProfilePage": {
+        "title": "プロフィール",
+        "loading": "プロフィールを読み込んでいます..."
+    },
+    "NotFound": {
+        "title": "Voice Not Found",
+        "description": "お探しのページは削除されたか、存在しません。",
+        "back_home": "ホームに戻る"
+    }
+}

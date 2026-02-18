@@ -36,8 +36,13 @@ class SongDetail(SongBase):
     """Detailed schema with relations."""
     length_seconds: Optional[int] = None
     original_song_id: Optional[int] = None
-    youtube_views: int
-    niconico_views: int
+    views_youtube: int
+    views_niconico: int
+    total_views: int
+    artist_string: str
+    vocaloid_string: str
+    youtube_id: Optional[str] = None
+    niconico_id: Optional[str] = None
 
 
 # --- Ranking Schemas ---

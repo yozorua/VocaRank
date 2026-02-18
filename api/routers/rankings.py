@@ -66,8 +66,15 @@ def get_gain_ranking(
     params = {"current_date": current_date_str, "target_date": target_date_str, "limit": limit}
     
     if song_type:
-        query_str += " AND s.song_type = :song_type"
-        params["song_type"] = song_type
+        types = [t.strip() for t in song_type.split(',')]
+        if len(types) == 1:
+            query_str += " AND s.song_type = :song_type"
+            params["song_type"] = types[0]
+        else:
+            # Manual IN clause construction for safety across drivers
+            clean_types = [t.replace("'", "''") for t in types]
+            type_str = "', '".join(clean_types)
+            query_str += f" AND s.song_type IN ('{type_str}')"
         
     if vocaloid_only:
         synth_list = "', '".join(SYNTH_TYPES)
@@ -119,7 +126,7 @@ def get_gain_ranking(
 # Common parameters dependency
 def common_params(
     limit: int = 10,
-    song_type: str = Query('Original', description="Song type filter"),
+    song_type: str = Query('Original,Remaster,Remix', description="Song type filter (comma-separated)"),
     vocaloid_only: bool = Query(True, description="Filter for SynthV/Vocaloid songs only"),
     sort_by: str = Query('increment_total', enum=['increment_total', 'increment_youtube', 'increment_niconico', 'total', 'youtube', 'niconico'], description="Sort by metric")
 ):
@@ -141,7 +148,7 @@ def get_monthly_ranking(params: dict = Depends(common_params), db: Session = Dep
 @router.get("/total", response_model=List[schemas.SongRanking])
 def get_total_ranking(
     limit: int = 10, 
-    song_type: str = Query('Original', description="Song type filter"),
+    song_type: str = Query('Original,Remaster,Remix', description="Song type filter (comma-separated)"),
     vocaloid_only: bool = Query(True, description="Filter for SynthV/Vocaloid songs only"),
     sort_by: str = Query('total', enum=['total', 'youtube', 'niconico'], description="Sort by metric"),
     db: Session = Depends(get_db)
@@ -170,8 +177,15 @@ def get_total_ranking(
     params = {"limit": limit}
     
     if song_type:
-        query_str += " AND s.song_type = :song_type"
-        params["song_type"] = song_type
+        types = [t.strip() for t in song_type.split(',')]
+        if len(types) == 1:
+            query_str += " AND s.song_type = :song_type"
+            params["song_type"] = types[0]
+        else:
+            # Manual IN clause construction for safety across drivers
+            clean_types = [t.replace("'", "''") for t in types]
+            type_str = "', '".join(clean_types)
+            query_str += f" AND s.song_type IN ('{type_str}')"
         
     if vocaloid_only:
         synth_list = "', '".join(SYNTH_TYPES)
