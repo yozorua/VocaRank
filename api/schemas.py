@@ -43,13 +43,15 @@ class SongDetail(SongBase):
 # --- Ranking Schemas ---
 class SongRanking(BaseModel):
     id: int
-    id: int
+
     name_english: Optional[str] = None
     name_japanese: Optional[str] = None
     name_romaji: Optional[str] = None
     
     total_views: int
-    view_increment: Optional[int] = None
+    increment_total: Optional[int] = None
+    increment_youtube: Optional[int] = None
+    increment_niconico: Optional[int] = None
     
 
     youtube_id: Optional[str] = None

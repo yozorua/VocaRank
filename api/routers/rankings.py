@@ -32,10 +32,14 @@ def get_gain_ranking(
     target_date_str = target_date.strftime("%Y-%m-%d")
     
     # Sort Logic
-    order_clause = "view_increment DESC"
+    order_clause = "increment_total DESC"
     if sort_by == 'youtube':
         order_clause = "(today.youtube_views - past.youtube_views) DESC"
     elif sort_by == 'niconico':
+        order_clause = "(today.niconico_views - past.niconico_views) DESC"
+    elif sort_by == 'increment_youtube':
+        order_clause = "(today.youtube_views - past.youtube_views) DESC"
+    elif sort_by == 'increment_niconico':
         order_clause = "(today.niconico_views - past.niconico_views) DESC"
     elif sort_by == 'total':
         order_clause = "(today.youtube_views + today.niconico_views) DESC"
@@ -44,7 +48,9 @@ def get_gain_ranking(
         SELECT 
             s.id,
             s.name_english, s.name_japanese, s.name_romaji,
-            (today.youtube_views + today.niconico_views) - (past.youtube_views + past.niconico_views) as view_increment,
+            (today.youtube_views + today.niconico_views) - (past.youtube_views + past.niconico_views) as increment_total,
+            (today.youtube_views - past.youtube_views) as increment_youtube,
+            (today.niconico_views - past.niconico_views) as increment_niconico,
             today.youtube_views,
             today.niconico_views,
             (today.youtube_views + today.niconico_views) as total_views,
@@ -83,7 +89,7 @@ def get_gain_ranking(
     response = []
     for row in results:
         sid = row[0]
-        yt_id, nico_id = extract_pvs(row[8])
+        yt_id, nico_id = extract_pvs(row[10])
         
         am = artists_map.get(sid, {'producers': [], 'vocalists': []})
         artist_string = ", ".join(am['producers']) if am['producers'] else "Unknown"
@@ -94,14 +100,16 @@ def get_gain_ranking(
             name_english=row[1],
             name_japanese=row[2],
             name_romaji=row[3],
-            view_increment=row[4],
-            views_youtube=row[5],
-            views_niconico=row[6],
-            total_views=row[7],
+            increment_total=row[4],
+            increment_youtube=row[5],
+            increment_niconico=row[6],
+            views_youtube=row[7],
+            views_niconico=row[8],
+            total_views=row[9],
             youtube_id=yt_id,
             niconico_id=nico_id,
-            song_type=row[9],
-            publish_date=row[10],
+            song_type=row[11],
+            publish_date=row[12],
             artist_string=artist_string,
             vocaloid_string=vocaloid_string
         ))
@@ -113,7 +121,7 @@ def common_params(
     limit: int = 10,
     song_type: str = Query('Original', description="Song type filter"),
     vocaloid_only: bool = Query(True, description="Filter for SynthV/Vocaloid songs only"),
-    sort_by: str = Query('view_increment', enum=['view_increment', 'total', 'youtube', 'niconico'], description="Sort by metric")
+    sort_by: str = Query('increment_total', enum=['increment_total', 'increment_youtube', 'increment_niconico', 'total', 'youtube', 'niconico'], description="Sort by metric")
 ):
     return {"limit": limit, "song_type": song_type, "vocaloid_only": vocaloid_only, "sort_by": sort_by}
 
@@ -196,7 +204,9 @@ def get_total_ranking(
             name_japanese=row[2],
             name_romaji=row[3],
             total_views=row[4],
-            view_increment=0, 
+            increment_total=0,
+            increment_youtube=0,
+            increment_niconico=0,
             views_youtube=row[5],
             views_niconico=row[6],
             youtube_id=yt_id,
