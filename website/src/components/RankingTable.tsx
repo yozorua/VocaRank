@@ -72,9 +72,9 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
 
     const formatSongType = (type: string | null) => {
         if (!type) return null;
-        if (type === 'Original') return <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[var(--miku-teal)]/20 text-[var(--miku-teal)]">ORIGINAL</span>;
-        if (type === 'Cover') return <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-400">COVER</span>;
-        return <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-500/20 text-gray-400">{type ? type.toUpperCase() : ''}</span>;
+        if (type === 'Original') return <span className="text-[10px] font-bold text-[var(--miku-teal)] tracking-wider">ORIGINAL</span>;
+        if (type === 'Cover') return <span className="text-[10px] font-bold text-purple-400 tracking-wider">COVER</span>;
+        return <span className="text-[10px] font-bold text-gray-400 tracking-wider">{type ? type.toUpperCase() : ''}</span>;
     };
 
     const renderArtistList = (artists: any[]) => {
@@ -91,7 +91,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                         >
                             {artist.name}
                         </Link>
-                        {idx < artists.length - 1 && <span className="text-gray-600 mx-1">・</span>}
+                        {idx < artists.length - 1 && <span className="text-gray-600">・</span>}
                     </span>
                 ))}
             </div>
@@ -159,7 +159,10 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                     <div className="font-bold text-sm text-white line-clamp-1 leading-tight mb-1">
                                         {getSongName(song)}
                                     </div>
-                                    <div className="text-xs text-gray-400 truncate">{song.artist_string}</div>
+                                    <div className="text-xs text-gray-400 flex items-center gap-2 min-w-0">
+                                        <div className="flex-shrink-0">{formatSongType(song.song_type)}</div>
+                                        <div className="truncate">{song.artist_string}</div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -171,7 +174,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                     {/* Views */}
                                     <div className="text-right">
                                         <div className="text-[10px] text-gray-500 uppercase tracking-wider">{t('views')}</div>
-                                        <div className="font-mono font-bold text-base text-white">{getViews(song).toLocaleString()}</div>
+                                        <div className="font-mono font-bold text-sm text-white">{getViews(song).toLocaleString()}</div>
                                     </div>
 
                                     {/* Increment (Gain) */}
@@ -202,6 +205,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                             {showRank && <th className="p-4 text-center w-20">#</th>}
                             <th className="p-4 w-24"></th>
                             <th className="p-4">{t('song')}</th>
+                            <th className="p-4 text-right w-36">{t('published')}</th>
                             <th className="p-4 text-right">
                                 {sort === 'youtube' ? t('sort_youtube') : sort === 'niconico' ? t('sort_niconico') : t('views')}
                             </th>
@@ -209,7 +213,6 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                             {mode !== 'total' && (
                                 <th className="p-4 pr-6 text-right">{t('increment')}</th>
                             )}
-                            <th className="p-4 text-right w-36">{t('published')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -280,16 +283,23 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                         </div>
                                         <div className="text-xs text-gray-400 flex flex-col gap-1">
                                             <div className="flex items-center gap-2">
-                                                {formatSongType(song.song_type)}
+                                                <div className="w-[70px] flex-shrink-0">
+                                                    {formatSongType(song.song_type)}
+                                                </div>
                                                 {renderArtistList(song.artists)}
                                             </div>
                                             {song.vocalists && song.vocalists.length > 0 && (
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-[10px] uppercase tracking-wider text-[var(--miku-pink)] font-bold bg-[var(--miku-pink)]/10 px-1 rounded">Vocals</span>
+                                                    <div className="w-[70px] flex-shrink-0">
+                                                        <span className="text-[10px] uppercase tracking-wider text-[var(--miku-pink)] font-bold">Vocals</span>
+                                                    </div>
                                                     {renderArtistList(song.vocalists)}
                                                 </div>
                                             )}
                                         </div>
+                                    </td>
+                                    <td className="p-3 text-right text-gray-400 font-mono text-base">
+                                        {formatDate(song.publish_date)}
                                     </td>
                                     <td className="p-3 text-right font-mono text-base">
                                         <div className="font-black text-[var(--miku-teal)] text-xl drop-shadow-[0_0_5px_rgba(57,197,187,0.3)]">
@@ -304,9 +314,6 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                             </div>
                                         </td>
                                     )}
-                                    <td className="p-3 text-right hidden md:table-cell text-gray-400 font-mono text-sm">
-                                        {formatDate(song.publish_date)}
-                                    </td>
                                 </tr>
                             );
                         })}

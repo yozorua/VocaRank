@@ -40,7 +40,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                                         <a href={`/artist/${artist.id}`} className="hover:underline hover:text-white transition-colors">
                                             {artist.name}
                                         </a>
-                                        {i < song.artists.length - 1 && <span className="text-white/40 mx-2 font-normal">・</span>}
+                                        {i < song.artists.length - 1 && <span className="text-white/40 font-normal">・</span>}
                                     </span>
                                 ))
                             ) : (
