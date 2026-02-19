@@ -37,9 +37,9 @@ def get_artists_for_songs(db: Session, song_ids: List[int]) -> Dict[int, Dict[st
         
     ids_str = ",".join(str(sid) for sid in song_ids)
     
-    # We fetch id, name, and artist_type
+    # We fetch id, name, artist_type, and picture_url_thumb
     sql = text(f"""
-        SELECT sa.song_id, a.id, a.name_default, a.artist_type 
+        SELECT sa.song_id, a.id, a.name_default, a.artist_type, a.picture_url_thumb
         FROM song_artists sa 
         JOIN artists a ON sa.artist_id = a.id 
         WHERE sa.song_id IN ({ids_str})
@@ -53,11 +53,11 @@ def get_artists_for_songs(db: Session, song_ids: List[int]) -> Dict[int, Dict[st
     def is_vocalist(atype):
         return atype in SYNTH_TYPES
         
-    for sid, aid, name, atype in results:
+    for sid, aid, name, atype, thumb in results:
         if sid not in artist_map:
             artist_map[sid] = {'producers': [], 'vocalists': [], 'others': []}
             
-        artist_obj = {'id': aid, 'name': name, 'artist_type': atype}
+        artist_obj = {'id': aid, 'name': name, 'artist_type': atype, 'picture_url_thumb': thumb}
         
         if atype == 'Producer' or atype == 'Circle':
             artist_map[sid]['producers'].append(artist_obj)

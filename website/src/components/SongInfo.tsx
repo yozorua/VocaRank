@@ -30,17 +30,17 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                 {/* Left: Main Info */}
                 <div className="flex-1 min-w-0">
                     <div className="mb-6">
-                        <h1 className="text-3xl md:text-5xl font-black mb-3 tracking-tight text-white leading-tight drop-shadow-lg">
+                        <h1 className="text-2xl md:text-3xl font-black mb-2 tracking-tight text-white leading-tight drop-shadow-lg">
                             {displayTitle}
                         </h1>
-                        <p className="text-lg md:text-2xl text-[var(--miku-teal)] font-bold tracking-wide flex items-center gap-2 flex-wrap">
+                        <p className="text-base md:text-lg text-[var(--miku-teal)] font-bold tracking-wide flex items-center flex-wrap">
                             {song.artists && song.artists.length > 0 ? (
                                 song.artists.map((artist, i) => (
-                                    <span key={artist.id}>
+                                    <span key={artist.id} className="flex items-center">
                                         <a href={`/artist/${artist.id}`} className="hover:underline hover:text-white transition-colors">
                                             {artist.name}
                                         </a>
-                                        {i < song.artists.length - 1 && <span className="opacity-50 mx-1">,</span>}
+                                        {i < song.artists.length - 1 && <span className="text-white/40 mx-2 font-normal">・</span>}
                                     </span>
                                 ))
                             ) : (
@@ -49,8 +49,8 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                         </p>
                     </div>
 
-                    {/* Metadata Grid Cards */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-8">
+                    {/* Metadata Grid - Row 1 */}
+                    <div className="grid grid-cols-2 gap-3 md:gap-4 mb-3">
                         {/* Release Date Card */}
                         <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col justify-center hover:bg-white/10 transition-colors">
                             <span className="text-[10px] uppercase tracking-widest text-[#888] mb-1 flex items-center gap-1.5">
@@ -68,28 +68,37 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                             </span>
                             <span className="font-medium text-lg md:text-xl text-white truncate">{song.song_type}</span>
                         </div>
+                    </div>
 
-                        {/* Vocalist Card */}
-                        <div className="col-span-2 md:col-span-1 bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col justify-center hover:bg-white/10 transition-colors">
-                            <span className="text-[10px] uppercase tracking-widest text-[#888] mb-1 flex items-center gap-1.5">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-                                {t('vocalist')}
-                            </span>
-                            <div className="flex flex-wrap gap-2 mt-1">
-                                {song.vocalists && song.vocalists.length > 0 ? (
-                                    song.vocalists.map((artist) => (
-                                        <a
-                                            key={artist.id}
-                                            href={`/artist/${artist.id}`}
-                                            className="px-2 py-1 rounded bg-[var(--miku-pink)]/10 text-[var(--miku-pink)] border border-[var(--miku-pink)]/30 text-sm font-bold hover:bg-[var(--miku-pink)]/20 transition-colors"
-                                        >
+                    {/* Vocalist Card - Full Width Row */}
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col justify-center hover:bg-white/10 transition-colors mb-8">
+                        <span className="text-[10px] uppercase tracking-widest text-[#888] mb-2 flex items-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                            {t('vocalist')}
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                            {song.vocalists && song.vocalists.length > 0 ? (
+                                song.vocalists.map((artist) => (
+                                    <a
+                                        key={artist.id}
+                                        href={`/artist/${artist.id}`}
+                                        className="group flex items-center gap-2 pl-1 pr-3 py-1 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-[var(--miku-pink)]/50 transition-all active:scale-95"
+                                    >
+                                        <div className="w-6 h-6 rounded-full overflow-hidden bg-[var(--miku-pink)]/20 flex items-center justify-center shrink-0 border border-[var(--miku-pink)]/20">
+                                            {artist.picture_url_thumb ? (
+                                                <img src={artist.picture_url_thumb} alt={artist.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <span className="text-[10px] font-bold text-[var(--miku-pink)]">{artist.name.charAt(0)}</span>
+                                            )}
+                                        </div>
+                                        <span className="text-sm font-bold text-[var(--miku-pink)] group-hover:text-white transition-colors truncate max-w-[150px]">
                                             {artist.name}
-                                        </a>
-                                    ))
-                                ) : (
-                                    <span className="font-medium text-lg md:text-xl text-white truncate text-[var(--miku-pink)]">{song.vocaloid_string}</span>
-                                )}
-                            </div>
+                                        </span>
+                                    </a>
+                                ))
+                            ) : (
+                                <span className="font-medium text-base text-white truncate text-[var(--miku-pink)]">{song.vocaloid_string}</span>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -100,7 +109,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                     <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1a1a20] to-[#0a0a0f] border border-white/10 p-6 md:p-8 text-center group/total shadow-xl">
                         <div className="absolute inset-0 bg-gradient-to-r from-[var(--miku-teal)]/10 to-[var(--miku-pink)]/10 opacity-0 group-hover/total:opacity-100 transition-opacity duration-500"></div>
                         <p className="text-[#888] text-xs uppercase tracking-[0.2em] mb-2 relative z-10">{t('total_views')}</p>
-                        <p className="text-4xl md:text-5xl font-black text-white font-mono tracking-tighter relative z-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]">
+                        <p className="text-3xl md:text-4xl font-black text-white font-mono tracking-tighter relative z-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]">
                             {song.total_views.toLocaleString()}
                         </p>
                     </div>

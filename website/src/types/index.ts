@@ -3,6 +3,7 @@ export interface ArtistTiny {
     id: number;
     name: string;
     artist_type: string | null;
+    picture_url_thumb: string | null;
 }
 
 export interface Artist {

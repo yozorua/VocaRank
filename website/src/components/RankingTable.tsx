@@ -72,9 +72,9 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
 
     const formatSongType = (type: string | null) => {
         if (!type) return null;
-        if (type === 'Original') return <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[var(--miku-teal)]/20 text-[var(--miku-teal)] border border-[var(--miku-teal)]/30">ORIGINAL</span>;
-        if (type === 'Cover') return <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">COVER</span>;
-        return <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-500/20 text-gray-400 border border-gray-500/30">{type ? type.toUpperCase() : ''}</span>;
+        if (type === 'Original') return <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[var(--miku-teal)]/20 text-[var(--miku-teal)]">ORIGINAL</span>;
+        if (type === 'Cover') return <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-400">COVER</span>;
+        return <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-500/20 text-gray-400">{type ? type.toUpperCase() : ''}</span>;
     };
 
     const renderArtistList = (artists: any[]) => {

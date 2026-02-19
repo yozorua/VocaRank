@@ -35,6 +35,7 @@ class ArtistTiny(BaseModel):
     id: int
     name: str
     artist_type: Optional[str] = None
+    picture_url_thumb: Optional[str] = None
     
     class Config:
         orm_mode = True
