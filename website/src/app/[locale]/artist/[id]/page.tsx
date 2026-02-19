@@ -40,7 +40,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
                     <div className="flex-shrink-0">
                         <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-[var(--miku-teal)]/30 shadow-[0_0_30px_rgba(57,197,187,0.2)]">
                             {thumb ? (
-                                <img src={thumb} alt={artist.name_default} className="w-full h-full object-cover" />
+                                <img src={thumb} alt={artist.name_default} className="w-full h-full object-cover object-top" />
                             ) : (
                                 <div className="w-full h-full bg-[#1a1a1a] flex items-center justify-center text-4xl">👤</div>
                             )}
@@ -49,7 +49,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
 
                     {/* Info */}
                     <div className="flex-grow min-w-0">
-                        <div className="text-[var(--miku-teal)] font-bold uppercase tracking-widest text-sm mb-2">{artist.artist_type.replace('SynthesizerV', 'Synthesizer V')}</div>
+                        <div className="text-[var(--miku-teal)] font-bold uppercase tracking-widest text-sm mb-2">{artist.artist_type.replace(/([a-z])([A-Z])/g, '$1 $2').replace('SynthesizerV', 'Synthesizer V')}</div>
                         <h1 className="text-3xl md:text-5xl font-black text-white mb-3">{getArtistName()}</h1>
 
                         {/* Sub Names */}
@@ -64,9 +64,9 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-gray-300">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                                     <span className="font-mono">
-                                        {artist.first_song_date ? new Date(artist.first_song_date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }).replace('/', '/') : '?'}
+                                        {artist.first_song_date ? new Date(artist.first_song_date).getFullYear() + '/' + String(new Date(artist.first_song_date).getMonth() + 1).padStart(2, '0') : '?'}
                                         {' - '}
-                                        {artist.last_song_date ? new Date(artist.last_song_date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }).replace('/', '/') : '?'}
+                                        {artist.last_song_date ? new Date(artist.last_song_date).getFullYear() + '/' + String(new Date(artist.last_song_date).getMonth() + 1).padStart(2, '0') : '?'}
                                     </span>
                                 </div>
                             </div>

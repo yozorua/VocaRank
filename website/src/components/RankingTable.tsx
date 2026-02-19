@@ -72,9 +72,11 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
 
     const formatSongType = (type: string | null) => {
         if (!type) return null;
-        if (type === 'Original') return <span className="text-[10px] font-bold text-[var(--miku-teal)] tracking-wider">ORIGINAL</span>;
-        if (type === 'Cover') return <span className="text-[10px] font-bold text-purple-400 tracking-wider">COVER</span>;
-        return <span className="text-[10px] font-bold text-gray-400 tracking-wider">{type ? type.toUpperCase() : ''}</span>;
+        if (type === 'Cover') return <span className="text-green-400 font-bold uppercase text-[10px] tracking-wider">COVER</span>;
+        if (type === 'Remix') return <span className="text-orange-400 font-bold uppercase text-[10px] tracking-wider">REMIX</span>;
+        if (type === 'Remaster') return <span className="text-cyan-400 font-bold uppercase text-[10px] tracking-wider">REMASTER</span>;
+        if (type === 'Vocals') return <span className="text-purple-400 font-bold uppercase text-[10px] tracking-wider">VOCALS</span>;
+        return <span className="text-gray-500 font-bold uppercase text-[10px] tracking-wider">{type.toUpperCase()}</span>;
     };
 
     const renderArtistList = (artists: any[]) => {
@@ -86,7 +88,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                     <span key={artist.id} className="flex items-center">
                         <Link
                             href={`/artist/${artist.id}`}
-                            className="hover:text-[var(--miku-teal)] hover:underline transition-colors"
+                            className="hover:text-[var(--miku-teal)] transition-colors"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {artist.name}

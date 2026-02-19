@@ -53,7 +53,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                             {song.artists && song.artists.length > 0 ? (
                                 song.artists.map((artist, i) => (
                                     <span key={artist.id} className="flex items-center">
-                                        <a href={`/artist/${artist.id}`} className="hover:underline hover:text-white transition-colors">
+                                        <a href={`/artist/${artist.id}`} className="hover:text-white transition-colors">
                                             {artist.name}
                                         </a>
                                         {i < song.artists.length - 1 && <span className="text-white/40 font-normal">・</span>}
@@ -105,7 +105,6 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                                     {t('original_song')}
                                 </span>
                                 <span className="font-bold text-sm md:text-base text-white truncate group-hover/orig:underline decoration-[var(--miku-teal)] items-center flex gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-50"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                                     {getOriginalSongName()}
                                 </span>
                             </a>
@@ -128,7 +127,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                                     >
                                         <div className="w-6 h-6 rounded-full overflow-hidden bg-[var(--miku-pink)]/20 flex items-center justify-center shrink-0 border border-[var(--miku-pink)]/20">
                                             {artist.picture_url_thumb ? (
-                                                <img src={artist.picture_url_thumb} alt={artist.name} className="w-full h-full object-cover" />
+                                                <img src={artist.picture_url_thumb} alt={artist.name} className="w-full h-full object-cover object-top" />
                                             ) : (
                                                 <span className="text-[10px] font-bold text-[var(--miku-pink)]">{artist.name.charAt(0)}</span>
                                             )}

@@ -85,7 +85,7 @@ export default async function SearchPage({ searchParams, params }: SearchPagePro
                                 >
                                     <div className="w-20 h-20 rounded-full overflow-hidden bg-black/50 border-2 border-[var(--miku-teal)]/30 group-hover:border-[var(--miku-teal)] transition-colors">
                                         {thumb ? (
-                                            <img src={thumb} alt={artist.name_default} className="w-full h-full object-cover" />
+                                            <img src={thumb} alt={artist.name_default} className="w-full h-full object-cover object-top" />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-xl text-gray-500">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
