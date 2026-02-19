@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from typing import List, Optional, Any
 
 # --- Artist Schemas ---
@@ -14,6 +14,30 @@ class Artist(ArtistBase):
     name_english: Optional[str] = None
     name_japanese: Optional[str] = None
     name_romaji: Optional[str] = None
+    
+    picture_mime: Optional[str] = None
+    picture_url_original: Optional[str] = None
+    picture_url_thumb: Optional[str] = None
+    external_links: Optional[List[dict]] = None
+
+    @validator('external_links', pre=True)
+    def parse_external_links(cls, v):
+        if isinstance(v, str):
+            try:
+                import json
+                return json.loads(v)
+            except ValueError:
+                return []
+        return v
+
+# --- Song Schemas ---
+class ArtistTiny(BaseModel):
+    id: int
+    name: str
+    artist_type: Optional[str] = None
+    
+    class Config:
+        orm_mode = True
 
 # --- Song Schemas ---
 class SongBase(BaseModel):
@@ -41,6 +65,8 @@ class SongDetail(SongBase):
     total_views: int
     artist_string: str
     vocaloid_string: str
+    artists: List[ArtistTiny] = []
+    vocalists: List[ArtistTiny] = []
     youtube_id: Optional[str] = None
     niconico_id: Optional[str] = None
 
@@ -58,7 +84,6 @@ class SongRanking(BaseModel):
     increment_youtube: Optional[int] = None
     increment_niconico: Optional[int] = None
     
-
     youtube_id: Optional[str] = None
     niconico_id: Optional[str] = None
     song_type: Optional[str] = None
@@ -66,5 +91,7 @@ class SongRanking(BaseModel):
     
     views_youtube: int
     views_niconico: int
-    artist_string: str # Producer names
-    vocaloid_string: str # Vocalist names
+    artist_string: str # Legacy string
+    vocaloid_string: str # Legacy string
+    artists: List[ArtistTiny] = [] # Structured data
+    vocalists: List[ArtistTiny] = [] # Structured data

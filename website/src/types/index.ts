@@ -1,3 +1,23 @@
+
+export interface ArtistTiny {
+    id: number;
+    name: string;
+    artist_type: string | null;
+}
+
+export interface Artist {
+    id: number;
+    artist_type: string;
+    name_default: string;
+    name_english: string | null;
+    name_japanese: string | null;
+    name_romaji: string | null;
+    picture_mime: string | null;
+    picture_url_original: string | null;
+    picture_url_thumb: string | null;
+    external_links: string | null; // JSON string
+}
+
 export interface SongRanking {
     id: number;
     name_english: string | null;
@@ -15,6 +35,8 @@ export interface SongRanking {
     publish_date: string | null;
     artist_string: string;
     vocaloid_string: string;
+    artists: ArtistTiny[];
+    vocalists: ArtistTiny[];
 }
 
 export interface SongDetail extends SongRanking {

@@ -31,7 +31,14 @@ elif [ "$1" == "views" ]; then
     EXIT_CODE=$?
     echo "[$TIMESTAMP] [END] fetch_views.py --mode $MODE (Exit Code: $EXIT_CODE)" >> "$LOG_FILE"
 
+elif [ "$1" == "update-artists" ]; then
+    shift # Removal "update-artists" from args
+    echo "[$TIMESTAMP] [START] update_artists.py $*" | tee -a "$LOG_FILE"
+    /usr/bin/python3 -u src/update_artists.py "$@" 2>&1 | tee -a "$LOG_FILE"
+    EXIT_CODE=${PIPESTATUS[0]}
+    echo "[$TIMESTAMP] [END] update_artists.py (Exit Code: $EXIT_CODE)" | tee -a "$LOG_FILE"
+
 else
-    echo "Usage: $0 {update|views} [mode]"
+    echo "Usage: $0 {update|views|update-artists} [args...]"
     exit 1
 fi

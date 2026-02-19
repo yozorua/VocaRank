@@ -19,6 +19,7 @@
     "published": "Published",
     "sort_youtube": "YouTube",
     "sort_niconico": "Niconico",
+    "show_more": "Show More",
     "no_data_title": "Ranking Calculating...",
     "no_data_desc": "We are currently collecting data for this period. Please check back later!"
   },
@@ -39,17 +40,29 @@
     "type": "Type",
     "release_date": "Release Date"
   },
+  "SongDetailPage": {
+    "total_views": "Total Views",
+    "vocalist": "Vocalist",
+    "type": "Type",
+    "release_date": "Release Date"
+  },
   "Navbar": {
     "ranking": "Ranking",
     "search": "Search",
     "login": "Login"
   },
   "SearchPage": {
-    "title": "Search Songs",
+    "title": "Search Database",
     "placeholder": "Enter song title (English, Japanese, Romaji)...",
     "search": "Search",
     "results_for": "Results for \"{query}\"",
+    "artists": "Artists",
+    "songs": "Songs",
+    "no_query": "Search for songs or artists...",
     "no_results": "No songs found."
+  },
+  "ArtistPage": {
+    "top_songs": "Top Songs"
   },
   "LoginPage": {
     "title": "Login",

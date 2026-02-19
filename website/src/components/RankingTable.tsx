@@ -2,18 +2,26 @@
 
 import { SongRanking } from '@/types';
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import { useLocale } from 'next-intl';
+
+import { useState } from 'react';
 
 interface RankingTableProps {
     songs: SongRanking[];
     mode: string;
     sort?: string;
+    showRank?: boolean;
 }
 
-export default function RankingTable({ songs, mode, sort = 'total' }: RankingTableProps) {
+export default function RankingTable({ songs, mode, sort = 'total', showRank = true }: RankingTableProps) {
     const t = useTranslations('RankingTable');
     const locale = useLocale();
+    const router = useRouter();
+    const [showAll, setShowAll] = useState(false);
+
+    // Limit to 20 unless expanded
+    const displayedSongs = showAll ? songs : songs.slice(0, 20);
 
     const getSongName = (song: SongRanking) => {
         if (locale === 'ja') return song.name_japanese || song.name_romaji || song.name_english;
@@ -62,6 +70,34 @@ export default function RankingTable({ songs, mode, sort = 'total' }: RankingTab
         return null;
     };
 
+    const formatSongType = (type: string | null) => {
+        if (!type) return null;
+        if (type === 'Original') return <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[var(--miku-teal)]/20 text-[var(--miku-teal)] border border-[var(--miku-teal)]/30">ORIGINAL</span>;
+        if (type === 'Cover') return <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">COVER</span>;
+        return <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-500/20 text-gray-400 border border-gray-500/30">{type ? type.toUpperCase() : ''}</span>;
+    };
+
+    const renderArtistList = (artists: any[]) => {
+        if (!artists || artists.length === 0) return <span className="text-gray-500">Unknown</span>;
+
+        return (
+            <div className="flex flex-wrap gap-1 items-center">
+                {artists.map((artist, idx) => (
+                    <span key={artist.id} className="flex items-center">
+                        <Link
+                            href={`/artist/${artist.id}`}
+                            className="hover:text-[var(--miku-teal)] hover:underline transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {artist.name}
+                        </Link>
+                        {idx < artists.length - 1 && <span className="text-gray-600 mx-1">・</span>}
+                    </span>
+                ))}
+            </div>
+        );
+    };
+
     if (songs.length === 0) {
         return (
             <div className="w-full py-20 flex flex-col items-center justify-center text-center">
@@ -77,132 +113,224 @@ export default function RankingTable({ songs, mode, sort = 'total' }: RankingTab
     }
 
     return (
-        <div className="w-full overflow-x-auto px-1 pb-4">
-            <table className="w-full text-left border-separate border-spacing-y-3 min-w-[800px]">
-                <thead>
-                    <tr className="text-[var(--text-secondary)] text-sm uppercase tracking-wider">
-                        <th className="p-4 text-center w-20">#</th>
-                        <th className="p-4 w-24"></th>
-                        <th className="p-4">{t('song')}</th>
-                        <th className="p-4 text-right">
-                            {sort === 'youtube' ? t('sort_youtube') : sort === 'niconico' ? t('sort_niconico') : t('views')}
-                        </th>
-                        {/* Hide Gain for total ranking */}
-                        {mode !== 'total' && (
-                            <th className="p-4 pr-6 text-right">{t('increment')}</th>
-                        )}
-                        <th className="p-4 text-right w-32">{t('published')}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {songs.map((song, index) => {
-                        const rank = index + 1;
-                        let rankColor = "text-gray-500";
-                        let rowBorder = "border border-transparent";
+        <div className="w-full">
+            {/* Mobile View: Card List */}
+            <div className="flex flex-col gap-3 md:hidden">
+                {displayedSongs.map((song, index) => {
+                    const rank = index + 1;
+                    let rankColor = "text-gray-500";
+                    let cardBorder = "border-white/5";
 
-                        if (rank === 1) {
-                            rankColor = "text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]";
-                            rowBorder = "border border-yellow-500/30 shadow-[0_0_20px_rgba(250,204,21,0.1)]";
-                        } else if (rank === 2) {
-                            rankColor = "text-gray-300 drop-shadow-[0_0_10px_rgba(209,213,219,0.5)]";
-                            rowBorder = "border border-gray-400/30";
-                        } else if (rank === 3) {
-                            rankColor = "text-amber-600 drop-shadow-[0_0_10px_rgba(217,119,6,0.5)]";
-                            rowBorder = "border border-amber-600/30";
-                        }
+                    if (rank === 1) {
+                        rankColor = "text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]";
+                        cardBorder = "border-yellow-500/30 shadow-[0_0_20px_rgba(250,204,21,0.1)]";
+                    } else if (rank === 2) {
+                        rankColor = "text-gray-300 drop-shadow-[0_0_10px_rgba(209,213,219,0.5)]";
+                        cardBorder = "border-gray-400/30";
+                    } else if (rank === 3) {
+                        rankColor = "text-amber-600 drop-shadow-[0_0_10px_rgba(217,119,6,0.5)]";
+                        cardBorder = "border-amber-600/30";
+                    }
 
-                        const increment = getIncrement(song);
-                        const thumbnailUrl = getThumbnailUrl(song);
+                    const increment = getIncrement(song);
+                    const thumbnailUrl = getThumbnailUrl(song);
 
-                        return (
-                            <tr
-                                key={song.id}
-                                className={`
-                    group relative bg-[var(--bg-panel)] backdrop-blur-sm 
-                    hover:bg-white/5 hover:scale-[1.005] hover:shadow-[0_0_30px_rgba(57,197,187,0.1)]
-                    transition-all duration-300 ease-out rounded-xl ${rowBorder}
-                `}
-                            >
-                                <td className="p-4 text-center align-middle rounded-l-xl">
-                                    <span className={`font-black text-3xl italic ${rankColor}`}>{rank}</span>
-                                </td>
-                                <td className="p-4 align-middle">
-                                    <div className="w-20 h-12 bg-black rounded-lg overflow-hidden relative shadow-lg group-hover:ring-2 ring-[var(--miku-teal)] transition-all">
-                                        {thumbnailUrl ? (
+                    return (
+                        <Link key={song.id} href={`/song/${song.id}`} className={`glass-panel p-3 rounded-xl border ${cardBorder} relative overflow-hidden block active:scale-95 transition-transform`}>
+                            <div className="flex items-center gap-3">
+                                {/* Rank */}
+                                {showRank && (
+                                    <div className={`text-2xl font-black italic w-12 text-center flex-shrink-0 ${rankColor}`}>
+                                        {rank}
+                                    </div>
+                                )}
+
+                                {/* Thumbnail */}
+                                <div className="w-24 h-16 bg-black rounded-lg overflow-hidden flex-shrink-0 relative">
+                                    {thumbnailUrl ? (
+                                        <img src={thumbnailUrl} alt="Thumb" className="w-full h-full object-cover" loading="lazy" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center bg-[#2b2b2b] text-[8px] text-gray-500">NO IMG</div>
+                                    )}
+                                </div>
+
+                                {/* Info */}
+                                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                                    <div className="font-bold text-sm text-white line-clamp-1 leading-tight mb-1">
+                                        {getSongName(song)}
+                                    </div>
+                                    <div className="text-xs text-gray-400 truncate">{song.artist_string}</div>
+                                </div>
+                            </div>
+
+                            {/* Stats Row */}
+                            <div className="flex items-center justify-between mt-3 pt-2 border-t border-white/5">
+                                <div className="text-xs text-gray-400 font-mono">{formatDate(song.publish_date)}</div>
+
+                                <div className="flex items-center gap-4">
+                                    {/* Views */}
+                                    <div className="text-right">
+                                        <div className="text-[10px] text-gray-500 uppercase tracking-wider">{t('views')}</div>
+                                        <div className="font-mono font-bold text-base text-white">{getViews(song).toLocaleString()}</div>
+                                    </div>
+
+                                    {/* Increment (Gain) */}
+                                    {mode !== 'total' && (
+                                        <div className="text-right min-w-[60px]">
+                                            <div className="text-[10px] text-gray-500 uppercase tracking-wider">{t('increment')}</div>
+                                            {increment > 0 ? (
+                                                <div className="text-[var(--miku-teal)] font-mono font-bold text-sm">
+                                                    ▲ {increment.toLocaleString()}
+                                                </div>
+                                            ) : (
+                                                <div className="text-gray-600 font-mono text-sm">-</div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </Link>
+                    );
+                })}
+            </div>
+
+            {/* Desktop View: Table */}
+            <div className="hidden md:block overflow-x-auto px-1 pb-4">
+                <table className="w-full text-left border-separate border-spacing-y-3 min-w-[800px]">
+                    <thead>
+                        <tr className="text-[var(--text-secondary)] text-sm uppercase tracking-wider">
+                            {showRank && <th className="p-4 text-center w-20">#</th>}
+                            <th className="p-4 w-24"></th>
+                            <th className="p-4">{t('song')}</th>
+                            <th className="p-4 text-right">
+                                {sort === 'youtube' ? t('sort_youtube') : sort === 'niconico' ? t('sort_niconico') : t('views')}
+                            </th>
+                            {/* Hide Gain for total ranking */}
+                            {mode !== 'total' && (
+                                <th className="p-4 pr-6 text-right">{t('increment')}</th>
+                            )}
+                            <th className="p-4 text-right w-36">{t('published')}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {displayedSongs.map((song, index) => {
+                            const rank = index + 1;
+                            let rankColor = "text-gray-500";
+                            let rowBorder = "border border-transparent";
+
+                            if (rank === 1) {
+                                rankColor = "text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]";
+                                rowBorder = "border border-yellow-500/30 shadow-[0_0_20px_rgba(250,204,21,0.1)]";
+                            } else if (rank === 2) {
+                                rankColor = "text-gray-300 drop-shadow-[0_0_10px_rgba(209,213,219,0.5)]";
+                                rowBorder = "border border-gray-400/30";
+                            } else if (rank === 3) {
+                                rankColor = "text-amber-600 drop-shadow-[0_0_10px_rgba(217,119,6,0.5)]";
+                                rowBorder = "border border-amber-600/30";
+                            }
+
+                            const thumbnail = getThumbnailUrl(song);
+
+                            return (
+                                <tr
+                                    key={song.id}
+                                    className={`
+                                        group relative bg-[var(--bg-panel)] backdrop-blur-sm 
+                                        hover:bg-white/5 hover:scale-[1.005] hover:shadow-[0_0_30px_rgba(57,197,187,0.1)]
+                                        transition-all duration-300 ease-out rounded-xl ${rowBorder}
+                                    `}
+                                    onClick={() => router.push(`/song/${song.id}`)}
+                                >
+                                    {showRank && (
+                                        <td className="p-4 text-center align-middle rounded-l-xl">
+                                            <span className={`font-black text-4xl italic ${rankColor}`}>{rank}</span>
+                                        </td>
+                                    )}
+                                    <td className="p-3">
+                                        <div className="w-20 h-12 relative rounded overflow-hidden bg-black/50 shadow-lg group-hover:shadow-[0_0_15px_rgba(57,197,187,0.3)] transition-shadow">
                                             <img
-                                                src={thumbnailUrl}
-                                                alt="Thumbnail"
-                                                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                                                loading="lazy"
+                                                src={thumbnail || "/images/no-thumb.png"} // Use thumbnail or default
+                                                alt={song.name_english || song.name_japanese || "Song thumbnail"}
+                                                className="w-full h-full object-cover"
                                                 onError={(e) => {
-                                                    // Smart Fallback: If YT fails, try Nico
-                                                    const currentSrc = e.currentTarget.src;
-                                                    const nicoUrl = song.niconico_id ? getNicoUrl(song.niconico_id) : null;
+                                                    // Fallback sequence: YT Max -> YT HQ -> Nico -> Placeholder
+                                                    const target = e.target as HTMLImageElement;
+                                                    const currentSrc = target.src;
 
-                                                    if (currentSrc.includes('i.ytimg.com') && nicoUrl) {
-                                                        // Try Niconico fallback
-                                                        e.currentTarget.src = nicoUrl;
-                                                        return;
-                                                    }
-
-                                                    // Final Fallback: Hide and show NO IMG
-                                                    e.currentTarget.style.display = 'none';
-                                                    const parent = e.currentTarget.parentElement;
-                                                    if (parent) {
-                                                        parent.innerText = 'NO IMG';
-                                                        parent.className = "w-full h-full flex items-center justify-center bg-[#2b2b2b] text-[10px] text-gray-500";
+                                                    if (song.youtube_id && currentSrc.includes('mqdefault')) { // Changed from maxresdefault to mqdefault
+                                                        target.src = `https://img.youtube.com/vi/${song.youtube_id}/hqdefault.jpg`;
+                                                    } else if (song.youtube_id && currentSrc.includes('hqdefault')) {
+                                                        // Try Nico if YT fails
+                                                        if (song.niconico_id) {
+                                                            const nicoId = song.niconico_id.replace('sm', '').replace('nm', '');
+                                                            target.src = `https://nicovideo.cdn.nimg.jp/thumbnails/${nicoId}/${nicoId}`;
+                                                        } else {
+                                                            target.src = "/images/no-thumb.png"; // Local placeholder
+                                                        }
+                                                    } else {
+                                                        target.src = "/images/no-thumb.png";
                                                     }
                                                 }}
                                             />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center bg-[#2b2b2b] text-[10px] text-gray-500">
-                                                NO IMG
-                                            </div>
-                                        )}
-                                    </div>
-                                </td>
-
-                                <td className="p-4 align-middle">
-                                    <div className="flex flex-col">
-                                        <Link href={`/song/${song.id}`} className="font-bold text-lg text-white group-hover:text-[var(--miku-teal)] transition-colors line-clamp-1 leading-tight">
+                                        </div>
+                                    </td>
+                                    <td className="p-3">
+                                        <div className="font-bold text-white text-lg mb-1 line-clamp-1 group-hover:text-[var(--miku-teal)] transition-colors">
                                             {getSongName(song)}
-                                        </Link>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <span className="text-sm text-gray-400 truncate max-w-[200px]">{song.artist_string}</span>
-                                            {song.vocaloid_string && (
-                                                <span className="text-[10px] px-2 py-0.5 rounded uppercase font-bold tracking-wider bg-white/5 text-gray-400 border border-white/10">
-                                                    {song.vocaloid_string}
-                                                </span>
+                                        </div>
+                                        <div className="text-xs text-gray-400 flex flex-col gap-1">
+                                            <div className="flex items-center gap-2">
+                                                {formatSongType(song.song_type)}
+                                                {renderArtistList(song.artists)}
+                                            </div>
+                                            {song.vocalists && song.vocalists.length > 0 && (
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] uppercase tracking-wider text-[var(--miku-pink)] font-bold bg-[var(--miku-pink)]/10 px-1 rounded">Vocals</span>
+                                                    {renderArtistList(song.vocalists)}
+                                                </div>
                                             )}
                                         </div>
-                                    </div>
-                                </td>
-
-                                <td className="p-4 text-right align-middle font-mono text-xl font-bold tracking-tighter text-gray-200">
-                                    {getViews(song).toLocaleString()}
-                                </td>
-
-                                {mode !== 'total' && (
-                                    <td className="p-4 text-right hidden md:table-cell align-middle font-mono">
-                                        {increment > 0 ? (
-                                            <div className="inline-flex items-center gap-1 text-[var(--miku-teal)] bg-[var(--miku-teal)]/10 px-2 py-1 rounded">
-                                                <span className="text-xs">▲</span>
-                                                {increment.toLocaleString()}
-                                            </div>
-                                        ) : (
-                                            <span className="text-gray-600">-</span>
-                                        )}
                                     </td>
-                                )}
+                                    <td className="p-3 text-right font-mono text-base">
+                                        <div className="font-black text-[var(--miku-teal)] text-xl drop-shadow-[0_0_5px_rgba(57,197,187,0.3)]">
+                                            {getViews(song).toLocaleString()}
+                                        </div>
+                                    </td>
 
-                                <td className="p-4 text-right align-middle text-sm text-gray-400 font-mono rounded-r-xl whitespace-nowrap">
-                                    {formatDate(song.publish_date)}
-                                </td>
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
-        </div>
+                                    {mode !== 'total' && (
+                                        <td className="p-3 text-right font-mono text-sm">
+                                            <div className={`text-sm font-bold ${getIncrement(song) > 0 ? 'text-[var(--miku-teal)]' : 'text-gray-600'}`}>
+                                                {getIncrement(song) > 0 ? `+${getIncrement(song).toLocaleString()}` : '-'}
+                                            </div>
+                                        </td>
+                                    )}
+                                    <td className="p-3 text-right hidden md:table-cell text-gray-400 font-mono text-sm">
+                                        {formatDate(song.publish_date)}
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
+            {/* Show More Button */}
+            {
+                !showAll && songs.length > 20 && (
+                    <div className="flex justify-center mt-8 pb-8">
+                        <button
+                            onClick={() => setShowAll(true)}
+                            className="group relative px-8 py-3 rounded-full bg-white/5 hover:bg-[var(--miku-teal)]/20 border border-white/10 hover:border-[var(--miku-teal)]/50 text-white font-bold transition-all hover:scale-105 active:scale-95"
+                        >
+                            <span className="relative z-10 flex items-center gap-2">
+                                {t('show_more', { defaultMessage: 'View Top 100' })}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-y-1 transition-transform">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </span>
+                        </button>
+                    </div>
+                )
+            }
+        </div >
     );
 }

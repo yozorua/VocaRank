@@ -27,19 +27,19 @@ def extract_pvs(pv_data_json: str):
         pass
     return yt_id, nico_id
 
-def get_artists_for_songs(db: Session, song_ids: List[int]) -> Dict[int, Dict[str, List[str]]]:
+def get_artists_for_songs(db: Session, song_ids: List[int]) -> Dict[int, Dict[str, List[Dict]]]:
     """
-    Fetches artist names grouped by role (Producer vs Vocalist) for songs.
-    Returns: {song_id: {'producers': [], 'vocalists': []}}
+    Fetches artist details grouped by role (Producer vs Vocalist) for songs.
+    Returns: {song_id: {'producers': [ArtistTiny], 'vocalists': [ArtistTiny]}}
     """
     if not song_ids:
         return {}
         
     ids_str = ",".join(str(sid) for sid in song_ids)
     
-    # We fetch name_default and artist_type
+    # We fetch id, name, and artist_type
     sql = text(f"""
-        SELECT sa.song_id, a.name_default, a.artist_type 
+        SELECT sa.song_id, a.id, a.name_default, a.artist_type 
         FROM song_artists sa 
         JOIN artists a ON sa.artist_id = a.id 
         WHERE sa.song_id IN ({ids_str})
@@ -48,13 +48,35 @@ def get_artists_for_songs(db: Session, song_ids: List[int]) -> Dict[int, Dict[st
     results = db.execute(sql).fetchall()
     
     artist_map = {}
-    for sid, name, atype in results:
+    
+    # helper to check known vocaltypes
+    def is_vocalist(atype):
+        return atype in SYNTH_TYPES
+        
+    for sid, aid, name, atype in results:
         if sid not in artist_map:
-            artist_map[sid] = {'producers': [], 'vocalists': []}
+            artist_map[sid] = {'producers': [], 'vocalists': [], 'others': []}
             
-        if atype == 'Producer':
-            artist_map[sid]['producers'].append(name)
-        elif atype in SYNTH_TYPES:
-            artist_map[sid]['vocalists'].append(name)
+        artist_obj = {'id': aid, 'name': name, 'artist_type': atype}
+        
+        if atype == 'Producer' or atype == 'Circle':
+            artist_map[sid]['producers'].append(artist_obj)
+        elif is_vocalist(atype):
+            artist_map[sid]['vocalists'].append(artist_obj)
+        else:
+            artist_map[sid]['others'].append(artist_obj)
             
-    return artist_map
+    # Post-process: If no producers, try to use 'others' (e.g. Animator, Illustrator, etc.)
+    # This prevents "Unknown" when we have some artist info but strict type matching failed
+    final_map = {}
+    for sid, data in artist_map.items():
+        producers = data['producers']
+        vocalists = data['vocalists']
+        
+        if not producers and data['others']:
+             # Use others as fallback for producers
+             producers = data['others']
+             
+        final_map[sid] = {'producers': producers, 'vocalists': vocalists}
+             
+    return final_map

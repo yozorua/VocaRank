@@ -23,6 +23,7 @@
         "published": "發布日期",
         "sort_youtube": "YouTube",
         "sort_niconico": "Niconico",
+        "show_more": "顯示更多",
         "no_data_title": "排行榜計算中...",
         "no_data_desc": "我們正在收集此期間的數據。請稍後再回來查看！"
     },
@@ -43,17 +44,29 @@
         "type": "類型",
         "release_date": "發布日期"
     },
+    "SongDetailPage": {
+        "total_views": "總播放數",
+        "vocalist": "歌手",
+        "type": "類型",
+        "release_date": "發布日期"
+    },
     "Navbar": {
         "ranking": "排行榜",
         "search": "搜尋",
         "login": "登入"
     },
     "SearchPage": {
-        "title": "搜尋歌曲",
+        "title": "搜尋資料庫",
         "placeholder": "輸入歌曲標題（英文、日文、羅馬拼音）...",
         "search": "搜尋",
         "results_for": "搜尋結果：\"{query}\"",
+        "artists": "藝人",
+        "songs": "歌曲",
+        "no_query": "搜尋歌曲或藝人...",
         "no_results": "找不到歌曲。"
+    },
+    "ArtistPage": {
+        "top_songs": "熱門歌曲"
     },
     "LoginPage": {
         "title": "登入",

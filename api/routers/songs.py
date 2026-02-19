@@ -78,8 +78,12 @@ def search_songs(
         yt_id, nico_id = extract_pvs(row[7])
         
         am = artists_map.get(sid, {'producers': [], 'vocalists': []})
-        artist_string = ", ".join(am['producers']) if am['producers'] else "Unknown"
-        vocaloid_string = ", ".join(am['vocalists']) if am['vocalists'] else "Unknown"
+        
+        producers = am.get('producers', [])
+        vocalists = am.get('vocalists', [])
+        
+        artist_string = ", ".join([p['name'] for p in producers]) if producers else "Unknown"
+        vocaloid_string = ", ".join([v['name'] for v in vocalists]) if vocalists else "Unknown"
         
         response.append(schemas.SongRanking(
             id=sid,
@@ -95,7 +99,9 @@ def search_songs(
             song_type=row[8],
             publish_date=row[9],
             artist_string=artist_string,
-            vocaloid_string=vocaloid_string
+            vocaloid_string=vocaloid_string,
+            artists=producers,
+            vocalists=vocalists
         ))
         
     return response
@@ -110,21 +116,33 @@ def get_song(song_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Song not found")
         
     # Enrich with artist data
-    artists_map = get_artists_for_songs(db, [song.id])
-    am = artists_map.get(song.id, {'producers': [], 'vocalists': []})
-    artist_string = ", ".join(am['producers']) if am['producers'] else "Unknown"
-    vocaloid_string = ", ".join(am['vocalists']) if am['vocalists'] else "Unknown"
+    artist_map = get_artists_for_songs(db, [song_id])
+    am = artist_map.get(song_id, {'producers': [], 'vocalists': []})
+    
+    producers = am.get('producers', [])
+    vocalists = am.get('vocalists', [])
+    
+    artist_string = ", ".join([p['name'] for p in producers]) if producers else "Unknown"
+    vocaloid_string = ", ".join([v['name'] for v in vocalists]) if vocalists else "Unknown"
     
     yt_id, nico_id = extract_pvs(song.pv_data)
-    
-    # Return as dict to match schema with computed fields
-    return {
-        **song.__dict__,
-        "total_views": song.youtube_views + song.niconico_views,
-        "views_youtube": song.youtube_views,
-        "views_niconico": song.niconico_views,
-        "artist_string": artist_string,
-        "vocaloid_string": vocaloid_string,
-        "youtube_id": yt_id,
-        "niconico_id": nico_id
-    }
+
+    return schemas.SongDetail(
+        id=song.id,
+        name_english=song.name_english,
+        name_japanese=song.name_japanese,
+        name_romaji=song.name_romaji,
+        publish_date=song.publish_date,
+        song_type=song.song_type,
+        length_seconds=song.length_seconds,
+        original_song_id=song.original_song_id,
+        views_youtube=song.youtube_views,
+        views_niconico=song.niconico_views,
+        total_views=song.youtube_views + song.niconico_views,
+        artist_string=artist_string,
+        vocaloid_string=vocaloid_string,
+        artists=producers,
+        vocalists=vocalists,
+        youtube_id=yt_id,
+        niconico_id=nico_id
+    )

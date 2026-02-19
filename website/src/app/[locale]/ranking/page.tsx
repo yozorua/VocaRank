@@ -35,20 +35,20 @@ export default async function RankingPage({ searchParams, params }: RankingPageP
     ];
 
     return (
-        <div className="max-w-[var(--max-width)] mx-auto px-6 py-8">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">{t('title')}</h1>
-                <p className="text-[var(--text-secondary)]">{t('description')}</p>
+        <div className="max-w-[var(--max-width)] mx-auto px-6 py-2 md:py-2">
+            <div className="mb-4 md:mb-4 pt-2">
+                <h1 className="text-2xl md:text-3xl font-bold mb-2">{t('title')}</h1>
+                <p className="text-[var(--text-secondary)] text-sm md:text-base">{t('description')}</p>
             </div>
 
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-gray-800/50 pb-2">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 border-b border-gray-800/50 pb-2">
                 {/* Ranking Mode Tabs */}
-                <div className="flex gap-4 overflow-x-auto">
+                <div className="flex gap-4 overflow-x-auto pb-2 -mb-2">
                     {tabs.map((tab) => (
                         <Link
                             key={tab.key}
                             href={`/ranking?mode=${tab.key}&sort=${sort}`}
-                            className={`px-6 py-3 rounded-t-lg transition-all font-bold whitespace-nowrap text-sm tracking-wide relative overflow-hidden group ${mode === tab.key
+                            className={`px-6 py-3 rounded-t-lg transition-all font-bold whitespace-nowrap text-sm tracking-wide relative overflow-hidden group flex items-center justify-center ${mode === tab.key
                                 ? 'text-white bg-gradient-to-t from-[var(--miku-teal)]/20 to-transparent border-b-2 border-[var(--miku-teal)] shadow-[0_4px_20px_rgba(57,197,187,0.3)]'
                                 : 'text-gray-500 hover:text-white hover:bg-white/5'
                                 }`}

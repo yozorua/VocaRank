@@ -8,7 +8,7 @@ const getBaseUrl = () => {
 
 const API_BASE_URL = getBaseUrl();
 
-import { SongRanking, RankingMode, SongDetail } from '@/types';
+import { SongRanking, RankingMode, SongDetail, Artist } from '@/types';
 
 export const fetcher = async (url: string, options: RequestInit = {}) => {
     const res = await fetch(`${API_BASE_URL}${url}`, {
@@ -54,4 +54,16 @@ export const getSong = async (id: number): Promise<SongDetail> => {
 
 export const searchSongs = async (query: string, limit: number = 20, vocaloid_only: boolean = true): Promise<SongRanking[]> => {
     return fetcher(`/songs/search?query=${encodeURIComponent(query)}&limit=${limit}&vocaloid_only=${vocaloid_only}`);
+};
+
+export const searchArtists = async (query: string, limit: number = 10): Promise<Artist[]> => {
+    return fetcher(`/artists/search?query=${encodeURIComponent(query)}&limit=${limit}`);
+};
+
+export const getArtist = async (id: number): Promise<Artist> => {
+    return fetcher(`/artists/${id}`);
+};
+
+export const getArtistSongs = async (id: number, limit: number = 50): Promise<SongRanking[]> => {
+    return fetcher(`/artists/${id}/songs?limit=${limit}`);
 };

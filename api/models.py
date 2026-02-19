@@ -40,5 +40,10 @@ class Artist(Base):
     name_english = Column(String)
     name_japanese = Column(String)
     name_romaji = Column(String)
+    
+    picture_mime = Column(String)
+    picture_url_original = Column(String)
+    picture_url_thumb = Column(String)
+    external_links = Column(Text) # JSON string
 
     songs = relationship("Song", secondary=song_artists, back_populates="artists")

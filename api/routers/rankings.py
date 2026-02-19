@@ -99,8 +99,12 @@ def get_gain_ranking(
         yt_id, nico_id = extract_pvs(row[10])
         
         am = artists_map.get(sid, {'producers': [], 'vocalists': []})
-        artist_string = ", ".join(am['producers']) if am['producers'] else "Unknown"
-        vocaloid_string = ", ".join(am['vocalists']) if am['vocalists'] else "Unknown"
+        
+        producers = am.get('producers', [])
+        vocalists = am.get('vocalists', [])
+        
+        artist_string = ", ".join([p['name'] for p in producers]) if producers else "Unknown"
+        vocaloid_string = ", ".join([v['name'] for v in vocalists]) if vocalists else "Unknown"
         
         response.append(schemas.SongRanking(
             id=sid,
@@ -118,7 +122,9 @@ def get_gain_ranking(
             song_type=row[11],
             publish_date=row[12],
             artist_string=artist_string,
-            vocaloid_string=vocaloid_string
+            vocaloid_string=vocaloid_string,
+            artists=producers,
+            vocalists=vocalists
         ))
         
     return response
@@ -209,8 +215,12 @@ def get_total_ranking(
         yt_id, nico_id = extract_pvs(row[7])
         
         am = artists_map.get(sid, {'producers': [], 'vocalists': []})
-        artist_string = ", ".join(am['producers']) if am['producers'] else "Unknown"
-        vocaloid_string = ", ".join(am['vocalists']) if am['vocalists'] else "Unknown"
+        
+        producers = am.get('producers', [])
+        vocalists = am.get('vocalists', [])
+        
+        artist_string = ", ".join([p['name'] for p in producers]) if producers else "Unknown"
+        vocaloid_string = ", ".join([v['name'] for v in vocalists]) if vocalists else "Unknown"
         
         response.append(schemas.SongRanking(
             id=sid,
@@ -228,7 +238,9 @@ def get_total_ranking(
             song_type=row[8],
             publish_date=row[9],
             artist_string=artist_string,
-            vocaloid_string=vocaloid_string
+            vocaloid_string=vocaloid_string,
+            artists=producers,
+            vocalists=vocalists
         ))
         
     return response

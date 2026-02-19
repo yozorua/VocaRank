@@ -23,6 +23,7 @@
         "published": "投稿日",
         "sort_youtube": "YouTube",
         "sort_niconico": "ニコニコ",
+        "show_more": "もっと見る",
         "no_data_title": "ランキング集計中...",
         "no_data_desc": "現在、この期間のデータを収集中です。後ほどご確認ください！"
     },
@@ -41,7 +42,13 @@
         "total_views": "総再生数",
         "vocalist": "ボーカル",
         "type": "種別",
-        "release_date": "投稿日"
+        "release_date": "公開日"
+    },
+    "SongDetailPage": {
+        "total_views": "総再生数",
+        "vocalist": "ボーカル",
+        "type": "タイプ",
+        "release_date": "公開日"
     },
     "Navbar": {
         "ranking": "ランキング",
@@ -49,11 +56,17 @@
         "login": "ログイン"
     },
     "SearchPage": {
-        "title": "楽曲検索",
+        "title": "データベース検索",
         "placeholder": "曲名を入力（英語、日本語、ローマ字）...",
         "search": "検索",
         "results_for": "「{query}」の検索結果",
+        "artists": "アーティスト",
+        "songs": "楽曲",
+        "no_query": "楽曲やアーティストを検索...",
         "no_results": "曲が見つかりませんでした。"
+    },
+    "ArtistPage": {
+        "top_songs": "人気曲"
     },
     "LoginPage": {
         "title": "ログイン",
