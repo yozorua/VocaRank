@@ -94,7 +94,7 @@ export default async function SearchPage({ searchParams, params }: SearchPagePro
                                     </div>
                                     <div className="min-w-0 w-full">
                                         <div className="font-bold text-white truncate">{getArtistName(artist)}</div>
-                                        <div className="text-xs text-[var(--miku-teal)] uppercase tracking-wider mt-1">{artist.artist_type.replace('SynthesizerV', 'Synthesizer V')}</div>
+                                        <div className="text-xs text-[var(--miku-teal)] uppercase tracking-wider mt-1">{artist.artist_type.replace(/([a-z])([A-Z])/g, '$1 $2').replace('SynthesizerV', 'Synthesizer V')}</div>
                                     </div>
                                 </Link>
                             );
