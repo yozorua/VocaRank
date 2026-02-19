@@ -18,6 +18,7 @@ export interface Artist {
     picture_url_thumb: string | null;
     first_song_date: string | null;
     last_song_date: string | null;
+    external_links: { description: string; url: string }[] | null;
 }
 
 export interface SongRanking {

@@ -31,7 +31,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
     // Get original song name
     const getOriginalSongName = () => {
         if (!song.original_song) return null;
-        return locale === 'ja'
+        return (locale === 'ja' || locale === 'zh-TW')
             ? song.original_song.name_japanese || song.original_song.name_english
             : song.original_song.name_english || song.original_song.name_japanese;
     };
@@ -56,7 +56,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                                         <a href={`/artist/${artist.id}`} className="hover:text-white transition-colors">
                                             {artist.name}
                                         </a>
-                                        {i < song.artists.length - 1 && <span className="text-white/40 font-normal">・</span>}
+                                        {i < song.artists.length - 1 && <span className="text-white/40 font-normal mx-1">・</span>}
                                     </span>
                                 ))
                             ) : (

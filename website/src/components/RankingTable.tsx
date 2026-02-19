@@ -14,6 +14,55 @@ interface RankingTableProps {
     showRank?: boolean;
 }
 
+import NoThumbnail from './NoThumbnail';
+
+function ThumbnailWithFallback({ song, className }: { song: SongRanking, className?: string }) {
+    const [src, setSrc] = useState<string | null>(() => {
+        // Initial strategy
+        if (song.youtube_id) return `https://i.ytimg.com/vi/${song.youtube_id}/mqdefault.jpg`;
+        if (song.niconico_id) {
+            const match = song.niconico_id.match(/\d+/);
+            return match ? `https://nicovideo.cdn.nimg.jp/thumbnails/${match[0]}/${match[0]}` : null;
+        }
+        return null;
+    });
+    const [error, setError] = useState(false);
+
+    const handleError = () => {
+        if (!src) return;
+
+        // Strategy: MQ -> HQ -> Nico -> Fail
+        if (src.includes('mqdefault')) {
+            setSrc(prev => prev ? prev.replace('mqdefault', 'hqdefault') : null);
+        } else if (src.includes('hqdefault') && song.niconico_id) {
+            const match = song.niconico_id.match(/\d+/);
+            const nicoUrl = match ? `https://nicovideo.cdn.nimg.jp/thumbnails/${match[0]}/${match[0]}` : null;
+            // If we are already trying nico or nico is invalid, fail
+            if (nicoUrl && src !== nicoUrl) {
+                setSrc(nicoUrl);
+            } else {
+                setError(true);
+            }
+        } else {
+            setError(true);
+        }
+    };
+
+    if (error || !src) {
+        return <NoThumbnail className={className} />;
+    }
+
+    return (
+        <img
+            src={src}
+            alt={song.name_english || "Thumbnail"}
+            className={className}
+            onError={handleError}
+            loading="lazy"
+        />
+    );
+}
+
 export default function RankingTable({ songs, mode, sort = 'total', showRank = true }: RankingTableProps) {
     const t = useTranslations('RankingTable');
     const locale = useLocale();
@@ -50,25 +99,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
         return song.increment_total ?? 0;
     };
 
-    const getNicoUrl = (id: string) => {
-        const match = id.match(/\d+/);
-        if (!match) return null;
-        return `https://nicovideo.cdn.nimg.jp/thumbnails/${match[0]}/${match[0]}`;
-    };
 
-    const getThumbnailUrl = (song: SongRanking) => {
-        // ALWAYS prioritize YouTube first as requested
-        if (song.youtube_id) {
-            return `https://i.ytimg.com/vi/${song.youtube_id}/mqdefault.jpg`;
-        }
-
-        // Fallback to Niconico if no YouTube
-        if (song.niconico_id) {
-            return getNicoUrl(song.niconico_id);
-        }
-
-        return null;
-    };
 
     const formatSongType = (type: string | null) => {
         if (!type) return null;
@@ -94,7 +125,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                         >
                             {artist.name}
                         </Link>
-                        {idx < artists.length - 1 && <span className="text-gray-600">・</span>}
+                        {idx < artists.length - 1 && <span className="text-gray-600 ml-1">・</span>}
                     </span>
                 ))}
             </div>
@@ -136,7 +167,6 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                     }
 
                     const increment = getIncrement(song);
-                    const thumbnailUrl = getThumbnailUrl(song);
 
                     return (
                         <Link key={song.id} href={`/song/${song.id}`} className={`glass-panel p-3 rounded-xl border ${cardBorder} relative overflow-hidden block active:scale-95 transition-transform`}>
@@ -150,11 +180,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
 
                                 {/* Thumbnail */}
                                 <div className="w-24 h-16 bg-black rounded-lg overflow-hidden flex-shrink-0 relative">
-                                    {thumbnailUrl ? (
-                                        <img src={thumbnailUrl} alt="Thumb" className="w-full h-full object-cover" loading="lazy" />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center bg-[#2b2b2b] text-[8px] text-gray-500">NO IMG</div>
-                                    )}
+                                    <ThumbnailWithFallback song={song} className="w-full h-full object-cover" />
                                 </div>
 
                                 {/* Info */}
@@ -235,7 +261,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                 rowBorder = "border border-amber-600/30";
                             }
 
-                            const thumbnail = getThumbnailUrl(song);
+
 
                             return (
                                 <tr
@@ -254,30 +280,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                     )}
                                     <td className="p-3">
                                         <div className="w-20 h-12 relative rounded overflow-hidden bg-black/50 shadow-lg group-hover:shadow-[0_0_15px_rgba(57,197,187,0.3)] transition-shadow">
-                                            <img
-                                                src={thumbnail || "/images/no-thumb.png"} // Use thumbnail or default
-                                                alt={song.name_english || song.name_japanese || "Song thumbnail"}
-                                                className="w-full h-full object-cover"
-                                                onError={(e) => {
-                                                    // Fallback sequence: YT Max -> YT HQ -> Nico -> Placeholder
-                                                    const target = e.target as HTMLImageElement;
-                                                    const currentSrc = target.src;
-
-                                                    if (song.youtube_id && currentSrc.includes('mqdefault')) { // Changed from maxresdefault to mqdefault
-                                                        target.src = `https://img.youtube.com/vi/${song.youtube_id}/hqdefault.jpg`;
-                                                    } else if (song.youtube_id && currentSrc.includes('hqdefault')) {
-                                                        // Try Nico if YT fails
-                                                        if (song.niconico_id) {
-                                                            const nicoId = song.niconico_id.replace('sm', '').replace('nm', '');
-                                                            target.src = `https://nicovideo.cdn.nimg.jp/thumbnails/${nicoId}/${nicoId}`;
-                                                        } else {
-                                                            target.src = "/images/no-thumb.png"; // Local placeholder
-                                                        }
-                                                    } else {
-                                                        target.src = "/images/no-thumb.png";
-                                                    }
-                                                }}
-                                            />
+                                            <ThumbnailWithFallback song={song} className="w-full h-full object-cover" />
                                         </div>
                                     </td>
                                     <td className="p-3">
