@@ -19,6 +19,9 @@ class Artist(ArtistBase):
     picture_url_original: Optional[str] = None
     picture_url_thumb: Optional[str] = None
     external_links: Optional[List[dict]] = None
+    
+    first_song_date: Optional[str] = None
+    last_song_date: Optional[str] = None
 
     @validator('external_links', pre=True)
     def parse_external_links(cls, v):
@@ -61,6 +64,7 @@ class SongDetail(SongBase):
     """Detailed schema with relations."""
     length_seconds: Optional[int] = None
     original_song_id: Optional[int] = None
+    original_song: Optional[SongList] = None
     views_youtube: int
     views_niconico: int
     total_views: int

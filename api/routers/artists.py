@@ -79,6 +79,18 @@ def get_artist(artist_id: int, db: Session = Depends(get_db)):
     artist = db.query(models.Artist).filter(models.Artist.id == artist_id).first()
     if not artist:
         raise HTTPException(status_code=404, detail="Artist not found")
+
+    # Calculate active range
+    from sqlalchemy import func
+    dates = db.query(
+        func.min(models.Song.publish_date),
+        func.max(models.Song.publish_date)
+    ).join(models.song_artists, models.Song.id == models.song_artists.c.song_id)\
+     .filter(models.song_artists.c.artist_id == artist_id).first()
+
+    artist.first_song_date = dates[0]
+    artist.last_song_date = dates[1]
+
     return artist
 
 @router.get("/{artist_id}/songs", response_model=List[schemas.SongRanking])

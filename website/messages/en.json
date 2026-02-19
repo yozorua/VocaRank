@@ -38,7 +38,9 @@
     "total_views": "Total Views",
     "vocalist": "Vocalist",
     "type": "Type",
-    "release_date": "Release Date"
+    "release_date": "Release Date",
+    "duration": "Duration",
+    "original_song": "Original Song"
   },
   "SongDetailPage": {
     "total_views": "Total Views",

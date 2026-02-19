@@ -20,6 +20,22 @@ export default function SongInfo({ song }: { song: SongDetail }) {
         return `${y}/${m}/${d}`;
     };
 
+    // Format duration MM:SS
+    const formatDuration = (seconds: number | null | undefined) => {
+        if (!seconds) return '-';
+        const m = Math.floor(seconds / 60);
+        const s = String(seconds % 60).padStart(2, '0');
+        return `${m}:${s}`;
+    };
+
+    // Get original song name
+    const getOriginalSongName = () => {
+        if (!song.original_song) return null;
+        return locale === 'ja'
+            ? song.original_song.name_japanese || song.original_song.name_english
+            : song.original_song.name_english || song.original_song.name_japanese;
+    };
+
     return (
         <div className="glass-panel p-6 md:p-10 mb-10 rounded-3xl relative overflow-hidden group">
             {/* Ambient Background Glow */}
@@ -68,6 +84,32 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                             </span>
                             <span className="font-medium text-lg md:text-xl text-white truncate">{song.song_type}</span>
                         </div>
+
+                        {/* Duration Card */}
+                        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col justify-center hover:bg-white/10 transition-colors">
+                            <span className="text-[10px] uppercase tracking-widest text-[#888] mb-1 flex items-center gap-1.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                {t('duration')}
+                            </span>
+                            <span className="font-mono text-lg md:text-xl font-bold text-white">{formatDuration(song.length_seconds)}</span>
+                        </div>
+
+                        {/* Original Song Card (Conditional) */}
+                        {song.original_song && (
+                            <a
+                                href={`/song/${song.original_song.id}`}
+                                className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col justify-center hover:bg-white/10 hover:border-[var(--miku-teal)]/50 transition-colors group/orig"
+                            >
+                                <span className="text-[10px] uppercase tracking-widest text-[#888] mb-1 flex items-center gap-1.5 group-hover/orig:text-[var(--miku-teal)] transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                                    {t('original_song')}
+                                </span>
+                                <span className="font-bold text-sm md:text-base text-white truncate group-hover/orig:underline decoration-[var(--miku-teal)] items-center flex gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-50"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                                    {getOriginalSongName()}
+                                </span>
+                            </a>
+                        )}
                     </div>
 
                     {/* Vocalist Card - Full Width Row */}

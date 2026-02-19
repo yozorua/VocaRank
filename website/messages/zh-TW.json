@@ -42,7 +42,9 @@
         "total_views": "總觀看數",
         "vocalist": "主唱",
         "type": "類型",
-        "release_date": "發布日期"
+        "release_date": "發布日期",
+        "duration": "時長",
+        "original_song": "原曲"
     },
     "SongDetailPage": {
         "total_views": "總播放數",

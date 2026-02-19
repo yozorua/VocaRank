@@ -16,7 +16,8 @@ export interface Artist {
     picture_mime: string | null;
     picture_url_original: string | null;
     picture_url_thumb: string | null;
-    external_links: string | null; // JSON string
+    first_song_date: string | null;
+    last_song_date: string | null;
 }
 
 export interface SongRanking {
@@ -32,6 +33,7 @@ export interface SongRanking {
     views_niconico: number;
     youtube_id: string | null;
     niconico_id: string | null;
+    external_links: { description: string; url: string }[] | null;
     song_type: string | null;
     publish_date: string | null;
     artist_string: string;
@@ -43,6 +45,7 @@ export interface SongRanking {
 export interface SongDetail extends SongRanking {
     length_seconds: number | null;
     original_song_id: number | null;
+    original_song?: SongRanking | null;
     youtube_views?: number;
     niconico_views?: number;
 }

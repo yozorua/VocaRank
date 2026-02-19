@@ -127,6 +127,21 @@ def get_song(song_id: int, db: Session = Depends(get_db)):
     
     yt_id, nico_id = extract_pvs(song.pv_data)
 
+    original_song_data = None
+    if song.original_song_id:
+        original = db.query(models.Song).filter(models.Song.id == song.original_song_id).first()
+        if original:
+            original_song_data = schemas.SongList(
+                id=original.id,
+                name_english=original.name_english,
+                name_japanese=original.name_japanese,
+                name_romaji=original.name_romaji,
+                publish_date=original.publish_date,
+                song_type=original.song_type,
+                youtube_views=original.youtube_views,
+                niconico_views=original.niconico_views
+            )
+
     return schemas.SongDetail(
         id=song.id,
         name_english=song.name_english,
@@ -136,6 +151,7 @@ def get_song(song_id: int, db: Session = Depends(get_db)):
         song_type=song.song_type,
         length_seconds=song.length_seconds,
         original_song_id=song.original_song_id,
+        original_song=original_song_data,
         views_youtube=song.youtube_views,
         views_niconico=song.niconico_views,
         total_views=song.youtube_views + song.niconico_views,
