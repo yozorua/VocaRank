@@ -4,5 +4,5 @@ backups/
 __pycache__/
 .DS_Store
 .env
-vocarank.db*
+*.db*
 *.log
