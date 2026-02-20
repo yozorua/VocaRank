@@ -80,7 +80,7 @@
         "loading": "プロフィールを読み込んでいます..."
     },
     "NotFound": {
-        "title": "Voice Not Found",
+        "title": "ページが見つかりません",
         "description": "お探しのページは削除されたか、存在しません。",
         "back_home": "ホームに戻る"
     }

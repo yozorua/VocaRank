@@ -80,7 +80,7 @@
         "loading": "正在載入個人檔案..."
     },
     "NotFound": {
-        "title": "Voice Not Found",
+        "title": "找不到頁面",
         "description": "您尋找的頁面已被刪除或不存在。",
         "back_home": "返回首頁"
     }

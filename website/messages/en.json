@@ -76,7 +76,7 @@
     "loading": "Loading profile..."
   },
   "NotFound": {
-    "title": "Voice Not Found",
+    "title": "Page Not Found",
     "description": "The page you are looking for has been deleted or does not exist.",
     "back_home": "Return to Home"
   }

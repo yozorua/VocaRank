@@ -171,7 +171,7 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory }: Vi
                         const x = toX(date);
                         return (
                             <text key={idx} x={x} y={H - 4} textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="9" fontFamily="monospace">
-                                {date.slice(0, 7)}
+                                {date}
                             </text>
                         );
                     })}

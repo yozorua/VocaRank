@@ -1,6 +1,7 @@
 
 import { getArtist, getArtistSongs } from '@/lib/api';
 import RankingTable from '@/components/RankingTable';
+import ArtistPublishHistogram from '@/components/ArtistPublishHistogram';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
@@ -93,8 +94,11 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
                     </div>
                 </div>
 
+                {/* Activity Histogram */}
+                <ArtistPublishHistogram songs={songs} />
+
                 {/* Songs List */}
-                <div>
+                <div className="mt-10">
                     <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                         {t('top_songs', { defaultMessage: 'Top Songs' })}
                     </h2>

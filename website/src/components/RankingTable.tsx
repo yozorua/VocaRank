@@ -294,7 +294,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                     <thead>
                         <tr className="text-[var(--text-secondary)] text-xs uppercase tracking-[0.25em] border-b border-[var(--hairline-strong)]">
                             {showRank && <th className="py-4 pl-4 font-normal text-center w-20">#</th>}
-                            <th className="py-4 font-normal w-28">PV</th>
+                            <th className={`py-4 font-normal w-28 ${!showRank ? 'pl-4' : ''}`}>PV</th>
                             <th className="py-4 font-normal pl-2">{t('song')}</th>
                             <th className="py-4 font-normal text-right w-36">{t('published')}</th>
                             <th className="py-4 font-normal text-right w-32">
@@ -329,7 +329,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                             <span className={`font-serif text-3xl italic ${rankColor}`}>{rank}</span>
                                         </td>
                                     )}
-                                    <td className="py-4">
+                                    <td className={`py-4 ${!showRank ? 'pl-4' : ''}`}>
                                         <div className="w-24 h-16 relative border border-[var(--hairline)] bg-black mr-4 overflow-hidden">
                                             <ThumbnailWithFallback song={song} className="w-full h-full object-cover grayscale-[30%] group-hover:-translate-y-1 group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700 ease-out" />
                                         </div>

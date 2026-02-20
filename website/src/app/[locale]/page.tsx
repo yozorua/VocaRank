@@ -61,7 +61,6 @@ export default function Home() {
             <div className="absolute -top-[1px] -left-[1px] w-3 h-3 border-t border-l border-white group-hover:border-[var(--vermilion)] transition-colors duration-500"></div>
             <div className="absolute -bottom-[1px] -right-[1px] w-3 h-3 border-b border-r border-white group-hover:border-[var(--vermilion)] transition-colors duration-500"></div>
 
-            <span className="relative z-10 font-serif mr-3 text-[10px]">◇</span>
             <span className="relative z-10">{t('cta_ranking')}</span>
           </Link>
 
