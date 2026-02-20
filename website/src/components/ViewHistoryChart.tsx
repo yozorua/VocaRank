@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 
 interface HistoryPoint {
@@ -33,6 +33,20 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory }: Vi
     const t = useTranslations('ViewHistoryChart');
     const [activeTab, setActiveTab] = useState<'youtube' | 'niconico' | 'combined'>('combined');
     const [hoveredPoint, setHoveredPoint] = useState<{ x: number; y: number; views: number; date: string; source: string } | null>(null);
+    // Adaptive font size: always renders at TARGET_PX actual CSS pixels
+    const containerRef = useRef<HTMLDivElement>(null);
+    const TARGET_PX = 12;
+    const [tickFontSize, setTickFontSize] = useState(18); // SVG user units
+
+    useEffect(() => {
+        if (!containerRef.current) return;
+        const obs = new ResizeObserver(([entry]) => {
+            const w = entry.contentRect.width;
+            if (w > 0) setTickFontSize(Math.round(TARGET_PX * (800 / w)));
+        });
+        obs.observe(containerRef.current);
+        return () => obs.disconnect();
+    }, []);
 
     // Normalize all dates to YYYY-MM-DD
     const norm = (pts: HistoryPoint[] | null | undefined): HistoryPoint[] | null =>
@@ -99,7 +113,7 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory }: Vi
     const yTicks = [0, 0.5, 1].map(t => minViews + t * viewRange);
 
     return (
-        <div className="mt-10 border-t border-[var(--hairline)] pt-8">
+        <div ref={containerRef} className="mt-10 border-t border-[var(--hairline)] pt-8">
             {/* Section header */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
@@ -160,7 +174,7 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory }: Vi
                         return (
                             <g key={i}>
                                 <line x1={PAD_L} y1={y} x2={W - PAD_R} y2={y} stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
-                                <text x={PAD_L - 6} y={y + 4} textAnchor="end" fill="rgba(255,255,255,0.3)" fontSize="13" fontFamily="monospace">
+                                <text x={PAD_L - 6} y={y + 4} textAnchor="end" fill="rgba(255,255,255,0.3)" fontSize={tickFontSize} fontFamily="monospace">
                                     {formatViews(Math.round(v))}
                                 </text>
                             </g>
@@ -172,7 +186,7 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory }: Vi
                         const date = allDates[idx];
                         const x = toX(date);
                         return (
-                            <text key={idx} x={x} y={H - 4} textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="14" fontFamily="monospace">
+                            <text key={idx} x={x} y={H - 4} textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize={tickFontSize} fontFamily="monospace">
                                 {date.slice(0, 7)}
                             </text>
                         );
