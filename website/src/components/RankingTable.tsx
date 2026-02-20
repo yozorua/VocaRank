@@ -103,12 +103,10 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
 
     const formatSongType = (type: string | null) => {
         if (!type) return null;
-        if (type === 'Original') return <span className="text-cyan-400 font-bold uppercase text-[10px] tracking-wider">ORIGINAL</span>;
-        if (type === 'Cover') return <span className="text-green-400 font-bold uppercase text-[10px] tracking-wider">COVER</span>;
-        if (type === 'Remix') return <span className="text-orange-400 font-bold uppercase text-[10px] tracking-wider">REMIX</span>;
-        if (type === 'Remaster') return <span className="text-blue-400 font-bold uppercase text-[10px] tracking-wider">REMASTER</span>;
-        if (type === 'Vocals') return <span className="text-purple-400 font-bold uppercase text-[10px] tracking-wider">VOCALS</span>;
-        return <span className="text-gray-500 font-bold uppercase text-[10px] tracking-wider">{type.toUpperCase()}</span>;
+        if (type === 'Original') return <span className="text-white border border-white/30 px-1 py-[2px] font-medium uppercase text-[9px] tracking-widest">ORIGINAL</span>;
+        if (type === 'Cover') return <span className="text-[var(--cyan-subtle)] border border-[var(--cyan-subtle)]/40 px-1 py-[2px] font-medium uppercase text-[9px] tracking-widest">COVER</span>;
+        if (type === 'Remix') return <span className="text-[var(--gold)] border border-[var(--gold)]/40 px-1 py-[2px] font-medium uppercase text-[9px] tracking-widest">REMIX</span>;
+        return <span className="text-[var(--text-secondary)] border border-[var(--hairline-strong)] px-1 py-[2px] font-medium uppercase text-[9px] tracking-widest">{type.toUpperCase()}</span>;
     };
 
     const renderArtistList = (artists: any[]) => {
@@ -190,42 +188,38 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
 
     return (
         <div className="w-full">
-            {/* Mobile View: Card List */}
-            <div className="flex flex-col gap-3 md:hidden">
+            {/* Mobile View: Editorial List */}
+            <div className="flex flex-col gap-4 md:hidden">
                 {displayedSongs.map((song, index) => {
                     const rank = index + 1;
-                    const rankColor = rank === 1 ? "text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]"
-                        : rank === 2 ? "text-gray-300 drop-shadow-[0_0_10px_rgba(209,213,219,0.5)]"
-                            : rank === 3 ? "text-amber-600 drop-shadow-[0_0_10px_rgba(217,119,6,0.5)]"
-                                : "text-gray-500";
-                    const cardBorder = rank === 1 ? "border-yellow-500/30 shadow-[0_0_20px_rgba(250,204,21,0.1)]"
-                        : rank === 2 ? "border-gray-400/30"
-                            : rank === 3 ? "border-amber-600/30"
-                                : "border-white/5";
+                    const rankColor = rank === 1 ? "text-[var(--gold)]"
+                        : rank === 2 ? "text-white"
+                            : rank === 3 ? "text-[var(--cyan-subtle)]"
+                                : "text-[var(--text-secondary)] opacity-50";
 
                     const increment = getIncrement(song);
 
                     return (
-                        <Link key={song.id} href={`/song/${song.id}`} className={`glass-panel p-3 rounded-xl border ${cardBorder} relative overflow-hidden block active:scale-95 transition-transform`}>
-                            <div className="flex items-center gap-3">
+                        <Link key={song.id} href={`/song/${song.id}`} className="group hairline-border p-4 bg-transparent active:bg-[var(--hairline)] transition-colors block">
+                            <div className="flex items-center gap-4">
                                 {/* Rank */}
                                 {showRank && (
-                                    <div className={`text-2xl font-black italic w-12 text-center flex-shrink-0 ${rankColor}`}>
+                                    <div className={`font-serif text-3xl italic w-8 text-center flex-shrink-0 ${rankColor} -mt-2`}>
                                         {rank}
                                     </div>
                                 )}
 
                                 {/* Thumbnail */}
-                                <div className="w-24 h-16 bg-black rounded-lg overflow-hidden flex-shrink-0 relative">
-                                    <ThumbnailWithFallback song={song} className="w-full h-full object-cover" />
+                                <div className="w-24 h-16 bg-black border border-[var(--hairline)] flex-shrink-0 relative">
+                                    <ThumbnailWithFallback song={song} className="w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all duration-500" />
                                 </div>
 
                                 {/* Info */}
                                 <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                    <div className="font-bold text-sm text-white line-clamp-1 leading-tight mb-1">
+                                    <div className="font-bold text-sm text-white line-clamp-1 leading-relaxed mb-1 group-hover:text-[var(--vermilion)] transition-colors tracking-wide">
                                         {getSongName(song)}
                                     </div>
-                                    <div className="text-xs text-gray-400 flex items-center gap-2 min-w-0">
+                                    <div className="text-[11px] text-[var(--text-secondary)] flex flex-wrap items-center gap-2 min-w-0">
                                         <div className="flex-shrink-0">{formatSongType(song.song_type)}</div>
                                         <div className="truncate">{song.artist_string}</div>
                                     </div>
@@ -233,26 +227,26 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                             </div>
 
                             {/* Stats Row */}
-                            <div className="flex items-center justify-between mt-3 pt-2 border-t border-white/5">
-                                <div className="text-xs text-gray-400 font-mono">{formatDate(song.publish_date)}</div>
+                            <div className="flex items-center justify-between mt-4 pt-3 border-t border-[var(--hairline)]">
+                                <div className="text-[10px] text-[var(--text-secondary)] font-mono tracking-widest">{formatDate(song.publish_date)}</div>
 
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-6">
                                     {/* Views */}
                                     <div className="text-right">
-                                        <div className="text-[10px] text-gray-500 uppercase tracking-wider">{t('views')}</div>
-                                        <div className="font-mono font-bold text-sm text-white">{getViews(song).toLocaleString()}</div>
+                                        <div className="text-[9px] text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-1">{t('views')}</div>
+                                        <div className="font-mono text-sm text-white tracking-wider">{getViews(song).toLocaleString()}</div>
                                     </div>
 
                                     {/* Increment (Gain) */}
                                     {mode !== 'total' && (
                                         <div className="text-right min-w-[60px]">
-                                            <div className="text-[10px] text-gray-500 uppercase tracking-wider">{t('increment')}</div>
+                                            <div className="text-[9px] text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-1">{t('increment')}</div>
                                             {increment > 0 ? (
-                                                <div className="text-[var(--miku-teal)] font-mono font-bold text-sm">
-                                                    ▲ {increment.toLocaleString()}
+                                                <div className="text-[var(--vermilion)] font-mono text-sm tracking-wider">
+                                                    +{increment.toLocaleString()}
                                                 </div>
                                             ) : (
-                                                <div className="text-gray-600 font-mono text-sm">-</div>
+                                                <div className="text-[var(--text-secondary)] font-mono text-sm tracking-wider">-</div>
                                             )}
                                         </div>
                                     )}
@@ -263,91 +257,86 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                 })}
             </div>
 
-            {/* Desktop View: Table */}
+            {/* Desktop View: Editorial Table */}
             <div className="hidden md:block overflow-x-auto px-1 pb-4">
-                <table className="w-full text-left border-separate border-spacing-y-3 min-w-[800px]">
+                <table className="w-full text-left border-collapse min-w-[800px] table-fixed">
                     <thead>
-                        <tr className="text-[var(--text-secondary)] text-sm uppercase tracking-wider">
-                            {showRank && <th className="p-4 text-center w-20">#</th>}
-                            <th className="p-4 w-24"></th>
-                            <th className="p-4">{t('song')}</th>
-                            <th className="p-4 text-right w-36">{t('published')}</th>
-                            <th className="p-4 text-right">
+                        <tr className="text-[var(--text-secondary)] text-[10px] uppercase tracking-[0.2em] border-b border-[var(--hairline-strong)]">
+                            {showRank && <th className="py-4 font-normal text-center w-20">RANK</th>}
+                            <th className="py-4 font-normal w-28">PV</th>
+                            <th className="py-4 font-normal pl-2">{t('song')}</th>
+                            <th className="py-4 font-normal text-right w-36">{t('published')}</th>
+                            <th className="py-4 font-normal text-right w-32">
                                 {sort === 'youtube' ? t('sort_youtube') : sort === 'niconico' ? t('sort_niconico') : t('views')}
                             </th>
                             {/* Hide Gain for total ranking */}
                             {mode !== 'total' && (
-                                <th className="p-4 pr-6 text-right">{t('increment')}</th>
+                                <th className="py-4 font-normal pr-4 text-right w-32">{t('increment')}</th>
                             )}
                         </tr>
                     </thead>
                     <tbody>
                         {displayedSongs.map((song, index) => {
                             const rank = index + 1;
-                            const rankColor = rank === 1 ? "text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]"
-                                : rank === 2 ? "text-gray-300 drop-shadow-[0_0_10px_rgba(209,213,219,0.5)]"
-                                    : rank === 3 ? "text-amber-600 drop-shadow-[0_0_10px_rgba(217,119,6,0.5)]"
-                                        : "text-gray-500";
-                            const rowBorder = rank === 1 ? "border border-yellow-500/30 shadow-[0_0_20px_rgba(250,204,21,0.1)]"
-                                : rank === 2 ? "border border-gray-400/30"
-                                    : rank === 3 ? "border border-amber-600/30"
-                                        : "border border-transparent";
-
-
+                            const rankColor = rank === 1 ? "text-[var(--gold)] drop-shadow-[0_0_8px_rgba(212,175,55,0.4)]"
+                                : rank === 2 ? "text-white"
+                                    : rank === 3 ? "text-[var(--cyan-subtle)]"
+                                        : "text-[var(--text-secondary)] opacity-50";
 
                             return (
                                 <tr
                                     key={song.id}
                                     className={`
-                                        group relative bg-[var(--bg-panel)] backdrop-blur-sm 
-                                        hover:bg-white/5 hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(57,197,187,0.15)]
-                                        transition-all duration-300 ease-out rounded-xl ${rowBorder}
+                                        group bg-transparent border-b border-[var(--hairline)]
+                                        hover:bg-[var(--hairline)] hover:cursor-pointer
+                                        transition-colors duration-300
                                     `}
                                     onClick={() => router.push(`/song/${song.id}`)}
                                 >
                                     {showRank && (
-                                        <td className="p-4 text-center align-middle rounded-l-xl">
-                                            <span className={`font-black text-4xl italic ${rankColor}`}>{rank}</span>
+                                        <td className="py-4 text-center align-middle">
+                                            <span className={`font-serif text-3xl italic ${rankColor}`}>{rank}</span>
                                         </td>
                                     )}
-                                    <td className="p-3">
-                                        <div className="w-20 h-12 relative rounded overflow-hidden bg-black/50 shadow-lg group-hover:shadow-[0_0_15px_rgba(57,197,187,0.3)] transition-shadow">
-                                            <ThumbnailWithFallback song={song} className="w-full h-full object-cover" />
+                                    <td className="py-4">
+                                        <div className="w-24 h-16 relative border border-[var(--hairline)] bg-black mr-4 overflow-hidden">
+                                            <ThumbnailWithFallback song={song} className="w-full h-full object-cover grayscale-[50%] group-hover:-translate-y-1 group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700 ease-out" />
                                         </div>
                                     </td>
-                                    <td className="p-3">
-                                        <div className="font-bold text-white text-lg mb-1 line-clamp-1 group-hover:text-[var(--miku-teal)] transition-colors">
+                                    <td className="py-4 pl-2 pr-4 text-ellipsis overflow-hidden">
+                                        <div className="font-bold text-white text-base mb-2 line-clamp-1 group-hover:text-[var(--vermilion)] transition-colors tracking-wide w-full" title={getSongName(song) ?? ""}>
                                             {getSongName(song)}
                                         </div>
-                                        <div className="text-xs text-gray-400 flex flex-col gap-1">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-[70px] flex-shrink-0">
-                                                    {formatSongType(song.song_type)}
-                                                </div>
+                                        <div className="text-[11px] text-[var(--text-secondary)] flex items-center gap-3">
+                                            <div className="flex-shrink-0">
+                                                {formatSongType(song.song_type)}
+                                            </div>
+                                            <div className="flex items-center gap-2 line-clamp-1 truncate min-w-0">
                                                 {renderArtistList(song.artists)}
                                             </div>
                                             {song.vocalists && song.vocalists.length > 0 && (
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-[70px] flex-shrink-0">
-                                                        <span className="text-[10px] uppercase tracking-wider text-[var(--miku-pink)] font-bold">Vocals</span>
+                                                <>
+                                                    <span className="text-[var(--hairline-strong)]">|</span>
+                                                    <div className="flex items-center gap-2 line-clamp-1 truncate min-w-0">
+                                                        <span className="text-[9px] uppercase tracking-widest text-white/40">Vocals</span>
+                                                        {renderArtistList(song.vocalists)}
                                                     </div>
-                                                    {renderArtistList(song.vocalists)}
-                                                </div>
+                                                </>
                                             )}
                                         </div>
                                     </td>
-                                    <td className="p-3 text-right text-gray-400 font-mono text-base">
+                                    <td className="py-4 text-right text-[var(--text-secondary)] font-mono text-sm tracking-widest">
                                         {formatDate(song.publish_date)}
                                     </td>
-                                    <td className="p-3 text-right font-mono text-base">
-                                        <div className="font-black text-[var(--miku-teal)] text-xl drop-shadow-[0_0_5px_rgba(57,197,187,0.3)]">
+                                    <td className="py-4 text-right font-mono text-base tracking-wider">
+                                        <div className="text-white group-hover:text-[var(--gold)] transition-colors duration-300">
                                             {getViews(song).toLocaleString()}
                                         </div>
                                     </td>
 
                                     {mode !== 'total' && (
-                                        <td className="p-3 text-right font-mono text-sm">
-                                            <div className={`text-sm font-bold ${getIncrement(song) > 0 ? 'text-[var(--miku-teal)]' : 'text-gray-600'}`}>
+                                        <td className="py-4 pr-4 text-right font-mono text-sm tracking-wider">
+                                            <div className={`${getIncrement(song) > 0 ? 'text-[var(--vermilion)]' : 'text-[var(--text-secondary)]'}`}>
                                                 {getIncrement(song) > 0 ? `+${getIncrement(song).toLocaleString()}` : '-'}
                                             </div>
                                         </td>
@@ -361,16 +350,15 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
             {/* Show More Button */}
             {
                 !showAll && songs.length > 20 && (
-                    <div className="flex justify-center mt-8 pb-8">
+                    <div className="flex justify-center mt-12 pb-8">
                         <button
                             onClick={() => setShowAll(true)}
-                            className="group relative px-8 py-3 rounded-full bg-white/5 hover:bg-[var(--miku-teal)]/20 border border-white/10 hover:border-[var(--miku-teal)]/50 text-white font-bold transition-all hover:scale-105 active:scale-95"
+                            className="group relative px-10 py-4 text-[var(--text-secondary)] hover:text-white font-medium text-xs tracking-[0.3em] uppercase transition-all"
                         >
-                            <span className="relative z-10 flex items-center gap-2">
+                            <span className="absolute inset-0 border border-[var(--hairline-strong)] group-hover:border-[var(--vermilion)] transition-colors duration-500"></span>
+                            <span className="relative z-10 flex items-center gap-3">
                                 {t('show_more', { defaultMessage: 'View Top 100' })}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-y-1 transition-transform">
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
+                                <span className="font-serif">◇</span>
                             </span>
                         </button>
                     </div>

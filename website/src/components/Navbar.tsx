@@ -9,12 +9,21 @@ export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <nav className="fixed top-0 w-full h-[var(--header-height)] glass-panel z-50 border-b-0 neon-border-bottom">
-            <div className="w-full h-full max-w-[var(--max-width)] mx-auto px-6 flex items-center justify-between">
+        <nav className="fixed top-0 w-full h-[var(--header-height)] z-50 border-b border-[var(--hairline)] bg-[var(--bg-dark)]/95 backdrop-blur-sm transition-colors">
+            <div className="w-full h-full max-w-[var(--max-width)] mx-auto px-6 md:px-12 flex items-center justify-between relative">
+
+                {/* Decorative Diamond Ends on Border line */}
+                <div className="absolute bottom-[-4px] left-0 w-full flex justify-between px-2 text-[var(--hairline-strong)] text-[8px] pointer-events-none">
+                    <span>◇</span>
+                    <span>◇</span>
+                </div>
+
                 {/* Logo */}
-                <Link href="/" className="text-3xl font-bold tracking-tighter group flex items-center gap-2 z-50 relative" onClick={() => setIsOpen(false)}>
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--miku-teal)] to-[var(--miku-pink)] flex items-center justify-center text-black font-black text-sm">V</div>
-                    <span className="text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[var(--miku-teal)] group-hover:to-[var(--miku-pink)] transition-all duration-300">
+                <Link href="/" className="group flex items-center gap-3 z-50 transition-opacity hover:opacity-80" onClick={() => setIsOpen(false)}>
+                    <div className="w-8 h-8 flex items-center justify-center bg-[var(--vermilion)] text-white font-serif text-lg leading-none pt-1">
+                        V
+                    </div>
+                    <span className="text-white tracking-[0.3em] font-black uppercase text-sm mt-1">
                         VocaRank
                     </span>
                 </Link>
@@ -31,35 +40,35 @@ export default function Navbar() {
                 </button>
 
                 {/* Desktop Links */}
-                <div className="hidden md:flex items-center gap-8">
-                    <Link href="/ranking" className="relative font-medium text-gray-300 hover:text-white transition-colors py-2 group">
+                <div className="hidden md:flex items-center gap-10">
+                    <Link href="/ranking" className="relative font-bold text-[var(--text-secondary)] hover:text-white transition-colors py-2 text-xs tracking-[0.3em] uppercase group">
                         {t('ranking')}
-                        <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[var(--miku-teal)] transition-all duration-300 group-hover:w-full"></span>
+                        <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--vermilion)] scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></span>
                     </Link>
 
                     {/* Search Icon */}
-                    <Link href="/search" className="p-2 rounded-full hover:bg-white/10 transition-all text-gray-300 hover:text-white group" aria-label={t('search')}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <Link href="/search" className="p-2 transition-all text-[var(--text-secondary)] hover:text-[var(--vermilion)] group" aria-label={t('search')}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <circle cx="11" cy="11" r="8"></circle>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
                     </Link>
 
-                    <Link href="/login" className="px-5 py-2 rounded-full border border-[var(--miku-pink)] text-[var(--miku-pink)] hover:bg-[var(--miku-pink)] hover:text-white transition-all font-medium text-sm">
+                    <Link href="/login" className="px-6 py-2 border border-[var(--hairline-strong)] text-white hover:border-[var(--vermilion)] hover:text-[var(--vermilion)] transition-all font-bold text-xs tracking-[0.3em] uppercase bg-transparent">
                         {t('login')}
                     </Link>
                 </div>
 
                 {/* Mobile Menu Overlay */}
                 {isOpen && (
-                    <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-40 flex flex-col items-center justify-center gap-8 md:hidden animate-in fade-in zoom-in duration-200">
-                        <Link href="/ranking" className="text-2xl font-bold text-white hover:text-[var(--miku-teal)]" onClick={() => setIsOpen(false)}>
+                    <div className="fixed inset-0 bg-[var(--bg-dark)]/98 backdrop-blur-xl z-40 flex flex-col items-center justify-center gap-10 md:hidden animate-in fade-in zoom-in duration-200">
+                        <Link href="/ranking" className="text-xl font-medium tracking-[0.4em] text-white hover:text-[var(--vermilion)] transition-colors uppercase" onClick={() => setIsOpen(false)}>
                             {t('ranking')}
                         </Link>
-                        <Link href="/search" className="text-2xl font-bold text-white hover:text-[var(--miku-teal)]" onClick={() => setIsOpen(false)}>
+                        <Link href="/search" className="text-xl font-medium tracking-[0.4em] text-white hover:text-[var(--vermilion)] transition-colors uppercase" onClick={() => setIsOpen(false)}>
                             {t('search')}
                         </Link>
-                        <Link href="/login" className="text-2xl font-bold text-[var(--miku-pink)] hover:text-white" onClick={() => setIsOpen(false)}>
+                        <Link href="/login" className="text-xl font-medium tracking-[0.4em] text-[var(--vermilion)] hover:text-white transition-colors uppercase" onClick={() => setIsOpen(false)}>
                             {t('login')}
                         </Link>
                     </div>

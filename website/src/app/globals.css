@@ -1,27 +1,29 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@400;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  /* VocaRank HIGH IMPACT Theme */
-  --miku-teal: #39C5BB;
-  --miku-teal-rgb: 57, 197, 187;
-  --miku-pink: #E4007F;
-  --miku-pink-rgb: 228, 0, 127;
+  /* VocaRank Neo-Traditional Theme */
+  --bg-dark: #131417; /* Deep Charcoal */
+  --bg-panel: rgba(255, 255, 255, 0.02);
+  
+  --vermilion: #E84A5F; /* Traditional Japanese Red */
+  --gold: #D4AF37; /* Faded Gold Accent */
+  --cyan-subtle: #4A90E2; 
 
-  --bg-dark: #030303;
-  --bg-panel: rgba(20, 20, 25, 0.7);
+  --text-primary: #FFFFFF;
+  --text-secondary: #8E8E93;
 
-  --text-primary: #ffffff;
-  --text-secondary: #b3b3b3;
+  --hairline: rgba(255, 255, 255, 0.1);
+  --hairline-strong: rgba(255, 255, 255, 0.25);
 
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-highlight: rgba(255, 255, 255, 0.15);
+  --font-sans: 'Noto Sans JP', sans-serif;
+  --font-serif: 'Noto Serif JP', serif;
 
   --max-width: 1200px;
-  --header-height: 64px;
+  --header-height: 80px;
 }
 
 /* Niconico Embed Responsive Fix */
@@ -40,20 +42,18 @@
 
 html {
   max-width: 100vw;
-  /* overflow-x: hidden;  <-- REMOVED from html to fix sticky scroll */
   background-color: var(--bg-dark);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
 }
 
 body {
   max-width: 100vw;
   overflow-x: hidden;
-  /* Keep on body to prevent horizontal scroll */
   color: var(--text-primary);
   min-height: 100vh;
 }
 
-/* Background Pattern: Cyber Grid + Glows */
+/* Subtle Washi Paper Noise Texture Overlay */
 body::before {
   content: "";
   position: fixed;
@@ -62,25 +62,8 @@ body::before {
   width: 100vw;
   height: 100vh;
   z-index: -2;
-  background-image:
-    radial-gradient(circle at 15% 30%, rgba(var(--miku-teal-rgb), 0.15) 0%, transparent 40%),
-    radial-gradient(circle at 85% 70%, rgba(var(--miku-pink-rgb), 0.12) 0%, transparent 40%);
-  background-attachment: fixed;
-}
-
-/* Dot Grid Overlay */
-body::after {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  background-image:
-    radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 30px 30px;
-  mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
   pointer-events: none;
 }
 
@@ -89,61 +72,49 @@ a {
   text-decoration: none;
 }
 
-/* --- Utilities --- */
+/* --- Neo-Traditional Utilities --- */
 
 .glass-panel {
   background: var(--bg-panel);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--hairline);
 }
 
-.text-gradient {
-  background: linear-gradient(135deg, var(--miku-teal) 0%, #fff 50%, var(--miku-pink) 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: shine 5s linear infinite;
-}
-
-@keyframes shine {
-  to {
-    background-position: 200% center;
-  }
-}
-
-.neon-border-bottom {
+/* Traditional elegant hairline border with optional decorative pseudo elements */
+.hairline-border {
+  border: 1px solid var(--hairline);
   position: relative;
 }
 
-.neon-border-bottom::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--miku-teal), transparent);
-  opacity: 0.5;
+/* Vertical Japanese Typography */
+.vertical-text {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.3em;
+  font-family: var(--font-serif);
+}
+
+.text-gradient {
+  background: linear-gradient(to bottom, #fff, var(--text-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #000;
+  background: var(--bg-dark);
+  border-left: 1px solid var(--hairline);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 5px;
-  border: 2px solid #000;
+  background: rgba(255,255,255,0.1);
+  border-radius: 0;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--miku-teal);
+  background: var(--vermilion);
 }

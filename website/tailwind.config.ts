@@ -11,6 +11,11 @@ const config: Config = {
             colors: {
                 background: "var(--bg-dark)",
                 foreground: "var(--text-primary)",
+                'miku-teal': 'var(--cyan-subtle)', // repurposing old variables for backwards compatibility
+                'miku-pink': 'var(--vermilion)',   // repurposing old variables
+                vermilion: 'var(--vermilion)',
+                gold: 'var(--gold)',
+                'cyan-subtle': 'var(--cyan-subtle)',
             },
         },
     },
