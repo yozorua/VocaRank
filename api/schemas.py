@@ -74,6 +74,18 @@ class SongDetail(SongBase):
     vocalists: List[ArtistTiny] = []
     youtube_id: Optional[str] = None
     niconico_id: Optional[str] = None
+    youtube_history: Optional[List[dict]] = None
+    niconico_history: Optional[List[dict]] = None
+
+    @validator('youtube_history', 'niconico_history', pre=True)
+    def parse_history(cls, v):
+        if isinstance(v, str):
+            try:
+                import json
+                return json.loads(v)
+            except ValueError:
+                return []
+        return v
 
 
 # --- Ranking Schemas ---

@@ -104,7 +104,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
     const formatSongType = (type: string | null) => {
         if (!type) return null;
         if (type === 'Original') return <span className="text-[var(--cyan-subtle)] font-bold uppercase text-[10px] tracking-widest">ORIGINAL</span>;
-        if (type === 'Cover') return <span className="text-[var(--vermilion)] font-bold uppercase text-[10px] tracking-widest">COVER</span>;
+        if (type === 'Cover') return <span className="text-[#E8954A] font-bold uppercase text-[10px] tracking-widest">COVER</span>;
         if (type === 'Remix') return <span className="text-[var(--gold)] font-bold uppercase text-[10px] tracking-widest">REMIX</span>;
         if (type === 'Remaster') return <span className="text-[#B284BE] font-bold uppercase text-[10px] tracking-widest">REMASTER</span>;
         return <span className="text-[var(--text-secondary)] font-bold uppercase text-[10px] tracking-widest">{type.toUpperCase()}</span>;
@@ -132,6 +132,36 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
     };
 
     if (songs.length === 0) {
+        // Weekly & Monthly require multiple daily snapshots to calculate gain.
+        // If no data yet, show an informational panel instead of a broken skeleton.
+        if (mode === 'weekly' || mode === 'monthly') {
+            const periodLabel = mode === 'weekly' ? 'weekly' : 'monthly';
+            return (
+                <div className="flex flex-col items-center justify-center py-24 gap-8 border-t border-[var(--hairline)]">
+                    {/* Decorative icon */}
+                    <div className="w-14 h-14 border border-[var(--hairline-strong)] flex items-center justify-center text-[var(--text-secondary)]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <div className="text-center space-y-3 max-w-sm">
+                        <p className="text-white font-bold tracking-[0.15em] uppercase text-sm">
+                            {periodLabel === 'weekly' ? 'Weekly' : 'Monthly'} Statistics In Progress
+                        </p>
+                        <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
+                            We are still collecting daily view snapshots. {periodLabel === 'weekly' ? 'Weekly' : 'Monthly'} rankings will be available once we have enough data to calculate gains accurately.
+                        </p>
+                        <div className="flex items-center justify-center gap-3 pt-2">
+                            <div className="w-8 h-px bg-[var(--vermilion)] opacity-60"></div>
+                            <span className="text-[var(--vermilion)] text-[10px] tracking-[0.3em] uppercase font-bold">Check back soon</span>
+                            <div className="w-8 h-px bg-[var(--vermilion)] opacity-60"></div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
         const skeletonRows = Array.from({ length: 5 });
         return (
             <div className="w-full animate-pulse">
@@ -263,7 +293,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                 <table className="w-full text-left border-collapse min-w-[800px] table-fixed">
                     <thead>
                         <tr className="text-[var(--text-secondary)] text-xs uppercase tracking-[0.25em] border-b border-[var(--hairline-strong)]">
-                            {showRank && <th className="py-4 font-normal text-center w-20">#</th>}
+                            {showRank && <th className="py-4 pl-4 font-normal text-center w-20">#</th>}
                             <th className="py-4 font-normal w-28">PV</th>
                             <th className="py-4 font-normal pl-2">{t('song')}</th>
                             <th className="py-4 font-normal text-right w-36">{t('published')}</th>
@@ -272,7 +302,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                             </th>
                             {/* Hide Gain for total ranking */}
                             {mode !== 'total' && (
-                                <th className="py-4 font-normal pr-4 text-right w-32">{t('increment')}</th>
+                                <th className="py-4 font-normal pr-6 text-right w-32">{t('increment')}</th>
                             )}
                         </tr>
                     </thead>
@@ -295,7 +325,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                     onClick={() => router.push(`/song/${song.id}`)}
                                 >
                                     {showRank && (
-                                        <td className="py-4 text-center align-middle">
+                                        <td className="py-4 pl-4 text-center align-middle">
                                             <span className={`font-serif text-3xl italic ${rankColor}`}>{rank}</span>
                                         </td>
                                     )}
@@ -339,7 +369,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                     </td>
 
                                     {mode !== 'total' && (
-                                        <td className="py-4 pr-4 text-right font-mono text-sm tracking-wider">
+                                        <td className="py-4 pr-6 text-right font-mono text-sm tracking-wider">
                                             <div className={`${getIncrement(song) > 0 ? 'text-[var(--vermilion)]' : 'text-[var(--text-secondary)]'}`}>
                                                 {getIncrement(song) > 0 ? `+${getIncrement(song).toLocaleString()}` : '-'}
                                             </div>
@@ -357,13 +387,12 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                     <div className="flex justify-center mt-12 pb-8">
                         <button
                             onClick={() => setShowAll(true)}
-                            className="group relative px-10 py-4 text-[var(--text-secondary)] hover:text-white font-medium text-xs tracking-[0.3em] uppercase transition-all"
+                            className="group flex items-center gap-3 px-10 py-4 text-[var(--text-secondary)] hover:text-white font-medium text-xs tracking-[0.3em] uppercase transition-all border border-[var(--hairline-strong)] hover:border-[var(--vermilion)] hover:text-[var(--vermilion)]"
                         >
-                            <span className="absolute inset-0 border border-[var(--hairline-strong)] group-hover:border-[var(--vermilion)] transition-colors duration-500"></span>
-                            <span className="relative z-10 flex items-center gap-3">
-                                {t('show_more', { defaultMessage: 'View Top 100' })}
-                                <span className="font-serif">◇</span>
-                            </span>
+                            {t('show_more', { defaultMessage: 'View Top 100' })}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-y-0.5">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
                         </button>
                     </div>
                 )

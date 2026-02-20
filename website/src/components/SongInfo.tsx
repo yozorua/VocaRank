@@ -1,5 +1,6 @@
 import { SongDetail } from '@/types';
 import { useLocale, useTranslations } from 'next-intl';
+import ViewHistoryChart from './ViewHistoryChart';
 
 export default function SongInfo({ song }: { song: SongDetail }) {
     const t = useTranslations('SongDetail');
@@ -217,6 +218,12 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                     </div>
                 </div>
             </div>
+
+            {/* View History Chart */}
+            <ViewHistoryChart
+                youtubeHistory={song.youtube_history}
+                niconicoHistory={song.niconico_history}
+            />
         </div>
     );
 }

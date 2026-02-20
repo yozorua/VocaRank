@@ -49,6 +49,8 @@ export interface SongDetail extends SongRanking {
     original_song?: SongRanking | null;
     youtube_views?: number;
     niconico_views?: number;
+    youtube_history?: { date: string; views: number }[] | null;
+    niconico_history?: { date: string; views: number }[] | null;
 }
 
 export type RankingMode = 'daily' | 'weekly' | 'monthly' | 'total';

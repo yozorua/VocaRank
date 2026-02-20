@@ -169,5 +169,7 @@ def get_song(song_id: int, db: Session = Depends(get_db)):
         artists=producers,
         vocalists=vocalists,
         youtube_id=yt_id,
-        niconico_id=nico_id
+        niconico_id=nico_id,
+        youtube_history=song.youtube_history,
+        niconico_history=song.niconico_history,
     )
