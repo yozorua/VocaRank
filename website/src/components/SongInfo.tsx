@@ -20,6 +20,10 @@ export default function SongInfo({ song }: { song: SongDetail }) {
         return `${y}/${m}/${d}`;
     };
 
+    const getTypeColor = (type: string | null) => {
+        return 'text-white';
+    };
+
     // Format duration MM:SS
     const formatDuration = (seconds: number | null | undefined) => {
         if (!seconds) return '-';
@@ -37,7 +41,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
     };
 
     return (
-        <div className="relative py-12 md:py-16 border-y border-[var(--hairline)] mb-10 group overflow-hidden">
+        <div className="relative py-12 md:py-16 border-y border-[var(--hairline)] mb-10 overflow-hidden">
             {/* Ambient Background Glow (Removed for Neo-Traditional, replaced with decorative text) */}
             <div className="absolute left-2 md:left-4 top-16 hidden lg:block vertical-text text-[var(--text-secondary)] text-[10px] tracking-[0.4em] z-0 select-none opacity-50">
                 SONG DETAILS / 楽曲詳細
@@ -49,11 +53,10 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                 <div className="flex-1 min-w-0">
                     <div className="mb-10">
                         <div className="w-12 h-px bg-[var(--vermilion)] mb-6 opacity-80"></div>
-                        <h1 className="text-3xl md:text-5xl lg:text-6xl font-black mb-6 tracking-[0.05em] text-white leading-tight">
+                        <h1 className="text-3xl lg:text-[2.5rem] font-black mb-6 tracking-[0.05em] text-white leading-none">
                             {displayTitle}
                         </h1>
                         <p className="text-lg md:text-xl text-[var(--gold)] font-serif tracking-wider flex items-center flex-wrap">
-                            <span className="text-[10px] uppercase font-sans tracking-[0.2em] text-[var(--text-secondary)] mr-4">ARTIST</span>
                             {song.artists && song.artists.length > 0 ? (
                                 song.artists.map((artist, i) => (
                                     <span key={artist.id} className="flex items-center">
@@ -74,50 +77,49 @@ export default function SongInfo({ song }: { song: SongDetail }) {
 
                         {/* Release Date Cell */}
                         <div className="border-b md:border-r border-[var(--hairline)] p-5 flex flex-col justify-center">
-                            <span className="text-[9px] uppercase tracking-[0.2em] text-[var(--text-secondary)] mb-2">
+                            <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-secondary)] mb-2">
                                 {t('release_date')}
                             </span>
-                            <span className="font-mono text-lg font-medium text-white tracking-wider">{formatDate(song.publish_date)}</span>
+                            <span className="font-sans text-xl font-bold text-white tracking-wider leading-none">{formatDate(song.publish_date)}</span>
                         </div>
 
                         {/* Song Type Cell */}
                         <div className="border-b md:border-r border-[var(--hairline)] p-5 flex flex-col justify-center">
-                            <span className="text-[9px] uppercase tracking-[0.2em] text-[var(--text-secondary)] mb-2">
+                            <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-secondary)] mb-2">
                                 {t('type')}
                             </span>
-                            <span className="font-bold text-sm text-[var(--cyan-subtle)] tracking-widest">{song.song_type?.toUpperCase()}</span>
+                            <span className={`font-sans font-bold text-xl tracking-wider leading-none ${getTypeColor(song.song_type)}`}>{song.song_type}</span>
                         </div>
 
                         {/* Duration Cell */}
                         <div className="border-b md:border-r border-[var(--hairline)] p-5 flex flex-col justify-center">
-                            <span className="text-[9px] uppercase tracking-[0.2em] text-[var(--text-secondary)] mb-2">
+                            <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-secondary)] mb-2">
                                 {t('duration')}
                             </span>
-                            <span className="font-mono text-lg font-medium text-white tracking-wider">{formatDuration(song.length_seconds)}</span>
+                            <span className="font-sans text-xl font-bold text-white tracking-wider leading-none">{formatDuration(song.length_seconds)}</span>
                         </div>
 
                         {/* Original Song Cell (Conditional) */}
                         <div className="border-b border-[var(--hairline)] p-5 flex flex-col justify-center relative group/orig">
-                            <span className="text-[9px] uppercase tracking-[0.2em] text-[var(--text-secondary)] mb-2 group-hover/orig:text-[var(--vermilion)] transition-colors">
+                            <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-secondary)] mb-2 group-hover/orig:text-[var(--vermilion)] transition-colors">
                                 {t('original_song')}
                             </span>
                             {song.original_song ? (
                                 <a
                                     href={`/song/${song.original_song.id}`}
-                                    className="font-bold text-sm text-white truncate group-hover/orig:text-[var(--vermilion)] transition-colors"
+                                    className="font-sans font-bold text-xl text-white truncate group-hover/orig:text-[var(--vermilion)] transition-colors leading-none"
                                 >
                                     {getOriginalSongName()}
                                 </a>
                             ) : (
-                                <span className="font-bold text-sm text-[var(--text-secondary)]">-</span>
+                                <span className="font-sans font-bold text-xl text-[var(--text-secondary)] leading-none">-</span>
                             )}
                         </div>
                     </div>
 
                     {/* Vocalist List */}
                     <div className="mb-0">
-                        <span className="text-[9px] uppercase tracking-[0.2em] text-[var(--text-secondary)] mb-4 flex items-center gap-3">
-                            <div className="w-2 h-2 border border-[var(--hairline-strong)]"></div>
+                        <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-secondary)] mb-4 flex items-center gap-3">
                             {t('vocalist')}
                         </span>
                         <div className="flex flex-wrap gap-4">
@@ -126,16 +128,16 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                                     <a
                                         key={artist.id}
                                         href={`/artist/${artist.id}`}
-                                        className="group flex items-center gap-3 pr-4 border border-[var(--hairline)] hover:border-[var(--vermilion)] transition-all bg-[var(--bg-dark)]"
+                                        className="group inline-flex w-max items-center gap-3 pr-4 transition-all"
                                     >
                                         <div className="w-8 h-8 overflow-hidden bg-[var(--hairline)] flex items-center justify-center shrink-0">
                                             {artist.picture_url_thumb ? (
-                                                <img src={artist.picture_url_thumb} alt={artist.name} className="w-full h-full object-cover object-top grayscale group-hover:grayscale-0 transition-all" />
+                                                <img src={artist.picture_url_thumb} alt={artist.name} className="w-full h-full object-cover object-top grayscale-[10%] group-hover:grayscale-0 transition-all" />
                                             ) : (
                                                 <span className="text-[10px] font-serif text-[var(--text-secondary)]">{artist.name.charAt(0)}</span>
                                             )}
                                         </div>
-                                        <span className="text-sm font-bold text-white group-hover:text-[var(--vermilion)] transition-colors tracking-widest truncate max-w-[150px]">
+                                        <span className="text-sm font-bold text-[var(--text-secondary)] group-hover:text-white transition-colors tracking-widest">
                                             {artist.name}
                                         </span>
                                     </a>
@@ -154,9 +156,8 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                     <div className="relative group/total mb-6 pt-2">
                         <p className="text-[var(--text-secondary)] text-[10px] uppercase tracking-[0.3em] mb-4 flex justify-between items-center">
                             <span>{t('total_views')}</span>
-                            <span className="font-serif">◇</span>
                         </p>
-                        <p className="text-4xl md:text-5xl font-black text-white font-mono tracking-wider">
+                        <p className="text-3xl lg:text-[2.5rem] leading-none font-black text-white font-mono tracking-wider">
                             {song.total_views.toLocaleString()}
                         </p>
                     </div>

@@ -42,20 +42,22 @@ export default async function SearchPage({ searchParams, params }: SearchPagePro
     };
 
     return (
-        <div className="max-w-[var(--max-width)] mx-auto px-6 py-8">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">{t('title')}</h1>
+        <div className="max-w-[var(--max-width)] mx-auto px-6 py-12 md:py-16">
+            <div className="mb-12">
+                <h1 className="text-3xl lg:text-[2.5rem] font-black tracking-[0.05em] mb-8 text-white">{t('title')}</h1>
                 <form action={`/${locale}/search`} method="GET" className="flex gap-2">
-                    <input
-                        type="text"
-                        name="q"
-                        defaultValue={query}
-                        placeholder={t('placeholder')}
-                        className="flex-grow bg-[var(--bg-card)] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[var(--miku-teal)]"
-                    />
+                    <div className="relative flex-grow">
+                        <input
+                            type="text"
+                            name="q"
+                            defaultValue={query}
+                            placeholder={t('placeholder')}
+                            className="w-full bg-[var(--bg-dark)] border-b-2 border-[var(--hairline-strong)] text-white text-lg px-2 py-4 focus:outline-none focus:border-[var(--vermilion)] transition-colors placeholder:text-[var(--text-secondary)] placeholder:text-sm placeholder:tracking-wider placeholder:font-sans font-bold"
+                        />
+                    </div>
                     <button
                         type="submit"
-                        className="bg-[var(--miku-teal)] text-black font-bold px-6 py-3 rounded-lg hover:bg-[var(--miku-teal-dark)] transition-colors"
+                        className="bg-transparent border border-[var(--hairline-strong)] text-white hover:border-[var(--vermilion)] hover:text-[var(--vermilion)] font-bold px-10 py-3 uppercase tracking-widest text-xs transition-colors shrink-0"
                     >
                         {t('search')}
                     </button>
@@ -70,31 +72,30 @@ export default async function SearchPage({ searchParams, params }: SearchPagePro
 
             {/* Artists Section */}
             {artists.length > 0 && (
-                <div className="mb-10">
-                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <div className="mb-16">
+                    <h2 className="text-sm font-bold tracking-[0.2em] text-[var(--text-secondary)] uppercase mb-6 flex items-center gap-4">
                         {t('artists', { defaultMessage: 'Artists' })}
+                        <div className="h-px flex-1 bg-[var(--hairline)]"></div>
                     </h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
                         {artists.map((artist) => {
                             const thumb = artist.picture_url_thumb || artist.picture_url_original;
                             return (
                                 <Link
                                     key={artist.id}
                                     href={`/artist/${artist.id}`}
-                                    className="glass-panel p-4 rounded-xl border border-white/5 hover:bg-white/5 hover:scale-105 transition-all flex flex-col items-center text-center gap-3 relative overflow-hidden group"
+                                    className="p-6 border border-[var(--hairline)] hover:border-[var(--vermilion)] transition-colors flex flex-col items-center text-center gap-5 group bg-[var(--bg-dark)]"
                                 >
-                                    <div className="w-20 h-20 rounded-full overflow-hidden bg-black/50 border-2 border-[var(--miku-teal)]/30 group-hover:border-[var(--miku-teal)] transition-colors">
+                                    <div className="w-24 h-24 overflow-hidden bg-[var(--hairline)] flex items-center justify-center shrink-0">
                                         {thumb ? (
-                                            <img src={thumb} alt={artist.name_default} className="w-full h-full object-cover object-top" />
+                                            <img src={thumb} alt={artist.name_default} className="w-full h-full object-cover object-top grayscale-[90%] group-hover:grayscale-0 transition-all duration-300" />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-xl text-gray-500">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                                            </div>
+                                            <span className="text-2xl font-serif text-[var(--text-secondary)]">{artist.name_default.charAt(0)}</span>
                                         )}
                                     </div>
-                                    <div className="min-w-0 w-full">
-                                        <div className="font-bold text-white truncate">{getArtistName(artist)}</div>
-                                        <div className="text-xs text-[var(--miku-teal)] uppercase tracking-wider mt-1">{artist.artist_type.replace(/([a-z])([A-Z])/g, '$1 $2').replace('SynthesizerV', 'Synthesizer V')}</div>
+                                    <div className="min-w-0 w-full flex flex-col items-center">
+                                        <div className="font-bold text-white group-hover:text-[var(--vermilion)] truncate w-full tracking-widest transition-colors">{getArtistName(artist)}</div>
+                                        <div className="text-[10px] text-[var(--text-secondary)] uppercase tracking-[0.2em] mt-2">{artist.artist_type.replace(/([a-z])([A-Z])/g, '$1 $2').replace('SynthesizerV', 'Synthesizer V')}</div>
                                     </div>
                                 </Link>
                             );
@@ -105,9 +106,10 @@ export default async function SearchPage({ searchParams, params }: SearchPagePro
 
             {/* Songs Section */}
             {songs.length > 0 && (
-                <div>
-                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <div className="mb-16">
+                    <h2 className="text-sm font-bold tracking-[0.2em] text-[var(--text-secondary)] uppercase mb-6 flex items-center gap-4">
                         {t('songs', { defaultMessage: 'Songs' })}
+                        <div className="h-px flex-1 bg-[var(--hairline)]"></div>
                     </h2>
                     <RankingTable songs={songs} mode="total" showRank={false} />
                 </div>

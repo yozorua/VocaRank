@@ -103,10 +103,10 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
 
     const formatSongType = (type: string | null) => {
         if (!type) return null;
-        if (type === 'Original') return <span className="text-white border border-white/30 px-1 py-[2px] font-medium uppercase text-[9px] tracking-widest">ORIGINAL</span>;
-        if (type === 'Cover') return <span className="text-[var(--cyan-subtle)] border border-[var(--cyan-subtle)]/40 px-1 py-[2px] font-medium uppercase text-[9px] tracking-widest">COVER</span>;
-        if (type === 'Remix') return <span className="text-[var(--gold)] border border-[var(--gold)]/40 px-1 py-[2px] font-medium uppercase text-[9px] tracking-widest">REMIX</span>;
-        return <span className="text-[var(--text-secondary)] border border-[var(--hairline-strong)] px-1 py-[2px] font-medium uppercase text-[9px] tracking-widest">{type.toUpperCase()}</span>;
+        if (type === 'Original') return <span className="text-[var(--cyan-subtle)] font-bold uppercase text-[10px] tracking-widest">ORIGINAL</span>;
+        if (type === 'Cover') return <span className="text-[var(--vermilion)] font-bold uppercase text-[10px] tracking-widest">COVER</span>;
+        if (type === 'Remix') return <span className="text-[var(--gold)] font-bold uppercase text-[10px] tracking-widest">REMIX</span>;
+        return <span className="text-[var(--text-secondary)] font-bold uppercase text-[10px] tracking-widest">{type.toUpperCase()}</span>;
     };
 
     const renderArtistList = (artists: any[]) => {
@@ -194,7 +194,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                     const rank = index + 1;
                     const rankColor = rank === 1 ? "text-[var(--gold)]"
                         : rank === 2 ? "text-white"
-                            : rank === 3 ? "text-[var(--cyan-subtle)]"
+                            : rank === 3 ? "text-[#CD7F32]"
                                 : "text-[var(--text-secondary)] opacity-50";
 
                     const increment = getIncrement(song);
@@ -211,7 +211,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
 
                                 {/* Thumbnail */}
                                 <div className="w-24 h-16 bg-black border border-[var(--hairline)] flex-shrink-0 relative">
-                                    <ThumbnailWithFallback song={song} className="w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all duration-500" />
+                                    <ThumbnailWithFallback song={song} className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-500" />
                                 </div>
 
                                 {/* Info */}
@@ -261,8 +261,8 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
             <div className="hidden md:block overflow-x-auto px-1 pb-4">
                 <table className="w-full text-left border-collapse min-w-[800px] table-fixed">
                     <thead>
-                        <tr className="text-[var(--text-secondary)] text-[10px] uppercase tracking-[0.2em] border-b border-[var(--hairline-strong)]">
-                            {showRank && <th className="py-4 font-normal text-center w-20">RANK</th>}
+                        <tr className="text-[var(--text-secondary)] text-xs uppercase tracking-[0.25em] border-b border-[var(--hairline-strong)]">
+                            {showRank && <th className="py-4 font-normal text-center w-20">#</th>}
                             <th className="py-4 font-normal w-28">PV</th>
                             <th className="py-4 font-normal pl-2">{t('song')}</th>
                             <th className="py-4 font-normal text-right w-36">{t('published')}</th>
@@ -280,7 +280,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                             const rank = index + 1;
                             const rankColor = rank === 1 ? "text-[var(--gold)] drop-shadow-[0_0_8px_rgba(212,175,55,0.4)]"
                                 : rank === 2 ? "text-white"
-                                    : rank === 3 ? "text-[var(--cyan-subtle)]"
+                                    : rank === 3 ? "text-[#CD7F32]"
                                         : "text-[var(--text-secondary)] opacity-50";
 
                             return (
@@ -300,28 +300,31 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                     )}
                                     <td className="py-4">
                                         <div className="w-24 h-16 relative border border-[var(--hairline)] bg-black mr-4 overflow-hidden">
-                                            <ThumbnailWithFallback song={song} className="w-full h-full object-cover grayscale-[50%] group-hover:-translate-y-1 group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700 ease-out" />
+                                            <ThumbnailWithFallback song={song} className="w-full h-full object-cover grayscale-[30%] group-hover:-translate-y-1 group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700 ease-out" />
                                         </div>
                                     </td>
                                     <td className="py-4 pl-2 pr-4 text-ellipsis overflow-hidden">
-                                        <div className="font-bold text-white text-base mb-2 line-clamp-1 group-hover:text-[var(--vermilion)] transition-colors tracking-wide w-full" title={getSongName(song) ?? ""}>
+                                        <div className="font-bold text-white text-base mb-1.5 line-clamp-1 group-hover:text-[var(--vermilion)] transition-colors tracking-wide w-full" title={getSongName(song) ?? ""}>
                                             {getSongName(song)}
                                         </div>
-                                        <div className="text-[11px] text-[var(--text-secondary)] flex items-center gap-3">
-                                            <div className="flex-shrink-0">
-                                                {formatSongType(song.song_type)}
-                                            </div>
-                                            <div className="flex items-center gap-2 line-clamp-1 truncate min-w-0">
-                                                {renderArtistList(song.artists)}
+                                        <div className="flex flex-col gap-1.5 w-full">
+                                            <div className="text-[11px] text-[var(--text-secondary)] flex items-center gap-2 min-w-0 w-full">
+                                                <div className="w-[72px] flex-shrink-0">
+                                                    {formatSongType(song.song_type)}
+                                                </div>
+                                                <div className="flex items-center gap-2 line-clamp-1 truncate min-w-0 flex-1">
+                                                    {renderArtistList(song.artists)}
+                                                </div>
                                             </div>
                                             {song.vocalists && song.vocalists.length > 0 && (
-                                                <>
-                                                    <span className="text-[var(--hairline-strong)]">|</span>
-                                                    <div className="flex items-center gap-2 line-clamp-1 truncate min-w-0">
-                                                        <span className="text-[9px] uppercase tracking-widest text-white/40">Vocals</span>
+                                                <div className="text-[11px] text-[var(--text-secondary)] flex items-center gap-2 min-w-0 w-full">
+                                                    <div className="w-[72px] flex-shrink-0 text-[9px] uppercase tracking-widest text-white/40">
+                                                        VOCALS
+                                                    </div>
+                                                    <div className="flex items-center gap-2 line-clamp-1 truncate min-w-0 flex-1">
                                                         {renderArtistList(song.vocalists)}
                                                     </div>
-                                                </>
+                                                </div>
                                             )}
                                         </div>
                                     </td>

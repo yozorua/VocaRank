@@ -41,35 +41,32 @@ export default async function RankingPage({ searchParams, params }: RankingPageP
                 <p className="text-[var(--text-secondary)] text-sm md:text-base">{t('description')}</p>
             </div>
 
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-6 md:mb-8 border-b border-gray-800/50 pb-2">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-6 md:mb-8 border-b border-[var(--hairline-strong)] pb-0">
                 {/* Ranking Mode Tabs */}
-                <div className="flex gap-4 overflow-x-auto pb-2 -mb-2">
+                <div className="flex gap-6 overflow-x-auto">
                     {tabs.map((tab) => (
                         <Link
                             key={tab.key}
                             href={`/ranking?mode=${tab.key}&sort=${sort}`}
-                            className={`px-6 py-3 rounded-t-lg transition-all font-bold whitespace-nowrap text-sm tracking-wide relative overflow-hidden group flex items-center justify-center ${mode === tab.key
-                                ? 'text-white bg-gradient-to-t from-[var(--miku-teal)]/20 to-transparent border-b-2 border-[var(--miku-teal)] shadow-[0_4px_20px_rgba(57,197,187,0.3)]'
-                                : 'text-gray-500 hover:text-white hover:bg-white/5'
+                            className={`pb-3 border-b-2 transition-all font-bold whitespace-nowrap text-sm tracking-[0.1em] ${mode === tab.key
+                                ? 'text-white border-[var(--vermilion)]'
+                                : 'text-[var(--text-secondary)] border-transparent hover:text-white'
                                 }`}
                         >
-                            <span className="relative z-10">{tab.label}</span>
-                            {mode === tab.key && (
-                                <span className="absolute inset-0 bg-[var(--miku-teal)]/10 blur-xl"></span>
-                            )}
+                            {tab.label}
                         </Link>
                     ))}
                 </div>
 
                 {/* Sort Controls (For all modes) */}
-                <div className="flex items-center gap-2 bg-black/20 p-1 rounded-lg border border-white/5">
+                <div className="flex items-center gap-6 pb-3">
                     {sortOptions.map((option) => (
                         <Link
                             key={option.key}
                             href={`/ranking?mode=${mode}&sort=${option.key}`}
-                            className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${sort === option.key
-                                ? 'bg-[var(--miku-pink)] text-white shadow-lg'
-                                : 'text-gray-400 hover:text-white hover:bg-white/5'
+                            className={`text-[10px] uppercase font-bold transition-all tracking-widest ${sort === option.key
+                                ? 'text-white'
+                                : 'text-[var(--text-secondary)] hover:text-white'
                                 }`}
                         >
                             {option.label}
