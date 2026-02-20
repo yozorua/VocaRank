@@ -159,9 +159,23 @@ def main():
         
         for row in chunk:
             song_id, pv_data_json, nico_hist, yt_hist, current_nico_views, current_yt_views = row
+            
+            # Dynamically determine the primary PV IDs like the API does
+            yt_id = None
+            nico_id = None
+            try:
+                p = json.loads(pv_data_json)
+                if isinstance(p, list):
+                    for pv in p:
+                        srv = pv.get('service')
+                        if srv == 'Youtube' and not yt_id: yt_id = pv.get('pvId')
+                        elif srv == 'NicoNicoDouga' and not nico_id: nico_id = pv.get('pvId')
+            except: pass
+            
             song_updates[song_id] = {
                 'nico_views': current_nico_views, 'yt_views': current_yt_views,
                 'nico_hist': nico_hist, 'yt_hist': yt_hist, 'pv_data': pv_data_json,
+                'nico_id': nico_id, 'yt_id': yt_id,
                 'nico_changed': False, 'yt_changed': False,
                 'temp_yt_views': {}, 'temp_nico_views': {}
             }
@@ -242,8 +256,8 @@ def main():
                             pv_changed = True
             except: pass
 
-            if up['nico_changed']:
-                new_val = max(up['temp_nico_views'].values()) if up['temp_nico_views'] else 0
+            if up['nico_changed'] and up['nico_id'] in up['temp_nico_views']:
+                new_val = up['temp_nico_views'][up['nico_id']]
                 if new_val != up['nico_views']:
                     total_nico_updates += 1
                     batch_nico_updates += 1
@@ -251,8 +265,8 @@ def main():
                 updates_sql.append("niconico_views=?, niconico_history=?")
                 params.extend([new_val, new_hist])
                 
-            if up['yt_changed']:
-                new_val = max(up['temp_yt_views'].values()) if up['temp_yt_views'] else 0
+            if up['yt_changed'] and up['yt_id'] in up['temp_yt_views']:
+                new_val = up['temp_yt_views'][up['yt_id']]
                 if new_val != up['yt_views']:
                     total_yt_updates += 1
                     batch_yt_updates += 1
