@@ -9,14 +9,12 @@ export default function NoThumbnail({ className = "" }: { className?: string }) 
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="w-1/3 h-1/3 mb-1 opacity-50"
+                className="w-1/3 h-1/3 opacity-30"
             >
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                <line x1="2" y1="22" x2="22" y2="2"></line>
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
             </svg>
-            <span className="text-[10px] uppercase font-bold tracking-wider opacity-60">No Video</span>
         </div>
     );
 }
