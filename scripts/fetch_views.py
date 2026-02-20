@@ -287,7 +287,7 @@ def main():
 
         conn.commit()
         count_processed += len(chunk)
-        log_message("INFO", f"Processed {count_processed} / {len(rows)} songs... (Batch Updates -> Niconico: {batch_nico_updates} | YouTube: {batch_yt_updates})")
+        log_message("INFO", f"Fetching views: {count_processed}/{len(rows)} songs... ( Niconico: {batch_nico_updates} | YouTube: {batch_yt_updates})")
         time.sleep(0.5)
 
     log_message("SUCCESS", f"Finished checking {len(rows)} songs. Total Updates Found -> Niconico: {total_nico_updates} | YouTube: {total_yt_updates}.")

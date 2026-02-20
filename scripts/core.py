@@ -7,7 +7,7 @@ import time
 from typing import Dict, Any, List, Tuple, Optional
 
 # Configuration
-DB_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../database'))
+DB_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../database'))
 DB_PATH = os.path.join(DB_DIR, 'vocarank.db')
 API_BASE = "https://vocadb.net/api"
 YOUTUBE_API_URL = "https://www.googleapis.com/youtube/v3/videos"

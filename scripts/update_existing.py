@@ -63,32 +63,41 @@ def update_song_by_id(conn: sqlite3.Connection, song_id: int):
             cursor.execute("INSERT OR IGNORE INTO song_tags (song_id, tag_id) VALUES (?, ?)", (song_id, tid))
             
         conn.commit()
-        
     except Exception as e:
-        log_message("ERROR", f"[songs] Error updating ID {song_id}: {e}")
+        log_message("ERROR", f"Error updating ID {song_id}: {e}")
 
+def update_song_worker(song_id: int):
+    """Worker function for threaded updates. Creates its own connection per thread."""
 def update_song_worker(song_id: int):
     """Worker function for threaded updates. Creates its own connection per thread."""
     conn = get_db_connection()
     try:
         update_song_by_id(conn, song_id)
     except Exception as e:
-        log_message("ERROR", f"[songs] Error in worker for ID {song_id}: {e}")
+        log_message("ERROR", f"Error in worker for ID {song_id}: {e}")
     finally:
         conn.close()
 
-def update_artist_by_id(conn: sqlite3.Connection, artist_id: int):
-    """Fetches and updates a specific artist by ID."""
+def update_artist_by_id(conn: sqlite3.Connection, artist_id: int) -> bool:
+    """Fetches and updates a specific artist by ID. Returns True if materially changed."""
     from .core import fetch_artist, transform_artist_api
     cursor = conn.cursor()
+    changed = False
     
     data = fetch_artist(artist_id)
     if not data:
-        log_message("WARNING", f"[artists] Failed to fetch data for ID {artist_id}")
-        return
+        log_message("WARNING", f"Failed to fetch data for ID {artist_id}")
+        return False
 
     try:
         record = transform_artist_api(data)
+        
+        cursor.execute("SELECT name_english, picture_url_thumb FROM artists WHERE id=?", (artist_id,))
+        existing = cursor.fetchone()
+        
+        if not existing or record[4] != existing[0] or record[9] != existing[1]:
+            changed = True
+            
         artist_sql = '''
             INSERT OR REPLACE INTO artists (
                 id, artist_type, name_default, name_default_lang,
@@ -99,33 +108,29 @@ def update_artist_by_id(conn: sqlite3.Connection, artist_id: int):
         cursor.execute(artist_sql, record)
         conn.commit()
     except Exception as e:
-        log_message("ERROR", f"[artists] Error updating ID {artist_id}: {e}")
+        log_message("ERROR", f"Error updating ID {artist_id}: {e}")
+        
+    return changed
 
-def update_artist_worker(artist_id: int):
-    """Worker function for threaded artist updates."""
-    import time
+def update_artist_worker(artist_id: int) -> bool:
+    """Worker function for threaded artist updates. Returns True if materially changed."""
     conn = get_db_connection()
     try:
-        update_artist_by_id(conn, artist_id)
-        time.sleep(1.0) # Increased to 1.0s to drastically reduce VocaDB connection spam
+        return update_artist_by_id(conn, artist_id)
     except Exception as e:
-        log_message("ERROR", f"[artists] Error in worker for ID {artist_id}: {e}")
+        log_message("ERROR", f"Error in worker for ID {artist_id}: {e}")
+        return False
     finally:
         conn.close()
 
-def refresh_artists(limit: int = 1000):
+def refresh_artists(limit: int = 10000):
     """
-    Spins up threads to update all artists (or oldest artists if limit applied).
-    Because artists don't have a last_update_time right now, we will update sequentially by ID.
-    If limit is smaller than max, it does a chunk. But typically we want to just go through them.
-    We'll do oldest IDs first to ensure legacy metadata gets refreshed.
+    Runs 5 parallel threads to update artists quickly.
     """
-    log_message("INFO", f"[artists] Checking for {limit} artists to refresh...")
+    log_message("INFO", f"Checking for {limit} artists to refresh...")
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Grab ALL artists up to the limit, sorted by last_update_time ASC (oldest updated artists first).
-    # IF last_update_time is NULL (legacy records), they will correctly be sorted to the very top.
     cursor.execute("""
         SELECT id FROM artists 
         ORDER BY last_update_time ASC 
@@ -133,30 +138,37 @@ def refresh_artists(limit: int = 1000):
     """, (limit,))
     target_ids = [row[0] for row in cursor.fetchall()]
     conn.close()
-
+    
     if not target_ids:
-        log_message("INFO", "[artists] No artists found to update.")
+        log_message("INFO", "No artists found to update.")
         return
-        
-    log_message("INFO", f"[artists] Found {len(target_ids)} artists to refresh. Starting parallel update...")
-
-    # Reduced from 5 to 3 parallel workers to prevent rapid-fire 429 connection timeouts from VocaDB API limits
-    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
-        futures = [executor.submit(update_artist_worker, artist_id) for artist_id in target_ids]
-        
-        completed = 0
+    
+    log_message("INFO", f"Found {len(target_ids)} artists to refresh.")
+    
+    total_processed = 0
+    actually_changed = 0
+    
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        futures = [executor.submit(update_artist_worker, aid) for aid in target_ids]
         for future in concurrent.futures.as_completed(futures):
-            completed += 1
-            if completed % 100 == 0:
-                log_message("INFO", f"[artists] Progress: {completed}/{len(target_ids)} refreshed.")
+            total_processed += 1
+            if future.result():
+                actually_changed += 1
+            if total_processed % 100 == 0:
+                log_message("INFO", f"Updating artists: {total_processed}/{len(target_ids)} refreshed...")
             
-    log_message("SUCCESS", f"[artists] Finished refreshing {len(target_ids)} records.")
+    log_message("SUCCESS", f"Finished processing {total_processed} records. Detected material changes for ~{actually_changed} artists.")
 
 def refresh_songs(mode: str, limit: int = 10000):
     """
-    Spins up threads to update oldest or newest songs safely with SQLite WAL.
+    Sequentially fetches and updates songs safely with SQLite WAL.
     """
-    log_message("INFO", f"[{mode}] Checking for {limit} records to refresh...")
+    import time
+    if mode == "oldest":
+        log_message("INFO", f"Checking for {limit} old songs to refresh...")
+    else:
+        log_message("INFO", f"Checking for {limit} newest songs to refresh...")
+        
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -171,6 +183,7 @@ def refresh_songs(mode: str, limit: int = 10000):
     elif mode == "newest":
         max_id = get_max_id(conn, 'songs')
         if max_id == 0:
+            conn.close()
             return
 
         start_id = max_id
@@ -179,25 +192,23 @@ def refresh_songs(mode: str, limit: int = 10000):
         cursor.execute("SELECT id FROM songs WHERE id <= ? AND id > ? ORDER BY id DESC", (start_id, end_id))
         target_ids = [row[0] for row in cursor.fetchall()]
     
-    # Close main connection before branching out threads.
-    conn.close()
-
     if not target_ids:
-        log_message("INFO", "[songs] No songs found to update.")
+        conn.close()
+        log_message("INFO", "No songs found to update.")
         return
         
-    log_message("INFO", f"[songs] Found {len(target_ids)} songs to refresh. Starting parallel update...")
+    log_message("INFO", f"Found {len(target_ids)} songs to refresh.")
 
+    import concurrent.futures
+    completed = 0
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(update_song_worker, song_id) for song_id in target_ids]
-        
-        completed = 0
         for future in concurrent.futures.as_completed(futures):
             completed += 1
             if completed % 100 == 0:
-                log_message("INFO", f"[songs/{mode}] Progress: {completed}/{len(target_ids)} refreshed.")
+                log_message("INFO", f"Updating songs: {completed}/{len(target_ids)} refreshed...")
             
-    log_message("SUCCESS", f"[songs] Finished refreshing {len(target_ids)} records.")
+    log_message("SUCCESS", f"Finished refreshing {completed} records.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="VocaRank Existing Database Metadata Updater")

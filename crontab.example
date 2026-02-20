@@ -1,0 +1,50 @@
+# VocaRank Crontab Configuration Example
+# =========================================
+# This file shows the recommended cron schedule for running VocaRank's
+# background data pipeline. All times are in LOCAL server time (UTC+8).
+#
+# SETUP: To activate, run:
+#   crontab /path/to/VocaRank/crontab.example
+#
+# TIMEZONE NOTE:
+#   This schedule is designed for a UTC+8 server.
+#   If your server is in a different timezone, adjust accordingly.
+#   Key constraint: "views all" MUST launch at 00:01 UTC to stamp
+#   daily_snapshots with the correct date.
+#
+# JOB RUNTIMES (approximate, measured on this server):
+#   fetch-new                         ~ instant
+#   update-existing --songs 10000     ~ 58 min
+#   update-existing --newest-songs    ~ 58 min
+#   update-existing --artists 10000   ~ 58 min
+#   views all                         ~ 1h 50m
+#   views popular                     ~ 4 min
+#
+# PIPELINE ORDER (UTC):
+#   18:30  fetch-new
+#   19:00  --songs        (finishes ~19:58)
+#   20:30  --newest-songs (finishes ~21:28)
+#   22:00  --artists      (finishes ~22:58)
+#   00:01  views all      (finishes ~01:51) ← midnight UTC snapshot
+#   03-23  views popular  (skips UTC 00,01,02 to avoid locking conflict with 'views all')
+
+# 1. Fetch Brand New VocaDB Songs & Artists (Daily at 2:30 AM local / 18:30 UTC)
+30 2 * * * /home/yozorua/VocaRank/run_vocarank.sh fetch-new
+
+# 2. Update Old Song Metadata (Daily at 3:00 AM local / 19:00 UTC)
+0 3 * * * /home/yozorua/VocaRank/run_vocarank.sh update-existing --songs 10000
+
+# 3. Update Newest Song Metadata (Daily at 4:30 AM local / 20:30 UTC)
+30 4 * * * /home/yozorua/VocaRank/run_vocarank.sh update-existing --newest-songs 10000
+
+# 4. Update Existing Artist Profiles (Daily at 6:00 AM local / 22:00 UTC)
+0 6 * * * /home/yozorua/VocaRank/run_vocarank.sh update-existing --artists 10000
+
+# 5. Fetch Views - All Songs & Create Daily Snapshot (8:01 AM local / 00:01 UTC)
+#    IMPORTANT: This job stamps the daily_snapshots table. Do NOT move it to a
+#    different hour without recalculating the UTC offset for your timezone.
+1 8 * * * /home/yozorua/VocaRank/run_vocarank.sh views all
+
+# 6. Fetch Views - Popular Songs (Every hour, EXCEPT UTC 0-2 to avoid db lock conflict)
+#    views all runs 00:01-01:51 UTC. views popular is suppressed during this window.
+0 3-23 * * * /home/yozorua/VocaRank/run_vocarank.sh views popular
