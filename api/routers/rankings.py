@@ -63,30 +63,36 @@ def get_gain_ranking(
         WHERE today.date = :current_date AND past.date = :target_date
     """
     
+    from sqlalchemy import bindparam
+    
     params = {"current_date": current_date_str, "target_date": target_date_str, "limit": limit}
     
     if song_type:
         types = [t.strip() for t in song_type.split(',')]
         if len(types) == 1:
-            query_str += " AND s.song_type = :song_type"
-            params["song_type"] = types[0]
+            query_str += " AND s.song_type = :single_song_type"
+            params["single_song_type"] = types[0]
         else:
-            # Manual IN clause construction for safety across drivers
-            clean_types = [t.replace("'", "''") for t in types]
-            type_str = "', '".join(clean_types)
-            query_str += f" AND s.song_type IN ('{type_str}')"
+            query_str += " AND s.song_type IN :song_types"
+            params["song_types"] = types
         
     if vocaloid_only:
-        synth_list = "', '".join(SYNTH_TYPES)
-        query_str += f""" AND EXISTS (
+        query_str += """ AND EXISTS (
             SELECT 1 FROM song_artists sa 
             JOIN artists a ON sa.artist_id = a.id 
-            WHERE sa.song_id = s.id AND a.artist_type IN ('{synth_list}')
+            WHERE sa.song_id = s.id AND a.artist_type IN :synth_types
         )"""
+        params["synth_types"] = list(SYNTH_TYPES)
 
     query_str += f" ORDER BY {order_clause} LIMIT :limit"
     
     sql = text(query_str)
+    
+    if "song_types" in params:
+        sql = sql.bindparams(bindparam('song_types', expanding=True))
+    if "synth_types" in params:
+        sql = sql.bindparams(bindparam('synth_types', expanding=True))
+        
     results = db.execute(sql, params).fetchall()
     
     # Process
@@ -180,30 +186,36 @@ def get_total_ranking(
         WHERE 1=1
     """
     
+    from sqlalchemy import bindparam
+    
     params = {"limit": limit}
     
     if song_type:
         types = [t.strip() for t in song_type.split(',')]
         if len(types) == 1:
-            query_str += " AND s.song_type = :song_type"
-            params["song_type"] = types[0]
+            query_str += " AND s.song_type = :single_song_type"
+            params["single_song_type"] = types[0]
         else:
-            # Manual IN clause construction for safety across drivers
-            clean_types = [t.replace("'", "''") for t in types]
-            type_str = "', '".join(clean_types)
-            query_str += f" AND s.song_type IN ('{type_str}')"
+            query_str += " AND s.song_type IN :song_types"
+            params["song_types"] = types
         
     if vocaloid_only:
-        synth_list = "', '".join(SYNTH_TYPES)
-        query_str += f""" AND EXISTS (
+        query_str += """ AND EXISTS (
             SELECT 1 FROM song_artists sa 
             JOIN artists a ON sa.artist_id = a.id 
-            WHERE sa.song_id = s.id AND a.artist_type IN ('{synth_list}')
+            WHERE sa.song_id = s.id AND a.artist_type IN :synth_types
         )"""
+        params["synth_types"] = list(SYNTH_TYPES)
 
     query_str += f" ORDER BY {order_clause} LIMIT :limit"
     
     sql = text(query_str)
+    
+    if "song_types" in params:
+        sql = sql.bindparams(bindparam('song_types', expanding=True))
+    if "synth_types" in params:
+        sql = sql.bindparams(bindparam('synth_types', expanding=True))
+        
     results = db.execute(sql, params).fetchall()
     
     song_ids = [row[0] for row in results]

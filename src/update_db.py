@@ -12,7 +12,7 @@ DB_PATH = os.path.join(DB_DIR, 'vocarank.db')
 
 API_BASE = "https://vocadb.net/api"
 MAX_CONSECUTIVE_ERRORS = 20 # Stop if we get 20 errors in a row (e.g. reach end of song list)
-SLEEP_TIME = 0.5 # Be nice to the API
+SLEEP_TIME = 0.1 # Reduced for speed (was 0.5)
 
 def get_utc_now_iso() -> str:
     """Returns current UTC time in ISO 8601 format."""
@@ -482,6 +482,48 @@ def update_oldest_songs(conn: sqlite3.Connection, limit: int = 10000):
             
     print(f"[songs] Finished refreshing {len(oldest_songs)} old records.")
 
+def update_newest_songs(conn: sqlite3.Connection, limit: int = 10000):
+    """
+    Updates the newest songs (by ID) in the database.
+    Target: Max ID down to Max ID - limit.
+    """
+    import concurrent.futures
+    
+    # Get Max ID
+    max_id = get_max_id(conn, 'songs')
+    if max_id == 0:
+        print("[songs] No songs found to update.")
+        return
+
+    # Calculate range
+    start_id = max_id
+    end_id = max(1, max_id - limit)
+    
+    # Get list of IDs in this range that actually exist in DB
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM songs WHERE id <= ? AND id > ? ORDER BY id DESC", (start_id, end_id))
+    target_ids = [row[0] for row in cursor.fetchall()]
+    
+    if not target_ids:
+        print("[songs] No newest songs found to update.")
+        return
+        
+    print(f"[songs] Found {len(target_ids)} newest songs to refresh (IDs {start_id} -> {end_id}). Starting parallel update...")
+    
+    def create_conn():
+        return sqlite3.connect(DB_PATH)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        futures = [executor.submit(update_song_worker, create_conn, song_id) for song_id in target_ids]
+        
+        completed = 0
+        for future in concurrent.futures.as_completed(futures):
+            completed += 1
+            if completed % 100 == 0:
+                print(f"[songs/new] Progress: {completed}/{len(target_ids)} refreshed.")
+            
+    print(f"[songs] Finished refreshing {len(target_ids)} newest records.")
+
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="VocaRank Database Updater")
@@ -590,12 +632,14 @@ def main():
         
         conn.close() # Close before entering threaded function which makes its own conns
         
-        # 2. Refresh a batch of old songs (e.g. 10000 per run ~ 30 mins with parallel)
-        # This ensures the DB cycles through updates eventually
-        # 800k songs / 10000 = 80 days (~2.5 months) cycle.
-        # This finishes safely before the 4:00 AM views job.
+        # 2. Refresh a batch of old songs (e.g. 10000 per run)
         conn = sqlite3.connect(DB_PATH)
         update_oldest_songs(conn, limit=args.limit)
+        conn.close()
+
+        # 3. Refresh newest songs (maintain freshness of recent additions)
+        conn = sqlite3.connect(DB_PATH)
+        update_newest_songs(conn, limit=args.limit)
         conn.close()
 
 if __name__ == "__main__":

@@ -35,17 +35,17 @@ def get_artists_for_songs(db: Session, song_ids: List[int]) -> Dict[int, Dict[st
     if not song_ids:
         return {}
         
-    ids_str = ",".join(str(sid) for sid in song_ids)
+    from sqlalchemy import bindparam
     
     # We fetch id, name, artist_type, and picture_url_thumb
-    sql = text(f"""
+    sql = text("""
         SELECT sa.song_id, a.id, a.name_default, a.artist_type, a.picture_url_thumb
         FROM song_artists sa 
         JOIN artists a ON sa.artist_id = a.id 
-        WHERE sa.song_id IN ({ids_str})
-    """)
+        WHERE sa.song_id IN :song_ids
+    """).bindparams(bindparam('song_ids', expanding=True))
     
-    results = db.execute(sql).fetchall()
+    results = db.execute(sql, {'song_ids': song_ids}).fetchall()
     
     artist_map = {}
     

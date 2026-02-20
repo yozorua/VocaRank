@@ -63,7 +63,7 @@ def search_songs(
     if sort_by == 'total_views':
         sql_query += " ORDER BY total_views DESC"
     elif sort_by == 'publish_date':
-            sql_query += " ORDER BY s.publish_date DESC"
+        sql_query += " ORDER BY s.publish_date DESC"
             
     sql_query += " LIMIT :limit"
     
@@ -90,8 +90,9 @@ def search_songs(
             name_english=row[1],
             name_japanese=row[2],
             name_romaji=row[3],
-            total_views=row[4],
-            view_increment=0, 
+            increment_total=0,
+            increment_youtube=0,
+            increment_niconico=0,
             views_youtube=row[5],
             views_niconico=row[6],
             youtube_id=yt_id,
