@@ -296,13 +296,13 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                             {showRank && <th className="py-4 pl-4 font-normal text-center w-20">#</th>}
                             <th className={`py-4 font-normal w-28 ${!showRank ? 'pl-4' : ''}`}>PV</th>
                             <th className="py-4 font-normal pl-2">{t('song')}</th>
-                            <th className="py-4 font-normal text-right w-36">{t('published')}</th>
-                            <th className="py-4 font-normal text-right w-32">
+                            <th className="py-4 font-normal text-right w-36 pr-8">{t('published')}</th>
+                            <th className={`py-4 font-normal text-right w-44 ${mode !== 'total' ? 'pr-6' : 'pr-4'}`}>
                                 {sort === 'youtube' ? t('sort_youtube') : sort === 'niconico' ? t('sort_niconico') : t('views')}
                             </th>
                             {/* Hide Gain for total ranking */}
                             {mode !== 'total' && (
-                                <th className="py-4 font-normal pr-6 text-right w-32">{t('increment')}</th>
+                                <th className={`py-4 font-normal text-right w-36 pr-4`}>{t('increment')}</th>
                             )}
                         </tr>
                     </thead>
@@ -359,17 +359,17 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                             )}
                                         </div>
                                     </td>
-                                    <td className="py-4 text-right text-[var(--text-secondary)] font-mono text-sm tracking-widest">
+                                    <td className="py-4 pr-8 text-right text-[var(--text-secondary)] font-mono text-sm tracking-widest">
                                         {formatDate(song.publish_date)}
                                     </td>
-                                    <td className="py-4 text-right font-mono text-base tracking-wider">
+                                    <td className={`py-4 text-right font-mono text-base tracking-wider ${mode !== 'total' ? 'pr-6' : 'pr-4'}`}>
                                         <div className="text-white group-hover:text-[var(--gold)] transition-colors duration-300">
                                             {getViews(song).toLocaleString()}
                                         </div>
                                     </td>
 
                                     {mode !== 'total' && (
-                                        <td className="py-4 pr-6 text-right font-mono text-sm tracking-wider">
+                                        <td className="py-4 pr-4 text-right font-mono text-sm tracking-wider">
                                             <div className={`${getIncrement(song) > 0 ? 'text-[var(--vermilion)]' : 'text-[var(--text-secondary)]'}`}>
                                                 {getIncrement(song) > 0 ? `+${getIncrement(song).toLocaleString()}` : '-'}
                                             </div>

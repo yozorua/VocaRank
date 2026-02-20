@@ -1,16 +1,22 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { SongRanking } from '@/types';
 
 interface ArtistPublishHistogramProps {
     songs: SongRanking[];
+    /**
+     * "default"  — full-width standalone block (mobile / bottom of card)
+     * "inline"   — compact, sits beside the weblinks row on desktop
+     */
+    variant?: 'default' | 'inline';
 }
 
-export default function ArtistPublishHistogram({ songs }: ArtistPublishHistogramProps) {
+export default function ArtistPublishHistogram({ songs, variant = 'default' }: ArtistPublishHistogramProps) {
+    const t = useTranslations('ArtistPublishHistogram');
     const [hoveredBar, setHoveredBar] = useState<{ year: number; count: number; x: number } | null>(null);
 
-    // Filter songs with a publish date and group by year
     const songsWithDate = songs.filter(s => s.publish_date);
     if (songsWithDate.length < 2) return null;
 
@@ -20,83 +26,97 @@ export default function ArtistPublishHistogram({ songs }: ArtistPublishHistogram
         yearCounts[year] = (yearCounts[year] || 0) + 1;
     }
 
-    const years = Object.keys(yearCounts).map(Number).sort((a, b) => a - b);
+    const minYear = Math.min(...Object.keys(yearCounts).map(Number));
+    const maxYear = Math.max(...Object.keys(yearCounts).map(Number));
+
+    const years: number[] = [];
+    for (let y = minYear; y <= maxYear; y++) years.push(y);
+
     const maxCount = Math.max(...Object.values(yearCounts));
 
-    // SVG dimensions
-    const W = 800;
-    const H = 120;
-    const PAD_L = 36;
-    const PAD_R = 16;
-    const PAD_T = 12;
-    const PAD_B = 24;
+    const isInline = variant === 'inline';
+
+    // No y-axis labels → less left padding needed
+    const W = isInline ? 260 : 500;
+    const H = isInline ? 90 : 130;
+    const PAD_L = 6;
+    const PAD_R = 6;
+    const PAD_T = 8;
+    const PAD_B = 18;  // room for x-axis year labels
+
+    // Font: inline uses 8px (SVG units ≈ CSS px at ~1:1 scale in that column)
+    // default uses 10px (SVG scales down to ~0.5× on desktop → ~5px CSS, fine for decorative labels)
+    const FONT_SIZE = isInline ? 8 : 10;
+
     const chartW = W - PAD_L - PAD_R;
     const chartH = H - PAD_T - PAD_B;
 
     const barCount = years.length;
-    const barGap = 3;
-    const barW = Math.max(4, (chartW / barCount) - barGap);
+    const barGap = isInline ? 1.5 : 2;
+    const barW = Math.max(isInline ? 3 : 4, (chartW / barCount) - barGap);
 
     const toX = (i: number) => PAD_L + i * (chartW / barCount) + (chartW / barCount - barW) / 2;
-    const toBarH = (count: number) => (count / maxCount) * chartH;
+    const toBarH = (count: number) => count > 0 ? Math.max(2, (count / maxCount) * chartH) : 0;
     const toBarY = (count: number) => PAD_T + chartH - toBarH(count);
 
+    // Year labels: every Nth so they don't crowd
+    const labelStep = barCount > 20 ? Math.ceil(barCount / 8) : barCount > 10 ? 2 : 1;
+
     return (
-        <div className="mt-10 border-t border-[var(--hairline)] pt-8">
+        <div className={`flex flex-col h-full ${isInline ? 'min-w-0' : ''}`} onMouseLeave={() => setHoveredBar(null)}>
             {/* Header */}
-            <div className="flex items-center gap-4 mb-6">
-                <div className="w-6 h-px bg-[var(--vermilion)]"></div>
-                <span className="text-xs uppercase tracking-[0.25em] text-[var(--text-secondary)] font-bold">
-                    Song Activity  ·  {songsWithDate.length} songs across {years.length} year{years.length !== 1 ? 's' : ''}
+            <div className="flex items-center gap-2 mb-2 flex-shrink-0">
+                <div className="w-4 h-px bg-[var(--vermilion)]"></div>
+                <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--text-secondary)] font-bold">
+                    {t('title')}
+                </span>
+                <span className="text-[10px] text-[var(--text-secondary)] opacity-60">
+                    · {songsWithDate.length} {t('songs')} / {years.length} {t('years')}
                 </span>
             </div>
 
-            {/* SVG Histogram */}
-            <div className="relative w-full select-none" onMouseLeave={() => setHoveredBar(null)}>
-                <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
-                    {/* Horizontal grid line at max */}
-                    <line x1={PAD_L} y1={PAD_T} x2={W - PAD_R} y2={PAD_T} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
-                    <line x1={PAD_L} y1={PAD_T + chartH / 2} x2={W - PAD_R} y2={PAD_T + chartH / 2} stroke="rgba(255,255,255,0.04)" strokeWidth="1" strokeDasharray="3 3" />
-
-                    {/* Y-axis labels */}
-                    <text x={PAD_L - 4} y={PAD_T + 4} textAnchor="end" fill="rgba(255,255,255,0.25)" fontSize="9" fontFamily="monospace">{maxCount}</text>
-                    <text x={PAD_L - 4} y={PAD_T + chartH / 2 + 4} textAnchor="end" fill="rgba(255,255,255,0.25)" fontSize="9" fontFamily="monospace">{Math.round(maxCount / 2)}</text>
+            {/* SVG — no y-axis labels or grid lines */}
+            <div className="relative flex-1">
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-full overflow-visible">
+                    {/* Baseline only */}
+                    <line x1={PAD_L} y1={PAD_T + chartH} x2={W - PAD_R} y2={PAD_T + chartH}
+                        stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
 
                     {/* Bars */}
                     {years.map((year, i) => {
-                        const count = yearCounts[year];
+                        const count = yearCounts[year] ?? 0;
                         const x = toX(i);
                         const barH = toBarH(count);
                         const barY = toBarY(count);
                         const isHovered = hoveredBar?.year === year;
                         const intensity = count / maxCount;
-                        // Color interpolation: low = muted teal-ish, high = vivid vermilion
                         const r = Math.round(100 + intensity * 132);
                         const g = Math.round(100 - intensity * 26);
                         const b = Math.round(120 - intensity * 75);
-                        const barColor = isHovered ? 'var(--vermilion)' : `rgb(${r},${g},${b})`;
+                        const barColor = count === 0
+                            ? 'rgba(255,255,255,0.07)'
+                            : isHovered ? 'var(--vermilion)' : `rgb(${r},${g},${b})`;
 
                         return (
                             <g key={year}>
                                 <rect
                                     x={x}
-                                    y={barY}
+                                    y={count === 0 ? PAD_T + chartH - 1 : barY}
                                     width={barW}
-                                    height={barH}
+                                    height={count === 0 ? 1 : barH}
                                     fill={barColor}
-                                    opacity={isHovered ? 1 : 0.7}
-                                    rx={1}
-                                    onMouseEnter={() => setHoveredBar({ year, count, x: x + barW / 2 })}
-                                    className="cursor-default transition-opacity duration-150"
+                                    opacity={count === 0 ? 1 : isHovered ? 1 : 0.8}
+                                    rx={count === 0 ? 0 : 1}
+                                    onMouseEnter={count > 0 ? () => setHoveredBar({ year, count, x: x + barW / 2 }) : undefined}
+                                    className={count > 0 ? 'cursor-default' : ''}
                                 />
-                                {/* Year label - only show every 2nd year if many bars */}
-                                {(barCount <= 12 || i % 2 === 0) && (
+                                {i % labelStep === 0 && (
                                     <text
                                         x={x + barW / 2}
-                                        y={H - 4}
+                                        y={H - 2}
                                         textAnchor="middle"
-                                        fill={isHovered ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.25)'}
-                                        fontSize="9"
+                                        fill={isHovered ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.3)'}
+                                        fontSize={FONT_SIZE}
                                         fontFamily="monospace"
                                     >
                                         {year}
@@ -107,15 +127,15 @@ export default function ArtistPublishHistogram({ songs }: ArtistPublishHistogram
                     })}
                 </svg>
 
-                {/* Floating tooltip */}
+                {/* Tooltip */}
                 {hoveredBar && (
                     <div
-                        className="absolute pointer-events-none border border-[var(--hairline-strong)] bg-[#1a1b1f] px-3 py-2 text-xs -translate-x-1/2 -translate-y-full whitespace-nowrap"
+                        className="absolute pointer-events-none border border-[var(--hairline-strong)] bg-[#1a1b1f] px-2.5 py-1.5 -translate-x-1/2 -translate-y-full whitespace-nowrap z-10"
                         style={{ left: `${(hoveredBar.x / W) * 100}%`, top: `${(PAD_T / H) * 100}%`, marginTop: '-4px' }}
                     >
-                        <div className="text-[var(--text-secondary)] tracking-widest mb-0.5">{hoveredBar.year}</div>
-                        <div className="font-mono font-bold text-[var(--vermilion)]">
-                            {hoveredBar.count} song{hoveredBar.count !== 1 ? 's' : ''}
+                        <div className="text-[var(--text-secondary)] tracking-widest mb-0.5 text-[9px]">{hoveredBar.year}</div>
+                        <div className="font-mono font-bold text-[var(--vermilion)] text-[10px]">
+                            {hoveredBar.count} {t('songs')}
                         </div>
                     </div>
                 )}

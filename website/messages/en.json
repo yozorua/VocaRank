@@ -23,6 +23,17 @@
     "no_data_title": "Ranking Calculating...",
     "no_data_desc": "We are currently collecting data for this period. Please check back later!"
   },
+  "ViewHistoryChart": {
+    "title": "View History",
+    "tab_all": "All",
+    "tab_youtube": "YouTube",
+    "tab_niconico": "Niconico"
+  },
+  "ArtistPublishHistogram": {
+    "title": "Song Activity",
+    "songs": "songs",
+    "years": "years"
+  },
   "RankingPage": {
     "title": "Song Rankings",
     "description": "Discover the most popular Vocaloid songs right now.",

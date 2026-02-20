@@ -59,21 +59,22 @@ export default function Navbar() {
                     </Link>
                 </div>
 
-                {/* Mobile Menu Overlay */}
-                {isOpen && (
-                    <div className="fixed inset-0 bg-[var(--bg-dark)]/98 backdrop-blur-xl z-40 flex flex-col items-center justify-center gap-10 md:hidden animate-in fade-in zoom-in duration-200">
-                        <Link href="/ranking" className="text-xl font-medium tracking-[0.4em] text-white hover:text-[var(--vermilion)] transition-colors uppercase" onClick={() => setIsOpen(false)}>
-                            {t('ranking')}
-                        </Link>
-                        <Link href="/search" className="text-xl font-medium tracking-[0.4em] text-white hover:text-[var(--vermilion)] transition-colors uppercase" onClick={() => setIsOpen(false)}>
-                            {t('search')}
-                        </Link>
-                        <Link href="/login" className="text-xl font-medium tracking-[0.4em] text-[var(--vermilion)] hover:text-white transition-colors uppercase" onClick={() => setIsOpen(false)}>
-                            {t('login')}
-                        </Link>
-                    </div>
-                )}
             </div>
+
+            {/* Mobile Menu Overlay — full-screen, outside the constrained inner div */}
+            {isOpen && (
+                <div className="fixed inset-0 bg-[var(--bg-dark)]/98 backdrop-blur-xl z-40 flex flex-col items-center justify-center gap-10 md:hidden animate-in fade-in zoom-in duration-200">
+                    <Link href="/ranking" className="text-xl font-medium tracking-[0.4em] text-white hover:text-[var(--vermilion)] transition-colors uppercase" onClick={() => setIsOpen(false)}>
+                        {t('ranking')}
+                    </Link>
+                    <Link href="/search" className="text-xl font-medium tracking-[0.4em] text-white hover:text-[var(--vermilion)] transition-colors uppercase" onClick={() => setIsOpen(false)}>
+                        {t('search')}
+                    </Link>
+                    <Link href="/login" className="text-xl font-medium tracking-[0.4em] text-[var(--vermilion)] hover:text-white transition-colors uppercase" onClick={() => setIsOpen(false)}>
+                        {t('login')}
+                    </Link>
+                </div>
+            )}
         </nav>
     );
 }

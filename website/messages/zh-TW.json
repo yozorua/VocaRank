@@ -27,6 +27,17 @@
         "no_data_title": "排行榜計算中...",
         "no_data_desc": "我們正在收集此期間的數據。請稍後再回來查看！"
     },
+    "ViewHistoryChart": {
+        "title": "觀看紀錄",
+        "tab_all": "全部",
+        "tab_youtube": "YouTube",
+        "tab_niconico": "Niconico"
+    },
+    "ArtistPublishHistogram": {
+        "title": "歌曲動態",
+        "songs": "首歌",
+        "years": "年"
+    },
     "RankingPage": {
         "title": "歌曲排行榜",
         "description": "探索當下最熱門的 Vocaloid 歌曲。",

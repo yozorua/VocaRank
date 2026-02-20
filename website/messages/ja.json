@@ -27,6 +27,17 @@
         "no_data_title": "ランキング集計中...",
         "no_data_desc": "現在、この期間のデータを収集中です。後ほどご確認ください！"
     },
+    "ViewHistoryChart": {
+        "title": "再生履歴",
+        "tab_all": "全て",
+        "tab_youtube": "YouTube",
+        "tab_niconico": "ニコニコ"
+    },
+    "ArtistPublishHistogram": {
+        "title": "楽曲活動",
+        "songs": "曲",
+        "years": "年間"
+    },
     "RankingPage": {
         "title": "楽曲ランキング",
         "description": "今、最も人気のあるボカロ曲をチェック。",
