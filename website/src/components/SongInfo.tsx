@@ -76,7 +76,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                     <div className="grid grid-cols-2 md:grid-cols-4 border-t border-[var(--hairline)] mb-10">
 
                         {/* Release Date Cell */}
-                        <div className="border-b md:border-r border-[var(--hairline)] p-5 flex flex-col justify-center">
+                        <div className="border-b md:border-r border-[var(--hairline)] py-5 pr-5 flex flex-col justify-center">
                             <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-secondary)] mb-2">
                                 {t('release_date')}
                             </span>
@@ -92,7 +92,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                         </div>
 
                         {/* Duration Cell */}
-                        <div className="border-b md:border-r border-[var(--hairline)] p-5 flex flex-col justify-center">
+                        <div className="border-b md:border-r border-[var(--hairline)] py-5 pr-5 pl-0 md:pl-5 flex flex-col justify-center">
                             <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-secondary)] mb-2">
                                 {t('duration')}
                             </span>
@@ -128,7 +128,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                                     <a
                                         key={artist.id}
                                         href={`/artist/${artist.id}`}
-                                        className="group inline-flex w-max items-center gap-3 pr-4 transition-all"
+                                        className="group inline-flex w-max items-center gap-3 pr-4 border border-[var(--hairline)] hover:border-[var(--vermilion)] transition-all bg-[var(--bg-dark)]"
                                     >
                                         <div className="w-8 h-8 overflow-hidden bg-[var(--hairline)] flex items-center justify-center shrink-0">
                                             {artist.picture_url_thumb ? (
@@ -150,39 +150,41 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                 </div>
 
                 {/* Right: Stats & Actions */}
-                <div className="w-full lg:w-[320px] flex flex-col gap-6 lg:border-l border-[var(--hairline)] lg:pl-10">
+                <div className="w-full lg:w-[320px] flex flex-col lg:border-l border-[var(--hairline)] lg:pl-12">
 
                     {/* Total Views */}
-                    <div className="relative group/total mb-6 pt-2">
-                        <p className="text-[var(--text-secondary)] text-[10px] uppercase tracking-[0.3em] mb-4 flex justify-between items-center">
-                            <span>{t('total_views')}</span>
+                    <div className="p-4 md:p-5 border border-[var(--hairline)] bg-transparent mb-8">
+                        <p className="text-[var(--text-secondary)] text-[11px] font-bold tracking-[0.3em] mb-4">
+                            {t('total_views')}
                         </p>
-                        <p className="text-3xl lg:text-[2.5rem] leading-none font-black text-white font-mono tracking-wider">
+                        <p className="text-xl lg:text-2xl font-bold font-mono text-white tracking-widest break-all">
                             {song.total_views.toLocaleString()}
                         </p>
                     </div>
 
-                    <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-6">
                         {/* YouTube Card */}
                         <a
                             href={song.youtube_id ? `https://www.youtube.com/watch?v=${song.youtube_id}` : '#'}
                             target="_blank"
                             rel="noopener noreferrer"
                             className={`
-                                relative p-4 flex items-center justify-between border transition-all duration-300 group/yt
+                                relative p-4 md:p-5 flex items-center justify-between border transition-all duration-300 group/yt
                                 ${song.youtube_id
-                                    ? 'border-[var(--hairline)] hover:border-[#FF0000] bg-[var(--bg-dark)]'
+                                    ? 'border-[var(--hairline)] hover:border-[#FF0000] hover:bg-[#FF0000]/10 bg-transparent'
                                     : 'border-[var(--hairline)] opacity-30 cursor-not-allowed'}
                             `}
                         >
-                            <div>
-                                <p className="text-[9px] uppercase font-bold text-[#FF0000] mb-1 tracking-widest">YouTube</p>
-                                <p className="text-lg font-mono font-bold text-white group-hover/yt:text-[#FF0000] transition-colors tracking-wider">
+                            <div className="w-full">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <p className="text-[10px] uppercase font-bold text-[#FF0000] tracking-[0.2em] leading-none">YouTube</p>
+                                    <div className="text-[#FF0000] transition-colors flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29.07 29.07 0 0 0 1 11.75a29.07 29.07 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29.07 29.07 0 0 0 .46-5.33 29.07 29.07 0 0 0-.46-5.33zM9.75 15.02l5.75-3.27-5.75-3.27v6.54z" /></svg>
+                                    </div>
+                                </div>
+                                <p className="text-xl lg:text-2xl font-bold font-mono text-white tracking-widest break-all">
                                     {(song.views_youtube !== undefined && song.views_youtube !== null) ? song.views_youtube.toLocaleString() : '-'}
                                 </p>
-                            </div>
-                            <div className="text-[var(--text-secondary)] group-hover/yt:text-[#FF0000] transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29.07 29.07 0 0 0 1 11.75a29.07 29.07 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29.07 29.07 0 0 0 .46-5.33 29.07 29.07 0 0 0-.46-5.33zM9.75 15.02l5.75-3.27-5.75-3.27v6.54z" /></svg>
                             </div>
                         </a>
 
@@ -192,22 +194,24 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                             target="_blank"
                             rel="noopener noreferrer"
                             className={`
-                                relative p-4 flex items-center justify-between border transition-all duration-300 group/nico
+                                relative p-4 md:p-5 flex items-center justify-between border transition-all duration-300 group/nico
                                 ${song.niconico_id
-                                    ? 'border-[var(--hairline)] hover:border-white bg-[var(--bg-dark)]'
+                                    ? 'border-[var(--hairline)] hover:border-white/30 hover:bg-white/5 bg-transparent'
                                     : 'border-[var(--hairline)] opacity-30 cursor-not-allowed'}
                             `}
                         >
-                            <div>
-                                <p className="text-[9px] uppercase font-bold text-[var(--text-secondary)] group-hover/nico:text-white transition-colors mb-1 tracking-widest">
-                                    {locale === 'ja' ? 'ニコニコ' : 'Niconico'}
-                                </p>
-                                <p className="text-lg font-mono font-bold text-white tracking-wider">
+                            <div className="w-full">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <p className="text-[10px] uppercase font-bold text-[var(--text-secondary)] group-hover/nico:text-white transition-colors tracking-[0.2em] leading-none">
+                                        {locale === 'ja' ? 'ニコニコ' : 'Niconico'}
+                                    </p>
+                                    <div className="text-[var(--text-secondary)] group-hover/nico:text-white transition-colors flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
+                                    </div>
+                                </div>
+                                <p className="text-xl lg:text-2xl font-bold font-mono text-white tracking-widest break-all">
                                     {(song.views_niconico !== undefined && song.views_niconico !== null) ? song.views_niconico.toLocaleString() : '-'}
                                 </p>
-                            </div>
-                            <div className="text-[var(--text-secondary)] group-hover/nico:text-white transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
                             </div>
                         </a>
                     </div>

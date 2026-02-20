@@ -14,7 +14,7 @@ router = APIRouter(
 @router.get("/search", response_model=List[schemas.SongRanking])
 def search_songs(
     query: str = Query(..., min_length=1, description="Search keyword for song title"),
-    limit: int = 10,
+    limit: int = 20,
     song_type: Optional[str] = Query(None, description="Filter by song type (e.g. Original)"),
     vocaloid_only: bool = Query(True, description="Filter for SynthV/Vocaloid songs only"),
     sort_by: str = Query('total_views', enum=['total_views', 'publish_date'], description="Sort by metric"),

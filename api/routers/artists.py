@@ -12,7 +12,7 @@ router = APIRouter(
 @router.get("/search", response_model=List[schemas.Artist])
 def search_artists(
     query: str = Query(..., min_length=1, description="Search keyword for artist name"),
-    limit: int = 10,
+    limit: int = 20,
     artist_type: Optional[str] = Query(None, description="Filter by artist type (e.g. Producer, Vocaloid)"),
     db: Session = Depends(get_db)
 ):

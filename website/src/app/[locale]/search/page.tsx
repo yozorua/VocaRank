@@ -88,13 +88,18 @@ export default async function SearchPage({ searchParams, params }: SearchPagePro
                                 >
                                     <div className="w-24 h-24 overflow-hidden bg-[var(--hairline)] flex items-center justify-center shrink-0">
                                         {thumb ? (
-                                            <img src={thumb} alt={artist.name_default} className="w-full h-full object-cover object-top grayscale-[90%] group-hover:grayscale-0 transition-all duration-300" />
+                                            <img src={thumb} alt={artist.name_default} className="w-full h-full object-cover object-top transition-all duration-300" />
                                         ) : (
                                             <span className="text-2xl font-serif text-[var(--text-secondary)]">{artist.name_default.charAt(0)}</span>
                                         )}
                                     </div>
                                     <div className="min-w-0 w-full flex flex-col items-center">
-                                        <div className="font-bold text-white group-hover:text-[var(--vermilion)] truncate w-full tracking-widest transition-colors">{getArtistName(artist)}</div>
+                                        <div
+                                            className="font-bold text-white group-hover:text-[var(--vermilion)] w-full tracking-widest transition-colors break-words line-clamp-2"
+                                            title={getArtistName(artist)}
+                                        >
+                                            {getArtistName(artist)}
+                                        </div>
                                         <div className="text-[10px] text-[var(--text-secondary)] uppercase tracking-[0.2em] mt-2">{artist.artist_type.replace(/([a-z])([A-Z])/g, '$1 $2').replace('SynthesizerV', 'Synthesizer V')}</div>
                                     </div>
                                 </Link>

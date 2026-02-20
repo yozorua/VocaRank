@@ -106,6 +106,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
         if (type === 'Original') return <span className="text-[var(--cyan-subtle)] font-bold uppercase text-[10px] tracking-widest">ORIGINAL</span>;
         if (type === 'Cover') return <span className="text-[var(--vermilion)] font-bold uppercase text-[10px] tracking-widest">COVER</span>;
         if (type === 'Remix') return <span className="text-[var(--gold)] font-bold uppercase text-[10px] tracking-widest">REMIX</span>;
+        if (type === 'Remaster') return <span className="text-[#B284BE] font-bold uppercase text-[10px] tracking-widest">REMASTER</span>;
         return <span className="text-[var(--text-secondary)] font-bold uppercase text-[10px] tracking-widest">{type.toUpperCase()}</span>;
     };
 
