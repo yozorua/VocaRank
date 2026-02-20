@@ -150,6 +150,7 @@ def get_artist_songs(
             name_english=row[1],
             name_japanese=row[2],
             name_romaji=row[3],
+            total_views=row[4],
             increment_total=0,
             increment_youtube=0,
             increment_niconico=0,

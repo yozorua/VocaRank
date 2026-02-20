@@ -152,19 +152,14 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
             <div className="flex flex-col gap-3 md:hidden">
                 {displayedSongs.map((song, index) => {
                     const rank = index + 1;
-                    let rankColor = "text-gray-500";
-                    let cardBorder = "border-white/5";
-
-                    if (rank === 1) {
-                        rankColor = "text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]";
-                        cardBorder = "border-yellow-500/30 shadow-[0_0_20px_rgba(250,204,21,0.1)]";
-                    } else if (rank === 2) {
-                        rankColor = "text-gray-300 drop-shadow-[0_0_10px_rgba(209,213,219,0.5)]";
-                        cardBorder = "border-gray-400/30";
-                    } else if (rank === 3) {
-                        rankColor = "text-amber-600 drop-shadow-[0_0_10px_rgba(217,119,6,0.5)]";
-                        cardBorder = "border-amber-600/30";
-                    }
+                    const rankColor = rank === 1 ? "text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]"
+                        : rank === 2 ? "text-gray-300 drop-shadow-[0_0_10px_rgba(209,213,219,0.5)]"
+                            : rank === 3 ? "text-amber-600 drop-shadow-[0_0_10px_rgba(217,119,6,0.5)]"
+                                : "text-gray-500";
+                    const cardBorder = rank === 1 ? "border-yellow-500/30 shadow-[0_0_20px_rgba(250,204,21,0.1)]"
+                        : rank === 2 ? "border-gray-400/30"
+                            : rank === 3 ? "border-amber-600/30"
+                                : "border-white/5";
 
                     const increment = getIncrement(song);
 
@@ -247,19 +242,14 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                     <tbody>
                         {displayedSongs.map((song, index) => {
                             const rank = index + 1;
-                            let rankColor = "text-gray-500";
-                            let rowBorder = "border border-transparent";
-
-                            if (rank === 1) {
-                                rankColor = "text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]";
-                                rowBorder = "border border-yellow-500/30 shadow-[0_0_20px_rgba(250,204,21,0.1)]";
-                            } else if (rank === 2) {
-                                rankColor = "text-gray-300 drop-shadow-[0_0_10px_rgba(209,213,219,0.5)]";
-                                rowBorder = "border border-gray-400/30";
-                            } else if (rank === 3) {
-                                rankColor = "text-amber-600 drop-shadow-[0_0_10px_rgba(217,119,6,0.5)]";
-                                rowBorder = "border border-amber-600/30";
-                            }
+                            const rankColor = rank === 1 ? "text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]"
+                                : rank === 2 ? "text-gray-300 drop-shadow-[0_0_10px_rgba(209,213,219,0.5)]"
+                                    : rank === 3 ? "text-amber-600 drop-shadow-[0_0_10px_rgba(217,119,6,0.5)]"
+                                        : "text-gray-500";
+                            const rowBorder = rank === 1 ? "border border-yellow-500/30 shadow-[0_0_20px_rgba(250,204,21,0.1)]"
+                                : rank === 2 ? "border border-gray-400/30"
+                                    : rank === 3 ? "border border-amber-600/30"
+                                        : "border border-transparent";
 
 
 

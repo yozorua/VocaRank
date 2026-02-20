@@ -27,6 +27,8 @@ def search_songs(
     
     from ..utils import SYNTH_TYPES
 
+    from sqlalchemy import bindparam
+
     # Base Query
     sql_query = """
         SELECT 
@@ -53,12 +55,12 @@ def search_songs(
         params["song_type"] = song_type
 
     if vocaloid_only:
-        synth_list = "', '".join(SYNTH_TYPES)
-        sql_query += f""" AND EXISTS (
+        sql_query += """ AND EXISTS (
             SELECT 1 FROM song_artists sa 
             JOIN artists a ON sa.artist_id = a.id 
-            WHERE sa.song_id = s.id AND a.artist_type IN ('{synth_list}')
+            WHERE sa.song_id = s.id AND a.artist_type IN :synth_types
         )"""
+        params["synth_types"] = list(SYNTH_TYPES)
         
     if sort_by == 'total_views':
         sql_query += " ORDER BY total_views DESC"
@@ -67,7 +69,12 @@ def search_songs(
             
     sql_query += " LIMIT :limit"
     
-    results = db.execute(text(sql_query), params).fetchall()
+    sql = text(sql_query)
+    
+    if "synth_types" in params:
+        sql = sql.bindparams(bindparam('synth_types', expanding=True))
+        
+    results = db.execute(sql, params).fetchall()
     
     song_ids = [row[0] for row in results]
     artists_map = get_artists_for_songs(db, song_ids)
@@ -90,6 +97,7 @@ def search_songs(
             name_english=row[1],
             name_japanese=row[2],
             name_romaji=row[3],
+            total_views=row[4],
             increment_total=0,
             increment_youtube=0,
             increment_niconico=0,

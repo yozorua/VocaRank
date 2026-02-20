@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# VocaRank Cron Wrapper Script
-# Usage: 
-#   ./run_vocarank.sh update           (Runs update_db.py)
-#   ./run_vocarank.sh views all        (Runs fetch_views.py --mode all)
-#   ./run_vocarank.sh views popular    (Runs fetch_views.py --mode popular)
+# VocaRank Cron Wrapper Script (Rewritten 3-Script Architecture)
+#   ./run_vocarank.sh fetch-new              (Runs fetch_new.py)
+#   ./run_vocarank.sh update-existing --songs 1000 (Rolling song refresh)
+#   ./run_vocarank.sh update-existing --artists 1000 (Rolling artist refresh)
+#   ./run_vocarank.sh views all              (Runs fetch_views.py --mode all)
+#   ./run_vocarank.sh views popular          (Runs fetch_views.py --mode popular)
 
 # Navigate to the script's directory (VocaRank root)
 cd "$(dirname "$0")"
@@ -15,30 +16,45 @@ mkdir -p logs
 TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
 LOG_FILE="logs/cron.log"
 
-if [ "$1" == "update" ]; then
-    echo "[$TIMESTAMP] [START] update_db.py" | tee -a "$LOG_FILE"
-    /usr/bin/python3 -u src/update_db.py 2>&1 | tee -a "$LOG_FILE"
+if [ "$1" == "fetch-new" ]; then
+    SECONDS=0
+    echo "[$TIMESTAMP] [START] src/db/fetch_new.py" | tee -a "$LOG_FILE"
+    /usr/bin/python3 -u -m src.db.fetch_new 2>&1 | tee -a "$LOG_FILE"
     EXIT_CODE=${PIPESTATUS[0]}
-    echo "[$TIMESTAMP] [END] update_db.py (Exit Code: $EXIT_CODE)" | tee -a "$LOG_FILE"
+    
+    H=$((SECONDS/3600))
+    M=$(((SECONDS%3600)/60))
+    S=$((SECONDS%60))
+    echo "[$TIMESTAMP] [END] src/db/fetch_new.py (Exit Code: $EXIT_CODE) - Time Elapsed: ${H}h ${M}m ${S}s" | tee -a "$LOG_FILE"
+
+elif [ "$1" == "update-existing" ]; then
+    SECONDS=0
+    shift # Remove "update-existing" from args
+    echo "[$TIMESTAMP] [START] src/db/update_existing.py $*" | tee -a "$LOG_FILE"
+    /usr/bin/python3 -u -m src.db.update_existing "$@" 2>&1 | tee -a "$LOG_FILE"
+    EXIT_CODE=${PIPESTATUS[0]}
+    
+    H=$((SECONDS/3600))
+    M=$(((SECONDS%3600)/60))
+    S=$((SECONDS%60))
+    echo "[$TIMESTAMP] [END] src/db/update_existing.py (Exit Code: $EXIT_CODE) - Time Elapsed: ${H}h ${M}m ${S}s" | tee -a "$LOG_FILE"
 
 elif [ "$1" == "views" ]; then
+    SECONDS=0
     MODE=$2
     if [ -z "$MODE" ]; then
         MODE="all"
     fi
-    echo "[$TIMESTAMP] [START] fetch_views.py --mode $MODE" | tee -a "$LOG_FILE"
-    /usr/bin/python3 -u src/fetch_views.py --mode "$MODE" 2>&1 | tee -a "$LOG_FILE"
+    echo "[$TIMESTAMP] [START] src/db/fetch_views.py --mode $MODE" | tee -a "$LOG_FILE"
+    /usr/bin/python3 -u -m src.db.fetch_views --mode "$MODE" 2>&1 | tee -a "$LOG_FILE"
     EXIT_CODE=${PIPESTATUS[0]}
-    echo "[$TIMESTAMP] [END] fetch_views.py --mode $MODE (Exit Code: $EXIT_CODE)" | tee -a "$LOG_FILE"
-
-elif [ "$1" == "update-artists" ]; then
-    shift # Removal "update-artists" from args
-    echo "[$TIMESTAMP] [START] update_artists.py $*" | tee -a "$LOG_FILE"
-    /usr/bin/python3 -u src/update_artists.py "$@" 2>&1 | tee -a "$LOG_FILE"
-    EXIT_CODE=${PIPESTATUS[0]}
-    echo "[$TIMESTAMP] [END] update_artists.py (Exit Code: $EXIT_CODE)" | tee -a "$LOG_FILE"
+    
+    H=$((SECONDS/3600))
+    M=$(((SECONDS%3600)/60))
+    S=$((SECONDS%60))
+    echo "[$TIMESTAMP] [END] src/db/fetch_views.py --mode $MODE (Exit Code: $EXIT_CODE) - Time Elapsed: ${H}h ${M}m ${S}s" | tee -a "$LOG_FILE"
 
 else
-    echo "Usage: $0 {update|views|update-artists} [args...]"
+    echo "Usage: $0 {fetch-new|update-existing|views} [args...]"
     exit 1
 fi
