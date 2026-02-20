@@ -79,11 +79,11 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory }: Vi
 
     // SVG dimensions
     const W = 800;
-    const H = 200;
-    const PAD_L = 56;
+    const H = 250;
+    const PAD_L = 100;
     const PAD_R = 16;
     const PAD_T = 16;
-    const PAD_B = 30;
+    const PAD_B = 60;
     const chartW = W - PAD_L - PAD_R;
     const chartH = H - PAD_T - PAD_B;
 
@@ -151,7 +151,7 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory }: Vi
             </div>
 
             {/* SVG Chart */}
-            <div className="relative w-full select-none">
+            <div className="relative w-full select-none overflow-visible">
                 <svg
                     viewBox={`0 0 ${W} ${H}`}
                     className="w-full overflow-visible"
@@ -181,13 +181,25 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory }: Vi
                         );
                     })}
 
-                    {/* X-axis tick labels */}
+                    {/* X-axis tick labels — full YYYY-MM-DD, rotated 0° */}
                     {tickIndices.map((idx) => {
+                        // skip first x tick
+                        if (idx === 0) return null;
                         const date = allDates[idx];
                         const x = toX(date);
+                        const labelY = H - 20;
                         return (
-                            <text key={idx} x={x} y={H - 4} textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize={tickFontSize} fontFamily="monospace">
-                                {date.slice(0, 7)}
+                            <text
+                                key={idx}
+                                x={x}
+                                y={labelY}
+                                textAnchor="end"
+                                fill="rgba(255,255,255,0.35)"
+                                fontSize={tickFontSize}
+                                fontFamily="monospace"
+                                transform={`rotate(0, ${x}, ${labelY})`}
+                            >
+                                {date}
                             </text>
                         );
                     })}
@@ -254,7 +266,7 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory }: Vi
 
                 {/* Legend */}
                 {activeTab === 'combined' && hasYoutube && hasNiconico && (
-                    <div className="flex gap-6 mt-3 justify-end">
+                    <div className="flex gap-5 mt-3 justify-end">
                         <div className="flex items-center gap-2">
                             <div className="w-4 h-px bg-[#FF4444]"></div>
                             <span className="text-[10px] tracking-widest text-[var(--text-secondary)] uppercase">{t('tab_youtube')}</span>
