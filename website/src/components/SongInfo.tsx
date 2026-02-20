@@ -7,8 +7,8 @@ export default function SongInfo({ song }: { song: SongDetail }) {
 
     // Select title based on locale (fallback to English)
     const displayTitle = locale === 'ja' || locale === 'zh-TW'
-        ? (song.name_japanese || song.name_english)
-        : (song.name_english || song.name_japanese);
+        ? (song.name_japanese || song.name_romaji || song.name_english)
+        : (song.name_english || song.name_romaji || song.name_japanese);
 
     // Format date as YYYY/MM/DD explicitly
     const formatDate = (dateString: string | null | undefined) => {
@@ -32,8 +32,8 @@ export default function SongInfo({ song }: { song: SongDetail }) {
     const getOriginalSongName = () => {
         if (!song.original_song) return null;
         return (locale === 'ja' || locale === 'zh-TW')
-            ? song.original_song.name_japanese || song.original_song.name_english
-            : song.original_song.name_english || song.original_song.name_japanese;
+            ? song.original_song.name_japanese || song.original_song.name_romaji || song.original_song.name_english
+            : song.original_song.name_english || song.original_song.name_romaji || song.original_song.name_japanese;
     };
 
     return (

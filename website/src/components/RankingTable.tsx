@@ -133,15 +133,57 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
     };
 
     if (songs.length === 0) {
+        const skeletonRows = Array.from({ length: 5 });
         return (
-            <div className="w-full py-20 flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 mb-4 rounded-full bg-[var(--bg-card)] border border-[var(--miku-teal)] flex items-center justify-center shadow-[0_0_15px_var(--miku-teal)] animate-pulse">
-                    <span className="text-2xl">⏳</span>
+            <div className="w-full animate-pulse">
+                {/* Mobile View Skeleton */}
+                <div className="flex flex-col gap-3 md:hidden">
+                    {skeletonRows.map((_, i) => (
+                        <div key={i} className="glass-panel p-3 rounded-xl border border-white/5 flex items-center gap-3">
+                            {showRank && <div className="w-8 h-8 bg-white/10 rounded-md"></div>}
+                            <div className="w-24 h-16 bg-white/10 rounded-lg flex-shrink-0"></div>
+                            <div className="flex-1 space-y-3 py-1">
+                                <div className="h-4 bg-white/20 rounded w-3/4"></div>
+                                <div className="h-3 bg-white/10 rounded w-1/2"></div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">{t('no_data_title', { defaultMessage: 'Ranking Calculating...' })}</h3>
-                <p className="text-[var(--text-secondary)] max-w-md">
-                    {t('no_data_desc', { defaultMessage: 'We are currently collecting data for this period. Please check back later!' })}
-                </p>
+
+                {/* Desktop View Skeleton */}
+                <div className="hidden md:block overflow-x-auto px-1 pb-4">
+                    <table className="w-full text-left border-separate border-spacing-y-3 min-w-[800px]">
+                        <thead>
+                            <tr className="text-[var(--text-secondary)] text-sm uppercase tracking-wider">
+                                {showRank && <th className="p-4 text-center w-20">#</th>}
+                                <th className="p-4 w-24"></th>
+                                <th className="p-4">{t('song')}</th>
+                                <th className="p-4 text-right w-36">{t('published')}</th>
+                                <th className="p-4 text-right">
+                                    {sort === 'youtube' ? t('sort_youtube') : sort === 'niconico' ? t('sort_niconico') : t('views')}
+                                </th>
+                                {mode !== 'total' && (
+                                    <th className="p-4 pr-6 text-right">{t('increment')}</th>
+                                )}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {skeletonRows.map((_, i) => (
+                                <tr key={i} className="bg-[var(--bg-panel)] backdrop-blur-sm rounded-xl border border-transparent">
+                                    {showRank && <td className="p-4 text-center"><div className="w-6 h-8 bg-white/10 rounded mx-auto"></div></td>}
+                                    <td className="p-3"><div className="w-20 h-12 bg-white/10 rounded shadow-lg"></div></td>
+                                    <td className="p-3 space-y-3 py-4">
+                                        <div className="h-5 bg-white/20 rounded w-1/3"></div>
+                                        <div className="h-3 bg-white/10 rounded w-1/4"></div>
+                                    </td>
+                                    <td className="p-3 text-right"><div className="h-4 bg-white/10 rounded w-20 ml-auto"></div></td>
+                                    <td className="p-3 text-right"><div className="h-6 bg-white/10 rounded w-24 ml-auto"></div></td>
+                                    {mode !== 'total' && <td className="p-3 text-right"><div className="h-4 bg-white/10 rounded w-16 ml-auto"></div></td>}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         );
     }
@@ -258,7 +300,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                     key={song.id}
                                     className={`
                                         group relative bg-[var(--bg-panel)] backdrop-blur-sm 
-                                        hover:bg-white/5 hover:scale-[1.005] hover:shadow-[0_0_30px_rgba(57,197,187,0.1)]
+                                        hover:bg-white/5 hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(57,197,187,0.15)]
                                         transition-all duration-300 ease-out rounded-xl ${rowBorder}
                                     `}
                                     onClick={() => router.push(`/song/${song.id}`)}

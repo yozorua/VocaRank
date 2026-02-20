@@ -18,26 +18,26 @@ LOG_FILE="logs/cron.log"
 
 if [ "$1" == "fetch-new" ]; then
     SECONDS=0
-    echo "[$TIMESTAMP] [START] src/db/fetch_new.py" | tee -a "$LOG_FILE"
+    echo "[$TIMESTAMP | START] src/db/fetch_new.py" | tee -a "$LOG_FILE"
     /usr/bin/python3 -u -m src.db.fetch_new 2>&1 | tee -a "$LOG_FILE"
     EXIT_CODE=${PIPESTATUS[0]}
     
     H=$((SECONDS/3600))
     M=$(((SECONDS%3600)/60))
     S=$((SECONDS%60))
-    echo "[$TIMESTAMP] [END] src/db/fetch_new.py (Exit Code: $EXIT_CODE) - Time Elapsed: ${H}h ${M}m ${S}s" | tee -a "$LOG_FILE"
+    echo "[$TIMESTAMP | END] src/db/fetch_new.py (Exit Code: $EXIT_CODE) - Time Elapsed: ${H}h ${M}m ${S}s" | tee -a "$LOG_FILE"
 
 elif [ "$1" == "update-existing" ]; then
     SECONDS=0
     shift # Remove "update-existing" from args
-    echo "[$TIMESTAMP] [START] src/db/update_existing.py $*" | tee -a "$LOG_FILE"
+    echo "[$TIMESTAMP | START] src/db/update_existing.py $*" | tee -a "$LOG_FILE"
     /usr/bin/python3 -u -m src.db.update_existing "$@" 2>&1 | tee -a "$LOG_FILE"
     EXIT_CODE=${PIPESTATUS[0]}
     
     H=$((SECONDS/3600))
     M=$(((SECONDS%3600)/60))
     S=$((SECONDS%60))
-    echo "[$TIMESTAMP] [END] src/db/update_existing.py (Exit Code: $EXIT_CODE) - Time Elapsed: ${H}h ${M}m ${S}s" | tee -a "$LOG_FILE"
+    echo "[$TIMESTAMP | END] src/db/update_existing.py (Exit Code: $EXIT_CODE) - Time Elapsed: ${H}h ${M}m ${S}s" | tee -a "$LOG_FILE"
 
 elif [ "$1" == "views" ]; then
     SECONDS=0
@@ -45,14 +45,14 @@ elif [ "$1" == "views" ]; then
     if [ -z "$MODE" ]; then
         MODE="all"
     fi
-    echo "[$TIMESTAMP] [START] src/db/fetch_views.py --mode $MODE" | tee -a "$LOG_FILE"
+    echo "[$TIMESTAMP | START] src/db/fetch_views.py --mode $MODE" | tee -a "$LOG_FILE"
     /usr/bin/python3 -u -m src.db.fetch_views --mode "$MODE" 2>&1 | tee -a "$LOG_FILE"
     EXIT_CODE=${PIPESTATUS[0]}
     
     H=$((SECONDS/3600))
     M=$(((SECONDS%3600)/60))
     S=$((SECONDS%60))
-    echo "[$TIMESTAMP] [END] src/db/fetch_views.py --mode $MODE (Exit Code: $EXIT_CODE) - Time Elapsed: ${H}h ${M}m ${S}s" | tee -a "$LOG_FILE"
+    echo "[$TIMESTAMP | END] src/db/fetch_views.py --mode $MODE (Exit Code: $EXIT_CODE) - Time Elapsed: ${H}h ${M}m ${S}s" | tee -a "$LOG_FILE"
 
 else
     echo "Usage: $0 {fetch-new|update-existing|views} [args...]"

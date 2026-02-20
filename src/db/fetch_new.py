@@ -2,8 +2,77 @@ import json
 import time
 from .core import (
     get_db_connection, setup_database_schema, log_message,
-    API_BASE, make_request, transform_song_api, ensure_artists_exist_with_conn
+    API_BASE, make_request, transform_song_api, transform_artist_api, ensure_artists_exist_with_conn
 )
+
+def fetch_new_artists():
+    """
+    Fetches the most recently added artists from VocaDB and inserts them.
+    Stops processing when it encounters a batch of artists that all already exist.
+    """
+    conn = get_db_connection()
+    setup_database_schema(conn)
+    cursor = conn.cursor()
+    
+    table = 'artists'
+    log_message("INFO", f"[{table}] Fetching new artists by AdditionDate...")
+    
+    max_results = 100
+    start_index = 0
+    total_artists_inserted = 0
+    max_pages = 50 # Safety brake (up to 5k artists backward)
+    
+    artist_sql = '''
+        INSERT OR REPLACE INTO artists (
+            id, artist_type, name_default, name_default_lang,
+            name_english, name_japanese, name_romaji,
+            picture_mime, picture_url_original, picture_url_thumb, external_links, last_update_time
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    '''
+
+    for page in range(max_pages):
+        url = f"{API_BASE}/artists?sort=AdditionDate&fields=Names,MainPicture,WebLinks&maxResults={max_results}&start={start_index}&lang=English"
+        data = make_request(url)
+        
+        if not data or 'items' not in data:
+            log_message("WARNING", f"[{table}] Failed to fetch page {page}. Stopping.")
+            break
+            
+        items = data['items']
+        if not items:
+            log_message("INFO", f"[{table}] No more items found. Stopping.")
+            break
+            
+        log_message("INFO", f"[{table}] Page {page}: processing {len(items)} items...")
+        
+        existing_count_in_batch = 0
+        
+        for artist_data in items:
+            artist_id = artist_data.get('id')
+            
+            cursor.execute("SELECT id FROM artists WHERE id=?", (artist_id,))
+            if cursor.fetchone():
+                existing_count_in_batch += 1
+                continue
+                
+            try:
+                record = transform_artist_api(artist_data)
+                cursor.execute(artist_sql, record)
+                total_artists_inserted += 1
+            except Exception as e:
+                log_message("ERROR", f"[{table}] Error inserting ID {artist_id}: {e}")
+                
+        conn.commit()
+        
+        if existing_count_in_batch == len(items):
+            log_message("SUCCESS", f"[{table}] All items in batch already exist. Stopping fetch loop.")
+            break
+            
+        start_index += max_results
+        time.sleep(0.5)
+        
+    log_message("SUCCESS", f"[{table}] Finished. Inserted {total_artists_inserted} new artists.")
+    conn.close()
 
 def fetch_new_songs():
     """
@@ -120,4 +189,5 @@ def fetch_new_songs():
     conn.close()
 
 if __name__ == "__main__":
+    fetch_new_artists()
     fetch_new_songs()
