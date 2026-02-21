@@ -1,25 +1,43 @@
+'use client';
+
 import { getRankings } from '@/lib/api';
 import RankingTable from '@/components/RankingTable';
-import { getTranslations } from 'next-intl/server';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useRef, useState, Suspense } from 'react';
+import { SongRanking } from '@/types';
 
-// Force dynamic rendering since we rely on searchParams
-export const dynamic = 'force-dynamic';
+type RankingMode = 'daily' | 'weekly' | 'monthly' | 'total';
 
-interface RankingPageProps {
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-    params: Promise<{ locale: string }>;
-}
+function RankingContent() {
+    const t = useTranslations('RankingPage');
+    const sp = useSearchParams();
 
-export default async function RankingPage({ searchParams, params }: RankingPageProps) {
-    const { locale } = await params;
-    const t = await getTranslations({ locale, namespace: 'RankingPage' });
-    const sp = await searchParams;
-    const mode = (typeof sp.mode === 'string' ? sp.mode : 'daily') as 'daily' | 'weekly' | 'monthly' | 'total';
-    const sort = (typeof sp.sort === 'string' ? sp.sort : 'total');
+    const mode = (sp.get('mode') ?? 'daily') as RankingMode;
+    const sort = sp.get('sort') ?? 'youtube';
 
-    // Fetch data with sort and limit 100
-    const songs = await getRankings(mode, 100, sort);
+    const [songs, setSongs] = useState<SongRanking[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    // Session-scoped cache: key = "mode:sort" → SongRanking[]
+    const cache = useRef<Map<string, SongRanking[]>>(new Map());
+
+    useEffect(() => {
+        const key = `${mode}:${sort}`;
+        if (cache.current.has(key)) {
+            setSongs(cache.current.get(key)!);
+            setLoading(false);
+            return;
+        }
+        setLoading(true);
+        getRankings(mode, 100, sort)
+            .then(data => {
+                cache.current.set(key, data);
+                setSongs(data);
+            })
+            .finally(() => setLoading(false));
+    }, [mode, sort]);
 
     const tabs = [
         { key: 'daily', label: t('daily') },
@@ -29,9 +47,9 @@ export default async function RankingPage({ searchParams, params }: RankingPageP
     ];
 
     const sortOptions = [
-        { key: 'total', label: t('sort_total') },
         { key: 'youtube', label: t('sort_youtube') },
         { key: 'niconico', label: t('sort_niconico') },
+        { key: 'total', label: t('sort_total') },
     ];
 
     return (
@@ -58,7 +76,7 @@ export default async function RankingPage({ searchParams, params }: RankingPageP
                     ))}
                 </div>
 
-                {/* Sort Controls (For all modes) */}
+                {/* Sort Controls */}
                 <div className="flex items-center gap-6 pb-3">
                     {sortOptions.map((option) => (
                         <Link
@@ -75,7 +93,24 @@ export default async function RankingPage({ searchParams, params }: RankingPageP
                 </div>
             </div>
 
-            <RankingTable songs={songs} mode={mode} sort={sort} />
+            {/* Loading */}
+            {loading && (
+                <div className="flex items-center gap-3 py-12 justify-center text-[var(--text-secondary)] text-xs tracking-widest uppercase animate-pulse">
+                    <span className="w-4 h-px bg-[var(--vermilion)]"></span>
+                    Loading
+                    <span className="w-4 h-px bg-[var(--vermilion)]"></span>
+                </div>
+            )}
+
+            {!loading && <RankingTable songs={songs} mode={mode} sort={sort} />}
         </div>
+    );
+}
+
+export default function RankingPage() {
+    return (
+        <Suspense>
+            <RankingContent />
+        </Suspense>
     );
 }

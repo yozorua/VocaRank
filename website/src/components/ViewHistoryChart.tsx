@@ -96,8 +96,7 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory }: Vi
     const maxViews = Math.max(...allViews);
     const viewRange = maxViews - minViews || 1;
 
-    const allDates = activeData.map(p => p.date); // already sorted
-    const dateRange = allDates.length - 1 || 1;
+    const allDates = activeData.map(p => p.date); // sorted ascending
 
     // SVG dimensions
     const W = 800;
@@ -109,16 +108,23 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory }: Vi
     const chartW = W - PAD_L - PAD_R;
     const chartH = H - PAD_T - PAD_B;
 
-    const toX = (idx: number) => PAD_L + (idx / dateRange) * chartW;
+    // Time-linear X axis: map actual timestamp to SVG x position
+    const minTime = new Date(activeData[0]?.date ?? 0).getTime();
+    const maxTime = new Date(activeData[activeData.length - 1]?.date ?? 0).getTime();
+    const timeRange = maxTime - minTime || 1;
+
+    const toX = (date: string) => PAD_L + ((new Date(date).getTime() - minTime) / timeRange) * chartW;
     const toY = (views: number) => PAD_T + chartH - ((views - minViews) / viewRange) * chartH;
 
     const buildPath = (data: HistoryPoint[]) =>
-        data.map((p, i) => `${i === 0 ? 'M' : 'L'} ${toX(i).toFixed(1)} ${toY(p.views).toFixed(1)}`).join(' ');
+        data.map((p, i) => `${i === 0 ? 'M' : 'L'} ${toX(p.date).toFixed(1)} ${toY(p.views).toFixed(1)}`).join(' ');
 
     const buildAreaPath = (data: HistoryPoint[]) => {
-        const linePath = data.map((p, i) => `${i === 0 ? 'M' : 'L'} ${toX(i).toFixed(1)} ${toY(p.views).toFixed(1)}`).join(' ');
+        const linePath = data.map((p, i) => `${i === 0 ? 'M' : 'L'} ${toX(p.date).toFixed(1)} ${toY(p.views).toFixed(1)}`).join(' ');
         const baseY = (PAD_T + chartH).toFixed(1);
-        return `${linePath} L ${toX(data.length - 1).toFixed(1)} ${baseY} L ${toX(0).toFixed(1)} ${baseY} Z`;
+        const firstX = toX(data[0].date).toFixed(1);
+        const lastX = toX(data[data.length - 1].date).toFixed(1);
+        return `${linePath} L ${lastX} ${baseY} L ${firstX} ${baseY} Z`;
     };
 
     // Active line/area color
@@ -133,10 +139,10 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory }: Vi
             activeTab === 'niconico' ? '#E8954A' :
                 '#6ee7f7';
 
-    // X-axis ticks — use index-based positioning, show up to 4 ticks
+    // X-axis ticks — pick up to 4 evenly-spaced ticks by time
     const tickCount = Math.min(4, allDates.length);
-    const tickIndices = Array.from({ length: tickCount }, (_, i) =>
-        Math.floor(i * (allDates.length - 1) / (tickCount - 1 || 1))
+    const tickDates = Array.from({ length: tickCount }, (_, i) =>
+        allDates[Math.floor(i * (allDates.length - 1) / (tickCount - 1 || 1))]
     );
     const yTicks = [0, 0.5, 1].map(t => minViews + t * viewRange);
 
@@ -206,14 +212,13 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory }: Vi
                     })}
 
                     {/* X-axis tick labels — full ISO date, rotated -30° */}
-                    {tickIndices.map((idx) => {
-                        if (idx === 0) return null;
-                        const date = allDates[idx];
-                        const x = toX(idx);
+                    {tickDates.map((date, i) => {
+                        if (i === 0) return null;
+                        const x = toX(date);
                         const labelY = H - 20;
                         return (
                             <text
-                                key={idx}
+                                key={date}
                                 x={x}
                                 y={labelY}
                                 textAnchor="end"
@@ -237,12 +242,12 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory }: Vi
                     {activeData.map((p, i) => (
                         <circle
                             key={i}
-                            cx={toX(i)}
+                            cx={toX(p.date)}
                             cy={toY(p.views)}
                             r="12"
                             fill="transparent"
                             onMouseEnter={() => setHoveredPoint({
-                                x: toX(i),
+                                x: toX(p.date),
                                 y: toY(p.views),
                                 views: p.views,
                                 date: p.date,

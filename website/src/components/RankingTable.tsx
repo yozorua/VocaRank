@@ -231,7 +231,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                     const increment = getIncrement(song);
 
                     return (
-                        <Link key={song.id} href={`/song/${song.id}`} className="group hairline-border p-4 bg-transparent active:bg-[var(--hairline)] transition-colors block">
+                        <div key={song.id} className="group hairline-border p-4 bg-transparent active:bg-[var(--hairline)] transition-colors block cursor-pointer" onClick={() => router.push(`/song/${song.id}` as any)}>
                             <div className="flex items-center gap-4">
                                 {/* Rank */}
                                 {showRank && (
@@ -252,7 +252,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                     </div>
                                     <div className="text-[11px] text-[var(--text-secondary)] flex flex-wrap items-center gap-2 min-w-0">
                                         <div className="flex-shrink-0">{formatSongType(song.song_type)}</div>
-                                        <div className="truncate">{song.artist_string}</div>
+                                        <div className="truncate min-w-0">{renderArtistList(song.artists)}</div>
                                     </div>
                                 </div>
                             </div>
@@ -283,7 +283,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                     )}
                                 </div>
                             </div>
-                        </Link>
+                        </div>
                     );
                 })}
             </div>
