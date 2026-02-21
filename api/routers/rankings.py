@@ -61,11 +61,19 @@ def get_gain_ranking(
         JOIN daily_snapshots past ON today.song_id = past.song_id 
         JOIN songs s ON s.id = today.song_id
         WHERE today.date = :current_date AND past.date = :target_date
+        AND NOT (
+            -- Exclude first-time-fetch spikes for old songs:
+            -- when yesterday's total was 0 but today's is > 0, only keep the song
+            -- if it was published within the ranking window (new songs start from 0 legitimately).
+            (past.youtube_views + past.niconico_views) = 0
+            AND (today.youtube_views + today.niconico_views) > 0
+            AND DATE(s.publish_date) < DATE(:current_date, '-' || :days_ago || ' days')
+        )
     """
     
     from sqlalchemy import bindparam
     
-    params = {"current_date": current_date_str, "target_date": target_date_str, "limit": limit}
+    params = {"current_date": current_date_str, "target_date": target_date_str, "limit": limit, "days_ago": days_ago}
     
     if song_type:
         types = [t.strip() for t in song_type.split(',')]
