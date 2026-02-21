@@ -169,3 +169,28 @@ def get_artist_songs(
         ))
         
     return response
+
+@router.get("/{artist_id}/song-dates", response_model=List[dict])
+def get_artist_song_dates(
+    artist_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Returns song counts grouped by year for the publish-activity histogram.
+    SQL aggregation means response size is O(years), not O(songs).
+    Very fast even for artists with hundreds of thousands of songs.
+    """
+    from sqlalchemy import text
+    sql = """
+        SELECT CAST(SUBSTR(s.publish_date, 1, 4) AS INTEGER) AS year,
+               COUNT(*) AS count
+        FROM songs s
+        JOIN song_artists sa ON s.id = sa.song_id
+        WHERE sa.artist_id = :artist_id
+          AND s.publish_date IS NOT NULL
+          AND LENGTH(s.publish_date) >= 4
+        GROUP BY year
+        ORDER BY year ASC
+    """
+    rows = db.execute(text(sql), {"artist_id": artist_id}).fetchall()
+    return [{"year": r[0], "count": r[1]} for r in rows]

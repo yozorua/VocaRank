@@ -4,8 +4,16 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { SongRanking } from '@/types';
 
+interface YearCount {
+    year: number;
+    count: number;
+}
+
 interface ArtistPublishHistogramProps {
-    songs: SongRanking[];
+    /** Pre-aggregated from /song-dates endpoint — preferred, fastest */
+    yearCounts?: YearCount[];
+    /** Full song objects — fallback if yearCounts not provided */
+    songs?: SongRanking[];
     /**
      * "default"  — full-width standalone block (mobile / bottom of card)
      * "inline"   — compact, sits beside the weblinks row on desktop
@@ -13,18 +21,28 @@ interface ArtistPublishHistogramProps {
     variant?: 'default' | 'inline';
 }
 
-export default function ArtistPublishHistogram({ songs, variant = 'default' }: ArtistPublishHistogramProps) {
+export default function ArtistPublishHistogram({ yearCounts: yearCountsProp, songs, variant = 'default' }: ArtistPublishHistogramProps) {
     const t = useTranslations('ArtistPublishHistogram');
     const [hoveredBar, setHoveredBar] = useState<{ year: number; count: number; x: number } | null>(null);
 
-    const songsWithDate = songs.filter(s => s.publish_date);
-    if (songsWithDate.length < 2) return null;
-
+    // Build yearCounts from whichever data source is available
     const yearCounts: Record<number, number> = {};
-    for (const song of songsWithDate) {
-        const year = new Date(song.publish_date!).getFullYear();
-        yearCounts[year] = (yearCounts[year] || 0) + 1;
+    let totalSongs = 0;
+    if (yearCountsProp && yearCountsProp.length > 0) {
+        for (const { year, count } of yearCountsProp) {
+            yearCounts[year] = count;
+            totalSongs += count;
+        }
+    } else if (songs) {
+        for (const s of songs) {
+            if (!s.publish_date) continue;
+            const year = new Date(s.publish_date).getFullYear();
+            yearCounts[year] = (yearCounts[year] || 0) + 1;
+            totalSongs++;
+        }
     }
+
+    if (totalSongs < 2) return null;
 
     const minYear = Math.min(...Object.keys(yearCounts).map(Number));
     const maxYear = Math.max(...Object.keys(yearCounts).map(Number));
@@ -71,7 +89,7 @@ export default function ArtistPublishHistogram({ songs, variant = 'default' }: A
                     {t('title')}
                 </span>
                 <span className="text-[10px] text-[var(--text-secondary)] opacity-60">
-                    · {songsWithDate.length} {t('songs')} / {years.length} {t('years')}
+                    · {totalSongs} {t('songs')} / {years.length} {t('years')}
                 </span>
             </div>
 

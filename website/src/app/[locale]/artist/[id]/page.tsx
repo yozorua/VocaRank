@@ -1,5 +1,5 @@
 
-import { getArtist, getArtistSongs } from '@/lib/api';
+import { getArtist, getArtistSongs, getArtistSongDates } from '@/lib/api';
 import RankingTable from '@/components/RankingTable';
 import ArtistPublishHistogram from '@/components/ArtistPublishHistogram';
 import { getTranslations } from 'next-intl/server';
@@ -20,9 +20,10 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     if (isNaN(artistId)) notFound();
 
     try {
-        const [artist, songs] = await Promise.all([
+        const [artist, songDates, songs] = await Promise.all([
             getArtist(artistId),
-            getArtistSongs(artistId, 2000)
+            getArtistSongDates(artistId),  // all songs, lightweight — for histogram
+            getArtistSongs(artistId, 100)  // top 100 by views — for table
         ]);
 
         const getArtistName = () => {
@@ -121,14 +122,14 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
                                             ))}
                                         </div>
                                         <div className="border-l border-[var(--hairline)] pl-4 w-1/2 flex-shrink-0">
-                                            <ArtistPublishHistogram songs={songs} variant="inline" />
+                                            <ArtistPublishHistogram yearCounts={songDates} variant="inline" />
                                         </div>
                                     </div>
                                 </>
                             ) : (
                                 /* No weblinks: show histogram half-width on desktop, left-aligned */
                                 <div className="hidden md:block w-1/2">
-                                    <ArtistPublishHistogram songs={songs} variant="inline" />
+                                    <ArtistPublishHistogram yearCounts={songDates} variant="inline" />
                                 </div>
                             )}
                         </div>
@@ -137,7 +138,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
 
                     {/* Histogram — mobile only, full width below avatar+info */}
                     <div className="md:hidden mt-6 pt-6 border-t border-[var(--hairline)]">
-                        <ArtistPublishHistogram songs={songs} />
+                        <ArtistPublishHistogram yearCounts={songDates} />
                     </div>
                 </div>
 

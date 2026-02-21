@@ -67,3 +67,7 @@ export const getArtist = async (id: number): Promise<Artist> => {
 export const getArtistSongs = async (id: number, limit: number = 50): Promise<SongRanking[]> => {
     return fetcher(`/artists/${id}/songs?limit=${limit}`);
 };
+
+export const getArtistSongDates = async (id: number): Promise<{ year: number; count: number }[]> => {
+    return fetcher(`/artists/${id}/song-dates`);
+};
