@@ -59,7 +59,7 @@ def get_artists_for_songs(db: Session, song_ids: List[int]) -> Dict[int, Dict[st
             
         artist_obj = {'id': aid, 'name': name, 'artist_type': atype, 'picture_url_thumb': thumb}
         
-        if atype == 'Producer' or atype == 'Circle':
+        if atype in ('Producer', 'Circle', 'OtherGroup'):
             artist_map[sid]['producers'].append(artist_obj)
         elif is_vocalist(atype):
             artist_map[sid]['vocalists'].append(artist_obj)

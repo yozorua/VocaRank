@@ -25,6 +25,19 @@ export default function Navbar() {
             style={{ animation: 'fadeIn 0.15s ease' }}
         >
             <style>{`@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
+
+            {/* Close button — top right */}
+            <button
+                className="absolute top-5 right-5 z-[220] w-10 h-10 flex items-center justify-center text-[var(--text-secondary)] hover:text-white transition-colors"
+                onClick={() => setIsOpen(false)}
+                aria-label="Close menu"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
             <Link href="/ranking" className="text-xl font-medium tracking-[0.4em] text-white hover:text-[var(--vermilion)] transition-colors uppercase" onClick={() => setIsOpen(false)}>
                 {t('ranking')}
             </Link>

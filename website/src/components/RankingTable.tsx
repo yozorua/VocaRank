@@ -119,7 +119,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                     <span key={artist.id} className="flex items-center">
                         <Link
                             href={`/artist/${artist.id}`}
-                            className="text-gray-400 hover:text-[var(--miku-teal)] hover:underline transition-colors"
+                            className="text-gray-400 hover:text-[var(--miku-teal)] transition-colors"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {artist.name}

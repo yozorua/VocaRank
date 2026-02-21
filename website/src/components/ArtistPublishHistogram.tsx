@@ -64,7 +64,7 @@ export default function ArtistPublishHistogram({ yearCounts: yearCountsProp, son
 
     // Font: inline uses 8px (SVG units ≈ CSS px at ~1:1 scale in that column)
     // default uses 10px (SVG scales down to ~0.5× on desktop → ~5px CSS, fine for decorative labels)
-    const FONT_SIZE = isInline ? 8 : 10;
+    const FONT_SIZE = isInline ? 8 : 12;
 
     const chartW = W - PAD_L - PAD_R;
     const chartH = H - PAD_T - PAD_B;
@@ -89,7 +89,7 @@ export default function ArtistPublishHistogram({ yearCounts: yearCountsProp, son
                     {t('title')}
                 </span>
                 <span className="text-[10px] text-[var(--text-secondary)] opacity-60">
-                    · {totalSongs} {t('songs')} / {years.length} {t('years')}
+                    {totalSongs} {t('songs')} / {years.length} {t('years')}
                 </span>
             </div>
 
