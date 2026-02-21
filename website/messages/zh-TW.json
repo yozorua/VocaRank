@@ -29,7 +29,7 @@
     },
     "ViewHistoryChart": {
         "title": "觀看紀錄",
-        "tab_all": "全部",
+        "tab_total": "總計",
         "tab_youtube": "YouTube",
         "tab_niconico": "Niconico"
     },

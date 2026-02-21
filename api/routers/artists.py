@@ -96,7 +96,7 @@ def get_artist(artist_id: int, db: Session = Depends(get_db)):
 @router.get("/{artist_id}/songs", response_model=List[schemas.SongRanking])
 def get_artist_songs(
     artist_id: int, 
-    limit: int = 50,
+    limit: Optional[int] = None,
     db: Session = Depends(get_db)
 ):
     """
@@ -120,10 +120,12 @@ def get_artist_songs(
         JOIN song_artists sa ON s.id = sa.song_id
         WHERE sa.artist_id = :artist_id
         ORDER BY total_views DESC
-        LIMIT :limit
     """
-    
-    results = db.execute(text(sql_query), {"artist_id": artist_id, "limit": limit}).fetchall()
+    if limit is not None:
+        sql_query += " LIMIT :limit"
+        results = db.execute(text(sql_query), {"artist_id": artist_id, "limit": limit}).fetchall()
+    else:
+        results = db.execute(text(sql_query), {"artist_id": artist_id}).fetchall()
     
     if not results:
         return []

@@ -29,7 +29,7 @@
     },
     "ViewHistoryChart": {
         "title": "再生履歴",
-        "tab_all": "全て",
+        "tab_total": "合計",
         "tab_youtube": "YouTube",
         "tab_niconico": "ニコニコ"
     },

@@ -25,7 +25,7 @@
   },
   "ViewHistoryChart": {
     "title": "View History",
-    "tab_all": "All",
+    "tab_total": "Total",
     "tab_youtube": "YouTube",
     "tab_niconico": "Niconico"
   },

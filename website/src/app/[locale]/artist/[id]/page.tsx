@@ -22,7 +22,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     try {
         const [artist, songs] = await Promise.all([
             getArtist(artistId),
-            getArtistSongs(artistId, 500)
+            getArtistSongs(artistId, 2000)
         ]);
 
         const getArtistName = () => {
@@ -97,8 +97,8 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
                                 </div>
                             )}
 
-                            {/* Links row — on desktop, inline histogram sits to the right */}
-                            {artist.external_links && artist.external_links.length > 0 && (
+                            {/* Links + inline histogram — desktop */}
+                            {artist.external_links && artist.external_links.length > 0 ? (
                                 <>
                                     {/* Mobile: links centered */}
                                     <div className="md:hidden flex flex-wrap gap-2 justify-center">
@@ -110,7 +110,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
                                         ))}
                                     </div>
 
-                                    {/* Desktop: links + inline histogram side by side, same height */}
+                                    {/* Desktop: links + inline histogram side by side */}
                                     <div className="hidden md:flex items-stretch gap-4">
                                         <div className="flex flex-wrap gap-2 content-start w-1/2">
                                             {artist.external_links.map((link, idx) => (
@@ -125,6 +125,11 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
                                         </div>
                                     </div>
                                 </>
+                            ) : (
+                                /* No weblinks: show histogram half-width on desktop, left-aligned */
+                                <div className="hidden md:block w-1/2">
+                                    <ArtistPublishHistogram songs={songs} variant="inline" />
+                                </div>
                             )}
                         </div>
 
