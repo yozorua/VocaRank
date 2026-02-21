@@ -82,7 +82,7 @@ function RankingContent() {
                         <Link
                             key={option.key}
                             href={`/ranking?mode=${mode}&sort=${option.key}`}
-                            className={`text-xs uppercase font-bold transition-all tracking-widest ${sort === option.key
+                            className={`text-[10px] md:text-xs uppercase font-bold transition-all tracking-widest ${sort === option.key
                                 ? 'text-white'
                                 : 'text-[var(--text-secondary)] hover:text-white'
                                 }`}
