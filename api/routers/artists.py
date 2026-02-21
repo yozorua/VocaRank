@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from ..database import get_db
 from .. import models, schemas
+from ..cache import song_dates_cache, cache_lock
 from typing import List, Optional
 
 router = APIRouter(
@@ -177,9 +178,13 @@ def get_artist_song_dates(
 ):
     """
     Returns song counts grouped by year for the publish-activity histogram.
-    SQL aggregation means response size is O(years), not O(songs).
-    Very fast even for artists with hundreds of thousands of songs.
+    Results are cached in-process for 1 hour (TTLCache) so mega-artists
+    like Miku only pay the ~1s SQL cost once per hour.
     """
+    with cache_lock:
+        if artist_id in song_dates_cache:
+            return song_dates_cache[artist_id]
+
     from sqlalchemy import text
     sql = """
         SELECT CAST(SUBSTR(s.publish_date, 1, 4) AS INTEGER) AS year,
@@ -193,4 +198,9 @@ def get_artist_song_dates(
         ORDER BY year ASC
     """
     rows = db.execute(text(sql), {"artist_id": artist_id}).fetchall()
-    return [{"year": r[0], "count": r[1]} for r in rows]
+    result = [{"year": r[0], "count": r[1]} for r in rows]
+
+    with cache_lock:
+        song_dates_cache[artist_id] = result
+
+    return result

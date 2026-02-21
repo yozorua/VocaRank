@@ -4,6 +4,7 @@ from sqlalchemy import text
 from ..database import get_db
 from .. import schemas
 from ..utils import SYNTH_TYPES, extract_pvs, get_artists_for_songs
+from ..cache import ranking_cache, cache_lock
 from typing import List, Optional, Dict
 import datetime
 import json
@@ -155,15 +156,36 @@ def common_params(
 
 @router.get("/daily", response_model=List[schemas.SongRanking])
 def get_daily_ranking(params: dict = Depends(common_params), db: Session = Depends(get_db)):
-    return get_gain_ranking(db, 1, **params)
+    key = ('daily', params['sort_by'], params['limit'], params['song_type'], params['vocaloid_only'])
+    with cache_lock:
+        if key in ranking_cache:
+            return ranking_cache[key]
+    result = get_gain_ranking(db, 1, **params)
+    with cache_lock:
+        ranking_cache[key] = result
+    return result
 
 @router.get("/weekly", response_model=List[schemas.SongRanking])
 def get_weekly_ranking(params: dict = Depends(common_params), db: Session = Depends(get_db)):
-    return get_gain_ranking(db, 7, **params)
+    key = ('weekly', params['sort_by'], params['limit'], params['song_type'], params['vocaloid_only'])
+    with cache_lock:
+        if key in ranking_cache:
+            return ranking_cache[key]
+    result = get_gain_ranking(db, 7, **params)
+    with cache_lock:
+        ranking_cache[key] = result
+    return result
 
 @router.get("/monthly", response_model=List[schemas.SongRanking])
 def get_monthly_ranking(params: dict = Depends(common_params), db: Session = Depends(get_db)):
-    return get_gain_ranking(db, 30, **params)
+    key = ('monthly', params['sort_by'], params['limit'], params['song_type'], params['vocaloid_only'])
+    with cache_lock:
+        if key in ranking_cache:
+            return ranking_cache[key]
+    result = get_gain_ranking(db, 30, **params)
+    with cache_lock:
+        ranking_cache[key] = result
+    return result
 
 @router.get("/total", response_model=List[schemas.SongRanking])
 def get_total_ranking(
@@ -173,6 +195,12 @@ def get_total_ranking(
     sort_by: str = Query('total', enum=['total', 'youtube', 'niconico'], description="Sort by metric"),
     db: Session = Depends(get_db)
 ):
+    # Cache check
+    cache_key = ('total', sort_by, limit, song_type, vocaloid_only)
+    with cache_lock:
+        if cache_key in ranking_cache:
+            return ranking_cache[cache_key]
+
     # Sort Logic
     order_clause = "(s.youtube_views + s.niconico_views) DESC"
     if sort_by == 'youtube':
@@ -224,13 +252,13 @@ def get_total_ranking(
     if "synth_types" in params:
         sql = sql.bindparams(bindparam('synth_types', expanding=True))
         
-    results = db.execute(sql, params).fetchall()
-    
-    song_ids = [row[0] for row in results]
+    result = db.execute(sql, params).fetchall()
+
+    song_ids = [row[0] for row in result]
     artists_map = get_artists_for_songs(db, song_ids)
     
     response = []
-    for row in results:
+    for row in result:
         sid = row[0]
         yt_id, nico_id = extract_pvs(row[7])
         
@@ -262,5 +290,9 @@ def get_total_ranking(
             artists=producers,
             vocalists=vocalists
         ))
-        
+
+    # Store in cache
+    with cache_lock:
+        ranking_cache[cache_key] = response
+
     return response
