@@ -27,7 +27,7 @@ def update_song_by_id(conn: sqlite3.Connection, song_id: int):
         
     data = fetch_song(song_id)
     if not data:
-        log_message("WARNING", f"[songs] Failed to fetch data for ID {song_id}")
+        log_message("WARNING", f"Failed to fetch data for ID {song_id}")
         return
 
     try:

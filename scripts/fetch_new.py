@@ -14,8 +14,7 @@ def fetch_new_artists():
     setup_database_schema(conn)
     cursor = conn.cursor()
     
-    table = 'artists'
-    log_message("INFO", f"[{table}] Fetching new artists by AdditionDate...")
+    log_message("INFO", f"Fetching new artists by AdditionDate...")
     
     max_results = 100
     start_index = 0
@@ -35,15 +34,15 @@ def fetch_new_artists():
         data = make_request(url)
         
         if not data or 'items' not in data:
-            log_message("WARNING", f"[{table}] Failed to fetch page {page}. Stopping.")
+            log_message("WARNING", f"Failed to fetch page {page}. Stopping.")
             break
             
         items = data['items']
         if not items:
-            log_message("INFO", f"[{table}] No more items found. Stopping.")
+            log_message("INFO", f"No more items found. Stopping.")
             break
             
-        log_message("INFO", f"[{table}] Page {page}: processing {len(items)} items...")
+        log_message("INFO", f"Page {page}: processing {len(items)} items...")
         
         existing_count_in_batch = 0
         
@@ -60,18 +59,18 @@ def fetch_new_artists():
                 cursor.execute(artist_sql, record)
                 total_artists_inserted += 1
             except Exception as e:
-                log_message("ERROR", f"[{table}] Error inserting ID {artist_id}: {e}")
+                log_message("ERROR", f"Error inserting ID {artist_id}: {e}")
                 
         conn.commit()
         
         if existing_count_in_batch == len(items):
-            log_message("SUCCESS", f"[{table}] All items in batch already exist. Stopping fetch loop.")
+            log_message("SUCCESS", f"All items in batch already exist. Stopping fetch loop.")
             break
             
         start_index += max_results
         time.sleep(0.5)
         
-    log_message("SUCCESS", f"[{table}] Finished. Inserted {total_artists_inserted} new artists.")
+    log_message("SUCCESS", f"Finished. Inserted {total_artists_inserted} new artists.")
     conn.close()
 
 def fetch_new_songs():
@@ -83,8 +82,7 @@ def fetch_new_songs():
     setup_database_schema(conn)
     cursor = conn.cursor()
     
-    table = 'songs'
-    log_message("INFO", f"[{table}] Fetching new songs by AdditionDate...")
+    log_message("INFO", f"Fetching new songs by AdditionDate...")
     
     max_results = 100
     start_index = 0
@@ -107,15 +105,15 @@ def fetch_new_songs():
         data = make_request(url)
         
         if not data or 'items' not in data:
-            log_message("WARNING", f"[{table}] Failed to fetch page {page}. Stopping.")
+            log_message("WARNING", f"Failed to fetch page {page}. Stopping.")
             break
             
         items = data['items']
         if not items:
-            log_message("INFO", f"[{table}] No more items found. Stopping.")
+            log_message("INFO", f"No more items found. Stopping.")
             break
             
-        log_message("INFO", f"[{table}] Page {page}: processing {len(items)} items...")
+        log_message("INFO", f"Page {page}: processing {len(items)} items...")
         
         existing_count_in_batch = 0
         
@@ -173,19 +171,19 @@ def fetch_new_songs():
                     cursor.execute("INSERT OR IGNORE INTO song_tags (song_id, tag_id) VALUES (?, ?)", (song_id, tid))
                 
             except Exception as e:
-                log_message("ERROR", f"[{table}] Error inserting/updating ID {song_id}: {e}")
+                log_message("ERROR", f"Error inserting/updating ID {song_id}: {e}")
         
         
         conn.commit()
         
         if existing_count_in_batch == len(items):
-            log_message("SUCCESS", f"[{table}] All items in batch already exist. Stopping fetch loop.")
+            log_message("SUCCESS", f"All items in batch already exist. Stopping fetch loop.")
             break
             
         start_index += max_results
         time.sleep(0.5)
         
-    log_message("SUCCESS", f"[{table}] Finished. Inserted {total_songs_inserted} new songs, updated {total_songs_updated} legacy songs, and auto-fetched {total_artists_fetched} missing artists.")
+    log_message("SUCCESS", f"Finished. Inserted {total_songs_inserted} new songs, updated {total_songs_updated} legacy songs, and auto-fetched {total_artists_fetched} missing artists.")
     conn.close()
 
 if __name__ == "__main__":
