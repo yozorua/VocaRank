@@ -14,7 +14,7 @@
   },
   "RankingTable": {
     "song": "Song",
-    "views": "Views",
+    "views": "Total Views",
     "increment": "Gain",
     "published": "Published",
     "sort_youtube": "YouTube",

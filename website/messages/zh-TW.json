@@ -18,7 +18,7 @@
     },
     "RankingTable": {
         "song": "歌曲",
-        "views": "觀看數",
+        "views": "總觀看數",
         "increment": "增長",
         "published": "發布日期",
         "sort_youtube": "YouTube",

@@ -18,7 +18,7 @@
     },
     "RankingTable": {
         "song": "曲名",
-        "views": "再生数",
+        "views": "総合再生数",
         "increment": "増加数",
         "published": "投稿日",
         "sort_youtube": "YouTube",
