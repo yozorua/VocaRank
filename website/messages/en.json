@@ -72,10 +72,15 @@
     "artists": "Artists",
     "songs": "Songs",
     "no_query": "Search for songs or artists...",
-    "no_results": "No songs found."
+    "no_results": "No songs found.",
+    "loading": "Loading...",
+    "show_more": "Show More Artists",
+    "show_more_songs": "Show More Songs"
   },
   "ArtistPage": {
-    "top_songs": "Top Songs"
+    "top_songs": "Top Songs",
+    "popular": "Popular",
+    "latest": "Latest"
   },
   "LoginPage": {
     "title": "Login",

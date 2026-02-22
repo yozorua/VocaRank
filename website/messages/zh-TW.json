@@ -76,10 +76,15 @@
         "artists": "藝人",
         "songs": "歌曲",
         "no_query": "搜尋歌曲或藝人...",
-        "no_results": "找不到歌曲。"
+        "no_results": "找不到歌曲。",
+        "loading": "載入中...",
+        "show_more": "顯示更多",
+        "show_more_songs": "顯示更多歌曲"
     },
     "ArtistPage": {
-        "top_songs": "熱門歌曲"
+        "top_songs": "熱門歌曲",
+        "popular": "熱門",
+        "latest": "最新"
     },
     "LoginPage": {
         "title": "登入",

@@ -3,6 +3,7 @@ import RankingTable from '@/components/RankingTable';
 import { getTranslations } from 'next-intl/server';
 import { SongRanking, Artist } from '@/types';
 import { Link } from '@/i18n/navigation';
+import SearchResultsClient from '@/components/SearchResultsClient';
 
 // Force dynamic since searchParams are used
 export const dynamic = 'force-dynamic';
@@ -70,54 +71,9 @@ export default async function SearchPage({ searchParams, params }: SearchPagePro
                 </div>
             )}
 
-            {/* Artists Section */}
-            {artists.length > 0 && (
-                <div className="mb-16">
-                    <h2 className="text-sm font-bold tracking-[0.2em] text-[var(--text-secondary)] uppercase mb-6 flex items-center gap-4">
-                        {t('artists', { defaultMessage: 'Artists' })}
-                        <div className="h-px flex-1 bg-[var(--hairline)]"></div>
-                    </h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                        {artists.map((artist) => {
-                            const thumb = artist.picture_url_thumb || artist.picture_url_original;
-                            return (
-                                <Link
-                                    key={artist.id}
-                                    href={`/artist/${artist.id}`}
-                                    className="p-6 border border-[var(--hairline)] hover:border-[var(--vermilion)] transition-colors flex flex-col items-center text-center gap-5 group bg-[var(--bg-dark)]"
-                                >
-                                    <div className="w-24 h-24 overflow-hidden bg-[var(--hairline)] flex items-center justify-center shrink-0">
-                                        {thumb ? (
-                                            <img src={thumb} alt={artist.name_default} className="w-full h-full object-cover object-top transition-all duration-300" />
-                                        ) : (
-                                            <span className="text-2xl font-serif text-[var(--text-secondary)]">{artist.name_default.charAt(0)}</span>
-                                        )}
-                                    </div>
-                                    <div className="min-w-0 w-full flex flex-col items-center">
-                                        <div
-                                            className="font-bold text-white group-hover:text-[var(--vermilion)] w-full tracking-widest transition-colors break-words line-clamp-2"
-                                            title={getArtistName(artist)}
-                                        >
-                                            {getArtistName(artist)}
-                                        </div>
-                                        <div className="text-[10px] text-[var(--text-secondary)] uppercase tracking-[0.2em] mt-2">{artist.artist_type.replace(/([a-z])([A-Z])/g, '$1 $2').replace('SynthesizerV', 'Synthesizer V')}</div>
-                                    </div>
-                                </Link>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
-
-            {/* Songs Section */}
-            {songs.length > 0 && (
-                <div className="mb-16">
-                    <h2 className="text-sm font-bold tracking-[0.2em] text-[var(--text-secondary)] uppercase mb-6 flex items-center gap-4">
-                        {t('songs', { defaultMessage: 'Songs' })}
-                        <div className="h-px flex-1 bg-[var(--hairline)]"></div>
-                    </h2>
-                    <RankingTable songs={songs} mode="total" showRank={false} />
-                </div>
+            {/* Results handled by Client Component for Show More interaction */}
+            {(artists.length > 0 || songs.length > 0) && (
+                <SearchResultsClient query={query} initialSongs={songs} initialArtists={artists} />
             )}
 
             {!query && !songs.length && !artists.length && (

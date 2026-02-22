@@ -1,6 +1,7 @@
 
 import { getArtist, getArtistSongs, getArtistSongDates } from '@/lib/api';
 import RankingTable from '@/components/RankingTable';
+import ArtistSongsClient from '@/components/ArtistSongsClient';
 import ArtistPublishHistogram from '@/components/ArtistPublishHistogram';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
@@ -143,11 +144,8 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
                 </div>
 
                 {/* Songs List */}
-                <div>
-                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                        {t('top_songs', { defaultMessage: 'Top Songs' })}
-                    </h2>
-                    <RankingTable songs={songs} mode="total" showRank={false} />
+                <div className="pt-4">
+                    <ArtistSongsClient artistId={artistId} initialSongs={songs} />
                 </div>
             </div>
         );

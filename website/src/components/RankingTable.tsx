@@ -12,6 +12,8 @@ interface RankingTableProps {
     mode: string;
     sort?: string;
     showRank?: boolean;
+    showShowMore?: boolean;
+    forceShowAll?: boolean;
 }
 
 import NoThumbnail from './NoThumbnail';
@@ -63,14 +65,14 @@ function ThumbnailWithFallback({ song, className }: { song: SongRanking, classNa
     );
 }
 
-export default function RankingTable({ songs, mode, sort = 'total', showRank = true }: RankingTableProps) {
+export default function RankingTable({ songs, mode, sort = 'total', showRank = true, showShowMore = true, forceShowAll = false }: RankingTableProps) {
     const t = useTranslations('RankingTable');
     const locale = useLocale();
     const router = useRouter();
     const [showAll, setShowAll] = useState(false);
 
-    // Limit to 20 unless expanded
-    const displayedSongs = showAll ? songs : songs.slice(0, 20);
+    // Limit to 20 unless expanded or explicitly forced by parent
+    const displayedSongs = forceShowAll || showAll ? songs : songs.slice(0, 20);
 
     const getSongName = (song: SongRanking) => {
         if (locale === 'ja') return song.name_japanese || song.name_romaji || song.name_english;
@@ -383,7 +385,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
             </div>
             {/* Show More Button */}
             {
-                !showAll && songs.length > 20 && (
+                showShowMore && !showAll && songs.length > 20 && (
                     <div className="flex justify-center mt-12 pb-8">
                         <button
                             onClick={() => setShowAll(true)}

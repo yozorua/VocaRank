@@ -96,8 +96,9 @@ def get_artist(artist_id: int, db: Session = Depends(get_db)):
 
 @router.get("/{artist_id}/songs", response_model=List[schemas.SongRanking])
 def get_artist_songs(
-    artist_id: int, 
+    artist_id: int,
     limit: Optional[int] = None,
+    sort_by: str = Query('total_views', enum=['total_views', 'publish_date'], description="Sort by metric"),
     db: Session = Depends(get_db)
 ):
     """
@@ -106,8 +107,12 @@ def get_artist_songs(
     from sqlalchemy import text
     from ..utils import extract_pvs, get_artists_for_songs
     
+    order_clause = "total_views DESC"
+    if sort_by == 'publish_date':
+        order_clause = "s.publish_date DESC"
+
     # 1. Fetch songs linked to this artist
-    sql_query = """
+    sql_query = f"""
         SELECT 
             s.id,
             s.name_english, s.name_japanese, s.name_romaji,
@@ -120,7 +125,7 @@ def get_artist_songs(
         FROM songs s
         JOIN song_artists sa ON s.id = sa.song_id
         WHERE sa.artist_id = :artist_id
-        ORDER BY total_views DESC
+        ORDER BY {order_clause}
     """
     if limit is not None:
         sql_query += " LIMIT :limit"
