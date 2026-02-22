@@ -20,8 +20,9 @@ import NoThumbnail from './NoThumbnail';
 
 function ThumbnailWithFallback({ song, className }: { song: SongRanking, className?: string }) {
     const [src, setSrc] = useState<string | null>(() => {
-        // Initial strategy
+        // Initial strategy: YouTube > Explicit Nico Thumb > Nico ID Regex Guess
         if (song.youtube_id) return `https://i.ytimg.com/vi/${song.youtube_id}/mqdefault.jpg`;
+        if (song.niconico_thumb_url) return song.niconico_thumb_url;
         if (song.niconico_id) {
             const match = song.niconico_id.match(/\d+/);
             return match ? `https://nicovideo.cdn.nimg.jp/thumbnails/${match[0]}/${match[0]}` : null;
@@ -33,13 +34,24 @@ function ThumbnailWithFallback({ song, className }: { song: SongRanking, classNa
     const handleError = () => {
         if (!src) return;
 
-        // Strategy: MQ -> HQ -> Nico -> Fail
+        // Strategy: YouTube MQ -> YouTube HQ -> External Nico Thumb -> Nico ID Guess -> Fail
         if (src.includes('mqdefault')) {
             setSrc(prev => prev ? prev.replace('mqdefault', 'hqdefault') : null);
-        } else if (src.includes('hqdefault') && song.niconico_id) {
+        } else if (src.includes('hqdefault')) {
+            if (song.niconico_thumb_url) {
+                setSrc(song.niconico_thumb_url);
+            } else if (song.niconico_id) {
+                const match = song.niconico_id.match(/\d+/);
+                const nicoUrl = match ? `https://nicovideo.cdn.nimg.jp/thumbnails/${match[0]}/${match[0]}` : null;
+                if (nicoUrl) setSrc(nicoUrl);
+                else setError(true);
+            } else {
+                setError(true);
+            }
+        } else if (src === song.niconico_thumb_url && song.niconico_id) {
+            // If explicit thumb url failed, try the old fallback format just in case
             const match = song.niconico_id.match(/\d+/);
             const nicoUrl = match ? `https://nicovideo.cdn.nimg.jp/thumbnails/${match[0]}/${match[0]}` : null;
-            // If we are already trying nico or nico is invalid, fail
             if (nicoUrl && src !== nicoUrl) {
                 setSrc(nicoUrl);
             } else {

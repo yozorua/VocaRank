@@ -34,6 +34,7 @@ export interface SongRanking {
     views_niconico: number;
     youtube_id: string | null;
     niconico_id: string | null;
+    niconico_thumb_url?: string | null;
     external_links: { description: string; url: string }[] | null;
     song_type: string | null;
     publish_date: string | null;

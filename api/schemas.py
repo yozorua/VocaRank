@@ -74,6 +74,7 @@ class SongDetail(SongBase):
     vocalists: List[ArtistTiny] = []
     youtube_id: Optional[str] = None
     niconico_id: Optional[str] = None
+    niconico_thumb_url: Optional[str] = None
     youtube_history: Optional[List[dict]] = None
     niconico_history: Optional[List[dict]] = None
 
@@ -103,6 +104,7 @@ class SongRanking(BaseModel):
     
     youtube_id: Optional[str] = None
     niconico_id: Optional[str] = None
+    niconico_thumb_url: Optional[str] = None
     song_type: Optional[str] = None
     publish_date: Optional[str] = None
     

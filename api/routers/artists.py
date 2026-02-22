@@ -143,7 +143,7 @@ def get_artist_songs(
     response = []
     for row in results:
         sid = row[0]
-        yt_id, nico_id = extract_pvs(row[7])
+        yt_id, nico_id, nico_thumb = extract_pvs(row[7])
         
         am = artists_map.get(sid, {'producers': [], 'vocalists': []})
         
@@ -166,6 +166,7 @@ def get_artist_songs(
             views_niconico=row[6],
             youtube_id=yt_id,
             niconico_id=nico_id,
+            niconico_thumb_url=nico_thumb,
             song_type=row[8],
             publish_date=row[9],
             artist_string=artist_string,

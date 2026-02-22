@@ -111,7 +111,7 @@ def get_gain_ranking(
     response = []
     for row in results:
         sid = row[0]
-        yt_id, nico_id = extract_pvs(row[10])
+        yt_id, nico_id, nico_thumb = extract_pvs(row[10])
         
         am = artists_map.get(sid, {'producers': [], 'vocalists': []})
         
@@ -134,6 +134,7 @@ def get_gain_ranking(
             total_views=row[9],
             youtube_id=yt_id,
             niconico_id=nico_id,
+            niconico_thumb_url=nico_thumb,
             song_type=row[11],
             publish_date=row[12],
             artist_string=artist_string,
@@ -255,12 +256,13 @@ def get_total_ranking(
     result = db.execute(sql, params).fetchall()
 
     song_ids = [row[0] for row in result]
+    song_ids = [row.id for row in result]
     artists_map = get_artists_for_songs(db, song_ids)
     
     response = []
     for row in result:
-        sid = row[0]
-        yt_id, nico_id = extract_pvs(row[7])
+        sid = row.id
+        yt_id, nico_id, nico_thumb = extract_pvs(row.pv_data)
         
         am = artists_map.get(sid, {'producers': [], 'vocalists': []})
         
@@ -272,19 +274,20 @@ def get_total_ranking(
         
         response.append(schemas.SongRanking(
             id=sid,
-            name_english=row[1],
-            name_japanese=row[2],
-            name_romaji=row[3],
-            total_views=row[4],
+            name_english=row.name_english,
+            name_japanese=row.name_japanese,
+            name_romaji=row.name_romaji,
+            total_views=row.total_views,
             increment_total=0,
             increment_youtube=0,
             increment_niconico=0,
-            views_youtube=row[5],
-            views_niconico=row[6],
+            views_youtube=row.youtube_views,
+            views_niconico=row.niconico_views,
             youtube_id=yt_id,
             niconico_id=nico_id,
-            song_type=row[8],
-            publish_date=row[9],
+            niconico_thumb_url=nico_thumb,
+            song_type=row.song_type,
+            publish_date=row.publish_date,
             artist_string=artist_string,
             vocaloid_string=vocaloid_string,
             artists=producers,

@@ -82,7 +82,7 @@ def search_songs(
     response = []
     for row in results:
         sid = row[0]
-        yt_id, nico_id = extract_pvs(row[7])
+        yt_id, nico_id, nico_thumb = extract_pvs(row[7])
         
         am = artists_map.get(sid, {'producers': [], 'vocalists': []})
         
@@ -105,6 +105,7 @@ def search_songs(
             views_niconico=row[6],
             youtube_id=yt_id,
             niconico_id=nico_id,
+            niconico_thumb_url=nico_thumb,
             song_type=row[8],
             publish_date=row[9],
             artist_string=artist_string,
@@ -134,7 +135,7 @@ def get_song(song_id: int, db: Session = Depends(get_db)):
     artist_string = ", ".join([p['name'] for p in producers]) if producers else "Unknown"
     vocaloid_string = ", ".join([v['name'] for v in vocalists]) if vocalists else "Unknown"
     
-    yt_id, nico_id = extract_pvs(song.pv_data)
+    yt_id, nico_id, nico_thumb = extract_pvs(song.pv_data)
 
     original_song_data = None
     if song.original_song_id:
@@ -170,6 +171,7 @@ def get_song(song_id: int, db: Session = Depends(get_db)):
         vocalists=vocalists,
         youtube_id=yt_id,
         niconico_id=nico_id,
+        niconico_thumb_url=nico_thumb,
         youtube_history=song.youtube_history,
         niconico_history=song.niconico_history,
     )

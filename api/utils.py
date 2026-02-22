@@ -10,11 +10,11 @@ SYNTH_TYPES = (
 )
 
 def extract_pvs(pv_data_json: str):
-    """Parses PV data and returns (youtube_id, niconico_id)."""
-    yt_id, nico_id = None, None
+    """Parses PV data and returns (youtube_id, niconico_id, niconico_thumb_url)."""
+    yt_id, nico_id, niconico_thumb_url = None, None, None
     try:
         if not pv_data_json:
-            return None, None
+            return None, None, None
         pvs = json.loads(pv_data_json)
         if isinstance(pvs, list):
             for pv in pvs:
@@ -23,9 +23,10 @@ def extract_pvs(pv_data_json: str):
                     yt_id = pv.get('pvId')
                 elif service == 'NicoNicoDouga' and not nico_id:
                     nico_id = pv.get('pvId')
+                    niconico_thumb_url = pv.get('thumbUrl')
     except:
         pass
-    return yt_id, nico_id
+    return yt_id, nico_id, niconico_thumb_url
 
 def get_artists_for_songs(db: Session, song_ids: List[int]) -> Dict[int, Dict[str, List[Dict]]]:
     """
