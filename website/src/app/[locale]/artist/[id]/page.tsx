@@ -6,6 +6,7 @@ import ArtistPublishHistogram from '@/components/ArtistPublishHistogram';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
+import { formatArtistType } from '@/lib/formatArtistType';
 
 export const dynamic = 'force-dynamic';
 
@@ -53,7 +54,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
             Other: 'text-gray-400',
         };
         const typeColor = artistTypeColor[artist.artist_type] ?? 'text-[var(--miku-teal)]';
-        const typeLabel = artist.artist_type.replace(/([a-z])([A-Z])/g, '$1 $2').replace('SynthesizerV', 'Synthesizer V');
+        const typeLabel = formatArtistType(artist.artist_type);
 
         return (
             <div className="max-w-[var(--max-width)] mx-auto px-4 md:px-6 py-8">
@@ -74,7 +75,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
 
                         {/* Info */}
                         <div className="flex-1 min-w-0 text-center md:text-left">
-                            <div className={`${typeColor} font-bold uppercase tracking-widest text-sm mb-2`}>{typeLabel}</div>
+                            <div className={`${typeColor} font-bold tracking-widest text-sm mb-2`}>{typeLabel}</div>
                             <h1 className="text-3xl md:text-4xl font-black text-white mb-3">{getArtistName()}</h1>
 
                             {/* Sub Names */}

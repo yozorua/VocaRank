@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import RankingTable from '@/components/RankingTable';
 import { searchSongs, searchArtists } from '@/lib/api';
+import { formatArtistType } from '@/lib/formatArtistType';
 
 interface SearchResultsClientProps {
     query: string;
@@ -101,7 +102,7 @@ export default function SearchResultsClient({ query, initialSongs, initialArtist
                                         >
                                             {getArtistName(artist)}
                                         </div>
-                                        <div className="text-[10px] text-[var(--text-secondary)] uppercase tracking-[0.2em] mt-2">{artist.artist_type.replace(/([a-z])([A-Z])/g, '$1 $2').replace('SynthesizerV', 'Synthesizer V')}</div>
+                                        <div className="text-[10px] text-[var(--text-secondary)] tracking-[0.2em] mt-2">{formatArtistType(artist.artist_type)}</div>
                                     </div>
                                 </Link>
                             );
