@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 
 interface HistoryPoint {
@@ -11,6 +11,7 @@ interface HistoryPoint {
 interface ViewHistoryChartProps {
     youtubeHistory?: HistoryPoint[] | null;
     niconicoHistory?: HistoryPoint[] | null;
+    publishDate?: string | null;
 }
 
 function formatViews(n: number): string {
@@ -20,9 +21,27 @@ function formatViews(n: number): string {
 }
 
 /** Sort + deduplicate a history array by date, keeping the latest view count per timestamp */
-function normalizeHistory(pts: HistoryPoint[] | null | undefined): HistoryPoint[] | null {
-    if (!pts || pts.length < 2) return null;
-    const sorted = [...pts].sort((a, b) => a.date.localeCompare(b.date));
+function normalizeHistory(pts: HistoryPoint[] | null | undefined, publishDate?: string | null): HistoryPoint[] | null {
+    if (!pts || pts.length === 0) return null;
+
+    const points = [...pts];
+
+    // Feature: if a song is brand new and only has 1 fetch, append a 0-view publish origin 
+    // to allow recharts to draw a line instead of hiding the chart
+    if (points.length === 1 && publishDate) {
+        if (publishDate < points[0].date) {
+            points.push({ date: publishDate, views: 0 });
+        } else {
+            // Fallback if publish date is same/later: assume 1 day before
+            const d = new Date(points[0].date);
+            d.setDate(d.getDate() - 1);
+            points.push({ date: d.toISOString(), views: 0 });
+        }
+    } else if (points.length < 2) {
+        return null; // hide charts that have < 2 points
+    }
+
+    const sorted = points.sort((a, b) => a.date.localeCompare(b.date));
     return sorted;
 }
 
@@ -55,10 +74,18 @@ function buildTotalHistory(yt: HistoryPoint[] | null, nico: HistoryPoint[] | nul
     return result;
 }
 
-export default function ViewHistoryChart({ youtubeHistory, niconicoHistory }: ViewHistoryChartProps) {
+export default function ViewHistoryChart({ youtubeHistory, niconicoHistory, publishDate }: ViewHistoryChartProps) {
     const t = useTranslations('ViewHistoryChart');
     const [activeTab, setActiveTab] = useState<'total' | 'youtube' | 'niconico'>('total');
     const [hoveredPoint, setHoveredPoint] = useState<{ x: number; y: number; views: number; date: string; source: string } | null>(null);
+
+    // Parse once
+    const { totalData, ytData, nicoData } = useMemo(() => {
+        const _yt = normalizeHistory(youtubeHistory, publishDate);
+        const _nico = normalizeHistory(niconicoHistory, publishDate);
+        const _total = buildTotalHistory(_yt, _nico);
+        return { totalData: _total, ytData: _yt, nicoData: _nico };
+    }, [youtubeHistory, niconicoHistory, publishDate]);
 
     // Adaptive font size: always renders at TARGET_PX actual CSS pixels
     const containerRef = useRef<HTMLDivElement>(null);

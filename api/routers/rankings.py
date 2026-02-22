@@ -35,23 +35,32 @@ def get_gain_ranking(
     # Sort Logic
     order_clause = "increment_total DESC"
     if sort_by == 'youtube':
-        order_clause = "(today.youtube_views - past.youtube_views) DESC"
+        order_clause = "increment_youtube DESC"
     elif sort_by == 'niconico':
-        order_clause = "(today.niconico_views - past.niconico_views) DESC"
+        order_clause = "increment_niconico DESC"
     elif sort_by == 'increment_youtube':
-        order_clause = "(today.youtube_views - past.youtube_views) DESC"
+        order_clause = "increment_youtube DESC"
     elif sort_by == 'increment_niconico':
-        order_clause = "(today.niconico_views - past.niconico_views) DESC"
+        order_clause = "increment_niconico DESC"
     elif sort_by == 'total':
-        order_clause = "(today.youtube_views + today.niconico_views) DESC"
+        order_clause = "total_views DESC"
     
     query_str = f"""
         SELECT 
             s.id,
             s.name_english, s.name_japanese, s.name_romaji,
-            (today.youtube_views + today.niconico_views) - (past.youtube_views + past.niconico_views) as increment_total,
-            (today.youtube_views - past.youtube_views) as increment_youtube,
-            (today.niconico_views - past.niconico_views) as increment_niconico,
+            CASE 
+                WHEN past.song_id IS NULL THEN (today.youtube_views + today.niconico_views) 
+                ELSE (today.youtube_views + today.niconico_views) - (past.youtube_views + past.niconico_views) 
+            END as increment_total,
+            CASE 
+                WHEN past.song_id IS NULL THEN today.youtube_views
+                ELSE (today.youtube_views - past.youtube_views)
+            END as increment_youtube,
+            CASE 
+                WHEN past.song_id IS NULL THEN today.niconico_views
+                ELSE (today.niconico_views - past.niconico_views)
+            END as increment_niconico,
             today.youtube_views,
             today.niconico_views,
             (today.youtube_views + today.niconico_views) as total_views,
@@ -59,14 +68,17 @@ def get_gain_ranking(
             s.song_type,
             s.publish_date
         FROM daily_snapshots today
-        JOIN daily_snapshots past ON today.song_id = past.song_id 
+        LEFT JOIN daily_snapshots past ON today.song_id = past.song_id AND past.date = :target_date
         JOIN songs s ON s.id = today.song_id
-        WHERE today.date = :current_date AND past.date = :target_date
+        WHERE today.date = :current_date
+        AND (
+            past.song_id IS NOT NULL 
+            OR DATE(s.publish_date) >= DATE(:current_date, '-' || :days_ago || ' days')
+        )
         AND NOT (
-            -- Exclude first-time-fetch spikes for old songs:
-            -- when yesterday's total was 0 but today's is > 0, only keep the song
-            -- if it was published within the ranking window (new songs start from 0 legitimately).
-            (past.youtube_views + past.niconico_views) = 0
+            -- Exclude first-time-fetch spikes for old songs that somehow got a 0 recorded yesterday
+            past.song_id IS NOT NULL 
+            AND (past.youtube_views + past.niconico_views) = 0
             AND (today.youtube_views + today.niconico_views) > 0
             AND DATE(s.publish_date) < DATE(:current_date, '-' || :days_ago || ' days')
         )

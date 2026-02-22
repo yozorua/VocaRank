@@ -223,6 +223,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
             <ViewHistoryChart
                 youtubeHistory={song.youtube_history}
                 niconicoHistory={song.niconico_history}
+                publishDate={song.publish_date}
             />
         </div>
     );
