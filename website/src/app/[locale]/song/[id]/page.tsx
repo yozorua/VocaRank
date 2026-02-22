@@ -25,7 +25,7 @@ export default async function SongDetailPage({ params }: PageProps) {
         const song = await getSong(songId);
 
         return (
-            <div className="max-w-[var(--max-width)] mx-auto px-6 pt-0 pb-8 md:py-8">
+            <div className="max-w-[var(--max-width)] mx-auto px-6 pt-6 pb-8 md:py-8">
                 <SongPlayer youtubeId={song.youtube_id} niconicoId={song.niconico_id} />
                 {/* Replaced SongInfo with detailed metadata rendering */}
                 <SongInfo song={song} />
