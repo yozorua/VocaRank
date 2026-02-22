@@ -28,8 +28,6 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
         ]);
 
         const getArtistName = () => {
-            if (locale === 'ja') return artist.name_japanese || artist.name_default;
-            if (locale === 'en') return artist.name_english || artist.name_default;
             return artist.name_default;
         };
 
