@@ -311,3 +311,129 @@ def get_total_ranking(
         ranking_cache[cache_key] = response
 
     return response
+
+@router.get("/custom", response_model=List[schemas.SongRanking])
+def get_custom_ranking(
+    limit: int = 100, 
+    song_type: str = Query('Original,Remaster,Remix,Cover', description="Song type filter (comma-separated)"),
+    vocaloid_only: bool = Query(True, description="Filter for SynthV/Vocaloid songs only"),
+    publish_date_start: Optional[str] = Query(None, description="Start date for publish_date (YYYY-MM-DD)"),
+    publish_date_end: Optional[str] = Query(None, description="End date for publish_date (YYYY-MM-DD)"),
+    views_min: Optional[int] = Query(None, description="Minimum total views"),
+    views_max: Optional[int] = Query(None, description="Maximum total views"),
+    artist_ids: Optional[str] = Query(None, description="Comma-separated required artist IDs"),
+    db: Session = Depends(get_db)
+):
+    # No caching for custom queries to save memory, as they are highly variable
+    order_clause = "(s.youtube_views + s.niconico_views) DESC"
+    
+    query_str = f"""
+        SELECT 
+            s.id,
+            s.name_english, s.name_japanese, s.name_romaji,
+            (s.youtube_views + s.niconico_views) as total_views,
+            s.youtube_views,
+            s.niconico_views,
+            s.pv_data,
+            s.song_type,
+            s.publish_date
+        FROM songs s
+        WHERE 1=1
+    """
+    
+    from sqlalchemy import bindparam
+    
+    params = {"limit": limit}
+    
+    if song_type:
+        types = [t.strip() for t in song_type.split(',')]
+        if len(types) == 1:
+            query_str += " AND s.song_type = :single_song_type"
+            params["single_song_type"] = types[0]
+        else:
+            query_str += " AND s.song_type IN :song_types"
+            params["song_types"] = types
+            
+    if vocaloid_only:
+        query_str += """ AND EXISTS (
+            SELECT 1 FROM song_artists sa 
+            JOIN artists a ON sa.artist_id = a.id 
+            WHERE sa.song_id = s.id AND a.artist_type IN :synth_types
+        )"""
+        params["synth_types"] = list(SYNTH_TYPES)
+
+    if publish_date_start:
+        query_str += " AND DATE(s.publish_date) >= DATE(:publish_date_start)"
+        params["publish_date_start"] = publish_date_start
+        
+    if publish_date_end:
+        query_str += " AND DATE(s.publish_date) <= DATE(:publish_date_end)"
+        params["publish_date_end"] = publish_date_end
+        
+    if views_min is not None:
+        query_str += " AND (s.youtube_views + s.niconico_views) >= :views_min"
+        params["views_min"] = views_min
+        
+    if views_max is not None:
+        query_str += " AND (s.youtube_views + s.niconico_views) <= :views_max"
+        params["views_max"] = views_max
+        
+    if artist_ids:
+        artist_id_list = [int(x.strip()) for x in artist_ids.split(',') if x.strip().isdigit()]
+        for idx, a_id in enumerate(artist_id_list):
+            query_str += f""" AND EXISTS (
+                SELECT 1 FROM song_artists sa{idx}
+                WHERE sa{idx}.song_id = s.id AND sa{idx}.artist_id = :req_artist_{idx}
+            )"""
+            params[f"req_artist_{idx}"] = a_id
+
+    query_str += f" ORDER BY {order_clause} LIMIT :limit"
+    
+    sql = text(query_str)
+    
+    if "song_types" in params:
+        sql = sql.bindparams(bindparam('song_types', expanding=True))
+    if "synth_types" in params:
+        sql = sql.bindparams(bindparam('synth_types', expanding=True))
+        
+    result = db.execute(sql, params).fetchall()
+
+    song_ids = [row.id for row in result]
+    artists_map = get_artists_for_songs(db, song_ids)
+    
+    response = []
+    for row in result:
+        sid = row.id
+        yt_id, nico_id, nico_thumb = extract_pvs(row.pv_data)
+        
+        am = artists_map.get(sid, {'producers': [], 'vocalists': []})
+        
+        producers = am.get('producers', [])
+        vocalists = am.get('vocalists', [])
+        
+        artist_string = ", ".join([p['name'] for p in producers]) if producers else "Unknown"
+        vocaloid_string = ", ".join([v['name'] for v in vocalists]) if vocalists else "Unknown"
+        
+        response.append(schemas.SongRanking(
+            id=sid,
+            name_english=row.name_english,
+            name_japanese=row.name_japanese,
+            name_romaji=row.name_romaji,
+            total_views=row.total_views,
+            increment_total=0,
+            increment_youtube=0,
+            increment_niconico=0,
+            views_youtube=row.youtube_views,
+            views_niconico=row.niconico_views,
+            youtube_id=yt_id,
+            niconico_id=nico_id,
+            niconico_thumb_url=nico_thumb,
+            song_type=row.song_type,
+            publish_date=row.publish_date,
+            artist_string=artist_string,
+            vocaloid_string=vocaloid_string,
+            artists=producers,
+            vocalists=vocalists
+        ))
+
+    return response

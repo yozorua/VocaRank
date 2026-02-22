@@ -25,7 +25,9 @@
         "sort_niconico": "Niconico",
         "show_more": "顯示更多",
         "no_data_title": "排行榜計算中...",
-        "no_data_desc": "我們正在收集此期間的數據。請稍後再回來查看！"
+        "no_data_desc": "我們目前正在收集此期間的數據。請稍後再回來查看！",
+        "no_custom_title": "找不到結果",
+        "no_custom_desc": "沒有符合您自訂篩選條件的歌曲。請嘗試擴大您的搜尋範圍。"
     },
     "ViewHistoryChart": {
         "title": "觀看紀錄",
@@ -34,9 +36,22 @@
         "tab_niconico": "Niconico"
     },
     "ArtistPublishHistogram": {
-        "title": "歌曲動態",
-        "songs": "首歌",
-        "years": "年"
+        "title": "歷年活動",
+        "songs": "首歌曲",
+        "years": "年份"
+    },
+    "CustomRanking": {
+        "title": "自訂排行榜參數",
+        "search_artist_placeholder": "搜尋想加入的歌手/聲庫...",
+        "label_song_types": "歌曲類型",
+        "label_min_views": "最低觀看數",
+        "label_max_views": "最高觀看數",
+        "label_date_start": "開始日期",
+        "label_date_end": "結束日期",
+        "label_required_artists": "指定歌手",
+        "apply": "套用篩選",
+        "placeholder_min_views": "0",
+        "placeholder_max_views": "總觀看數"
     },
     "RankingPage": {
         "title": "歌曲排行榜",
@@ -44,7 +59,8 @@
         "daily": "本日",
         "weekly": "本週",
         "monthly": "本月",
-        "total": "總榜",
+        "total": "歷史總榜",
+        "custom": "自訂",
         "sort_total": "總觀看數",
         "sort_youtube": "YouTube 排行",
         "sort_niconico": "Niconico 排行"

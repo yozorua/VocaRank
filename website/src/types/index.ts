@@ -54,4 +54,4 @@ export interface SongDetail extends SongRanking {
     niconico_history?: { date: string; views: number }[] | null;
 }
 
-export type RankingMode = 'daily' | 'weekly' | 'monthly' | 'total';
+export type RankingMode = 'daily' | 'weekly' | 'monthly' | 'total' | 'custom';

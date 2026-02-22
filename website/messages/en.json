@@ -21,7 +21,9 @@
     "sort_niconico": "Niconico",
     "show_more": "Show More",
     "no_data_title": "Ranking Calculating...",
-    "no_data_desc": "We are currently collecting data for this period. Please check back later!"
+    "no_data_desc": "We are currently collecting data for this period. Please check back later!",
+    "no_custom_title": "No Results Found",
+    "no_custom_desc": "No songs match your current custom filter parameters. Try expanding your search."
   },
   "ViewHistoryChart": {
     "title": "View History",
@@ -34,6 +36,19 @@
     "songs": "songs",
     "years": "years"
   },
+  "CustomRanking": {
+    "title": "Custom Ranking Parameters",
+    "search_artist_placeholder": "Search for an artist/voicebank to require...",
+    "label_song_types": "Song Types",
+    "label_min_views": "Min Views",
+    "label_max_views": "Max Views",
+    "label_date_start": "Start Date",
+    "label_date_end": "End Date",
+    "label_required_artists": "Required Artists",
+    "apply": "Apply Filters",
+    "placeholder_min_views": "0",
+    "placeholder_max_views": "Total views"
+  },
   "RankingPage": {
     "title": "Song Rankings",
     "description": "Discover the most popular Vocaloid songs right now.",
@@ -41,6 +56,7 @@
     "weekly": "Weekly",
     "monthly": "Monthly",
     "total": "All Time",
+    "custom": "Custom",
     "sort_total": "Total Views",
     "sort_youtube": "YouTube Ranking",
     "sort_niconico": "Niconico Ranking"

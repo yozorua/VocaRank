@@ -25,7 +25,9 @@
         "sort_niconico": "ニコニコ",
         "show_more": "もっと見る",
         "no_data_title": "ランキング集計中...",
-        "no_data_desc": "現在、この期間のデータを収集中です。後ほどご確認ください！"
+        "no_data_desc": "現在この期間のデータを収集中です。後でもう一度チェックしてください！",
+        "no_custom_title": "検索結果がありません",
+        "no_custom_desc": "現在の条件に一致する曲は見つかりませんでした。"
     },
     "ViewHistoryChart": {
         "title": "再生履歴",
@@ -34,9 +36,22 @@
         "tab_niconico": "ニコニコ"
     },
     "ArtistPublishHistogram": {
-        "title": "楽曲活動",
+        "title": "楽曲の活動記録",
         "songs": "曲",
-        "years": "年間"
+        "years": "年"
+    },
+    "CustomRanking": {
+        "title": "カスタムランキングパラメータ",
+        "search_artist_placeholder": "検索してアーティスト/音声ライブラリを追加...",
+        "label_song_types": "曲のタイプ",
+        "label_min_views": "最小再生数",
+        "label_max_views": "最大再生数",
+        "label_date_start": "開始日",
+        "label_date_end": "終了日",
+        "label_required_artists": "必須アーティスト",
+        "apply": "フィルターを適用",
+        "placeholder_min_views": "0",
+        "placeholder_max_views": "合計再生数"
     },
     "RankingPage": {
         "title": "楽曲ランキング",
@@ -44,8 +59,9 @@
         "daily": "日間",
         "weekly": "週間",
         "monthly": "月間",
-        "total": "全期間",
-        "sort_total": "総合再生数",
+        "total": "総合",
+        "custom": "カスタム",
+        "sort_total": "合計再生数",
         "sort_youtube": "YouTubeランキング",
         "sort_niconico": "ニコニコランキング"
     },

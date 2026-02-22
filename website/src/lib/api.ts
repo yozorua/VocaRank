@@ -31,7 +31,11 @@ export const fetcher = async (url: string, options: RequestInit = {}) => {
 };
 
 export const getRankings = async (mode: RankingMode = 'daily', limit: number = 100, sortBy: string = 'total'): Promise<SongRanking[]> => {
-    const endpointMap: Record<RankingMode, string> = {
+    if (mode === 'custom') {
+        throw new Error("Use getCustomRankings for custom mode.");
+    }
+
+    const endpointMap: Record<string, string> = {
         daily: '/rankings/daily',
         weekly: '/rankings/weekly',
         monthly: '/rankings/monthly',
@@ -46,6 +50,30 @@ export const getRankings = async (mode: RankingMode = 'daily', limit: number = 1
     }
 
     return fetcher(`${endpointMap[mode]}?limit=${limit}&sort_by=${effectiveSort}`);
+};
+
+export const getCustomRankings = async (
+    limit: number = 100,
+    songType?: string,
+    vocaloidOnly?: boolean,
+    publishDateStart?: string,
+    publishDateEnd?: string,
+    viewsMin?: number,
+    viewsMax?: number,
+    artistIds?: string
+): Promise<SongRanking[]> => {
+    const params = new URLSearchParams();
+    params.append('limit', limit.toString());
+
+    if (songType) params.append('song_type', songType);
+    if (vocaloidOnly !== undefined) params.append('vocaloid_only', vocaloidOnly.toString());
+    if (publishDateStart) params.append('publish_date_start', publishDateStart);
+    if (publishDateEnd) params.append('publish_date_end', publishDateEnd);
+    if (viewsMin !== undefined) params.append('views_min', viewsMin.toString());
+    if (viewsMax !== undefined) params.append('views_max', viewsMax.toString());
+    if (artistIds) params.append('artist_ids', artistIds);
+
+    return fetcher(`/rankings/custom?${params.toString()}`);
 };
 
 export const getSong = async (id: number): Promise<SongDetail> => {

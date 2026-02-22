@@ -176,6 +176,27 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
             );
         }
 
+        if (mode === 'custom') {
+            return (
+                <div className="flex flex-col items-center justify-center py-24 gap-8 border-t border-[var(--hairline)]">
+                    <div className="w-14 h-14 border border-[var(--hairline-strong)] flex items-center justify-center text-[var(--text-secondary)]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </div>
+                    <div className="text-center space-y-3 max-w-sm">
+                        <p className="text-white font-bold tracking-[0.15em] uppercase text-sm">
+                            {t('no_custom_title') || "No Results Found"}
+                        </p>
+                        <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
+                            {t('no_custom_desc') || "No songs match your current custom filter parameters. Try expanding your search."}
+                        </p>
+                    </div>
+                </div>
+            );
+        }
+
         const skeletonRows = Array.from({ length: 5 });
         return (
             <div className="w-full animate-pulse">
@@ -205,7 +226,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                 <th className="p-4 text-right">
                                     {sort === 'youtube' ? t('sort_youtube') : sort === 'niconico' ? t('sort_niconico') : t('views')}
                                 </th>
-                                {mode !== 'total' && (
+                                {mode !== 'total' && mode !== 'custom' && (
                                     <th className="p-4 pr-6 text-right">{t('increment')}</th>
                                 )}
                             </tr>
@@ -221,7 +242,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                     </td>
                                     <td className="p-3 text-right"><div className="h-4 bg-white/10 rounded w-20 ml-auto"></div></td>
                                     <td className="p-3 text-right"><div className="h-6 bg-white/10 rounded w-24 ml-auto"></div></td>
-                                    {mode !== 'total' && <td className="p-3 text-right"><div className="h-4 bg-white/10 rounded w-16 ml-auto"></div></td>}
+                                    {mode !== 'total' && mode !== 'custom' && <td className="p-3 text-right"><div className="h-4 bg-white/10 rounded w-16 ml-auto"></div></td>}
                                 </tr>
                             ))}
                         </tbody>
@@ -283,7 +304,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                     </div>
 
                                     {/* Increment (Gain) */}
-                                    {mode !== 'total' && (
+                                    {mode !== 'total' && mode !== 'custom' && (
                                         <div className="text-right min-w-[60px]">
                                             <div className="text-[9px] text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-1">{t('increment')}</div>
                                             {increment > 0 ? (
@@ -315,7 +336,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                 {sort === 'youtube' ? t('sort_youtube') : sort === 'niconico' ? t('sort_niconico') : t('views')}
                             </th>
                             {/* Hide Gain for total ranking */}
-                            {mode !== 'total' && (
+                            {mode !== 'total' && mode !== 'custom' && (
                                 <th className={`py-4 font-normal text-right w-36 pr-4`}>{t('increment')}</th>
                             )}
                         </tr>
@@ -376,13 +397,13 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                     <td className="py-4 pr-8 text-right text-[var(--text-secondary)] font-mono text-sm tracking-widest">
                                         {formatDate(song.publish_date)}
                                     </td>
-                                    <td className={`py-4 text-right font-mono text-base tracking-wider ${mode !== 'total' ? 'pr-6' : 'pr-4'}`}>
+                                    <td className={`py-4 text-right font-mono text-base tracking-wider ${(mode !== 'total' && mode !== 'custom') ? 'pr-6' : 'pr-4'}`}>
                                         <div className="text-white group-hover:text-[var(--gold)] transition-colors duration-300">
                                             {getViews(song).toLocaleString()}
                                         </div>
                                     </td>
 
-                                    {mode !== 'total' && (
+                                    {mode !== 'total' && mode !== 'custom' && (
                                         <td className="py-4 pr-4 text-right font-mono text-sm tracking-wider">
                                             <div className={`${getIncrement(song) > 0 ? 'text-[var(--vermilion)]' : 'text-[var(--text-secondary)]'}`}>
                                                 {getIncrement(song) > 0 ? `+${getIncrement(song).toLocaleString()}` : '-'}
