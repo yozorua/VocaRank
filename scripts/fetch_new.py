@@ -120,6 +120,14 @@ def fetch_new_songs():
         for song_data in items:
             song_id = song_data.get('id')
             
+            # Check if song is deleted or merged, if so scrub it from the database instead of inserting
+            if song_data.get('deleted') or song_data.get('mergedTo'):
+                cursor.execute("DELETE FROM song_artists WHERE song_id=?", (song_id,))
+                cursor.execute("DELETE FROM song_tags WHERE song_id=?", (song_id,))
+                cursor.execute("DELETE FROM daily_snapshots WHERE song_id=?", (song_id,))
+                cursor.execute("DELETE FROM songs WHERE id=?", (song_id,))
+                continue
+            
             # Check if exists and retrieve views
             cursor.execute("SELECT niconico_views, youtube_views, niconico_history, youtube_history FROM songs WHERE id=?", (song_id,))
             existing = cursor.fetchone()

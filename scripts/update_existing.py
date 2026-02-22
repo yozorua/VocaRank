@@ -30,6 +30,16 @@ def update_song_by_id(conn: sqlite3.Connection, song_id: int):
         log_message("WARNING", f"Failed to fetch data for ID {song_id}")
         return
 
+    # Check if song is deleted or merged
+    if data.get('deleted') or data.get('mergedTo'):
+        cursor.execute("DELETE FROM song_artists WHERE song_id=?", (song_id,))
+        cursor.execute("DELETE FROM song_tags WHERE song_id=?", (song_id,))
+        cursor.execute("DELETE FROM daily_snapshots WHERE song_id=?", (song_id,))
+        cursor.execute("DELETE FROM songs WHERE id=?", (song_id,))
+        conn.commit()
+        log_message("INFO", f"Deleted merged/deleted song ID {song_id}")
+        return
+
     try:
         base_record = transform_song_api(data)
         
