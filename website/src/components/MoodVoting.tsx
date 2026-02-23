@@ -30,16 +30,40 @@ export default function MoodVoting({ songId, initialVotes }: { songId: number, i
     }, [songId]);
 
     const handleVote = async (mood: string) => {
+        // Optimistic UI Pattern
+        const previousActive = activeVote;
+        const previousVotes = { ...votes };
+
+        let newVotes = { ...votes };
+
+        if (activeVote === mood) {
+            // Optimistic Cancel
+            if (newVotes[mood] > 0) newVotes[mood]--;
+            setVotes(newVotes);
+            setActiveVote(null);
+        } else {
+            // Optimistic Switch/Submit
+            if (activeVote && newVotes[activeVote] > 0) {
+                newVotes[activeVote]--; // Decrement previous vote
+            }
+            newVotes[mood] = (newVotes[mood] || 0) + 1;
+            setVotes(newVotes);
+            setActiveVote(mood);
+        }
+
         setIsLoading(true);
         try {
-            if (activeVote === mood) {
+            if (previousActive === mood) {
                 // Cancel vote
                 const url = `${API_BASE_URL}/votes/song/${songId}`;
                 const res = await fetch(url, { method: 'DELETE' });
                 if (res.ok) {
                     const data = await res.json();
                     setVotes(data.mood_votes);
-                    setActiveVote(null);
+                } else {
+                    // Revert
+                    setVotes(previousVotes);
+                    setActiveVote(previousActive);
                 }
             } else {
                 // Submit vote. The backend will seamlessly replace if a different mood was selected previously.
@@ -53,11 +77,17 @@ export default function MoodVoting({ songId, initialVotes }: { songId: number, i
                 if (res.ok) {
                     const data = await res.json();
                     setVotes(data.mood_votes);
-                    setActiveVote(mood);
+                } else {
+                    // Revert
+                    setVotes(previousVotes);
+                    setActiveVote(previousActive);
                 }
             }
         } catch (e) {
             console.error(e);
+            // Revert
+            setVotes(previousVotes);
+            setActiveVote(previousActive);
         } finally {
             setIsLoading(false);
         }

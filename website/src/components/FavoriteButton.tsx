@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signIn } from 'next-auth/react';
 import { API_BASE_URL } from '@/lib/api';
 import { useLocale } from 'next-intl';
 
@@ -38,16 +38,47 @@ export default function FavoriteButton({ id, type, initialState = false, variant
             }
         };
 
-        checkStatus();
+        const processPending = async () => {
+            const pending = localStorage.getItem('pendingFavorite');
+            if (pending) {
+                try {
+                    const parsed = JSON.parse(pending);
+                    if (parsed.type === type && parsed.id === id) {
+                        localStorage.removeItem('pendingFavorite');
+                        // Execute POST request to favorite immediately after login redirect
+                        const res = await fetch(`${API_BASE_URL}/favorites/${type}/${id}`, {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${session.apiToken}` }
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            setIsFavorite(data.is_favorite);
+                            return; // Skip normal check
+                        }
+                    }
+                } catch (e) {
+                    localStorage.removeItem('pendingFavorite');
+                }
+            }
+            checkStatus();
+        };
+
+        processPending();
     }, [session, id, type]);
 
     const toggleFavorite = async () => {
         if (!session?.apiToken) {
-            alert("Please login via the top menu to favorite entries!");
+            // Save intent to execute favorite immediately after login
+            localStorage.setItem('pendingFavorite', JSON.stringify({ type, id }));
+            signIn('google');
             return;
         }
 
+        // Optimistic UI Update
+        const previousState = isFavorite;
+        setIsFavorite(!isFavorite);
         setIsLoading(true);
+
         const method = isFavorite ? 'DELETE' : 'POST';
         const url = `${API_BASE_URL}/favorites/${type}/${id}`;
 
@@ -61,9 +92,12 @@ export default function FavoriteButton({ id, type, initialState = false, variant
             if (res.ok) {
                 const data = await res.json();
                 setIsFavorite(data.is_favorite);
+            } else {
+                setIsFavorite(previousState); // Revert on failure
             }
         } catch (e) {
             console.error("Failed to favorite:", e);
+            setIsFavorite(previousState); // Revert on exception
         } finally {
             setIsLoading(false);
         }
