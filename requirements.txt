@@ -4,3 +4,6 @@ uvicorn
 SQLAlchemy
 python-dotenv
 cachetools
+google-auth
+google-auth-httplib2
+PyJWT

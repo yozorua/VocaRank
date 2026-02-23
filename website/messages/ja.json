@@ -82,7 +82,8 @@
     "Navbar": {
         "ranking": "ランキング",
         "search": "検索",
-        "login": "ログイン"
+        "login": "ログイン",
+        "logout": "ログアウト"
     },
     "SearchPage": {
         "title": "データベース検索",
@@ -109,7 +110,15 @@
     },
     "ProfilePage": {
         "title": "プロフィール",
-        "loading": "プロフィールを読み込んでいます..."
+        "loading": "プロフィールを読み込んでいます...",
+        "settings": "アカウント設定",
+        "country": "国 / 地域",
+        "country_desc": "あなたの地域は、グローバルなボカロコミュニティを理解する上で役立ちます。",
+        "country_placeholder": "国を選択...",
+        "save": "変更を保存",
+        "saving": "保存中...",
+        "save_success": "プロフィールを更新しました！",
+        "save_error": "プロフィールの更新に失敗しました。"
     },
     "NotFound": {
         "title": "ページが見つかりません",

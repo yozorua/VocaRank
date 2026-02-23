@@ -35,3 +35,27 @@ To launch the API, run the following command:
 uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 And access the API at http://localhost:8000/docs
+
+## Environment Configuration
+VocaRank requires some environment variables to connect to third-party services like Google OAuth.
+
+**1. Copy the example file:**
+```bash
+cp .env.example .env
+```
+
+**2. Fill in the Auth Credentials:**
+Open `.env` and configure the following keys for the Account System:
+
+*   `AUTH_GOOGLE_ID`: Your Google OAuth Client ID (from [Google Cloud Console](https://console.cloud.google.com/)).
+    *   *Note: Ensure your Authorized JavaScript origin is `https://vocarank.live` and your Authorized redirect URI is `https://vocarank.live/api/auth/callback/google`.*
+*   `AUTH_GOOGLE_SECRET`: Your Google OAuth Client Secret.
+*   `AUTH_SECRET`: Used by NextAuth to sign session tokens. Generate a random 32-character string using `openssl rand -base64 32`.
+*   `JWT_SECRET`: Used by FastAPI to sign VocaRank API tokens. Generate another random 32-character string using `openssl rand -base64 32`.
+
+## Re-open process
+```bash
+fuser -k 3000/tcp; fuser -k 8000/tcp
+npm run dev
+uvicorn api.main:app --reload --port 8000
+```

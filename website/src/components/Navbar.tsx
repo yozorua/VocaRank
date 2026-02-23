@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import AuthButton from './AuthButton';
 
 export default function Navbar() {
     const t = useTranslations('Navbar');
@@ -44,9 +45,9 @@ export default function Navbar() {
             <Link href="/search" className="text-xl font-medium tracking-[0.4em] text-white hover:text-[var(--vermilion)] transition-colors uppercase" onClick={() => setIsOpen(false)}>
                 {t('search')}
             </Link>
-            <Link href="/login" className="text-xl font-medium tracking-[0.4em] text-[var(--vermilion)] hover:text-white transition-colors uppercase" onClick={() => setIsOpen(false)}>
-                {t('login')}
-            </Link>
+            <div onClick={() => setIsOpen(false)}>
+                <AuthButton />
+            </div>
         </div>
     ) : null;
 
@@ -97,9 +98,7 @@ export default function Navbar() {
                             </svg>
                         </Link>
 
-                        <Link href="/login" className="px-6 py-2 border border-[var(--hairline-strong)] text-white hover:border-[var(--vermilion)] hover:text-[var(--vermilion)] transition-all font-bold text-xs tracking-[0.3em] uppercase bg-transparent">
-                            {t('login')}
-                        </Link>
+                        <AuthButton />
                     </div>
 
                 </div>

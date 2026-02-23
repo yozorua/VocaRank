@@ -21,6 +21,7 @@ export const metadata: Metadata = {
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { AuthProvider } from "@/components/AuthProvider";
 
 export default async function RootLayout({
   children,
@@ -35,13 +36,15 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <body className={`${geistSans.variable} ${geistMono.variable} flex flex-col min-h-screen`}>
-        <NextIntlClientProvider messages={messages}>
-          <Navbar />
-          <main className="flex-grow pt-[var(--header-height)]">
-            {children}
-          </main>
-          <Footer />
-        </NextIntlClientProvider>
+        <AuthProvider>
+          <NextIntlClientProvider messages={messages}>
+            <Navbar />
+            <main className="flex-grow pt-[var(--header-height)]">
+              {children}
+            </main>
+            <Footer />
+          </NextIntlClientProvider>
+        </AuthProvider>
       </body>
     </html>
   );

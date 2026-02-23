@@ -82,7 +82,8 @@
     "Navbar": {
         "ranking": "排行榜",
         "search": "搜尋",
-        "login": "登入"
+        "login": "登入",
+        "logout": "登出"
     },
     "SearchPage": {
         "title": "搜尋資料庫",
@@ -109,7 +110,15 @@
     },
     "ProfilePage": {
         "title": "個人檔案",
-        "loading": "正在載入個人檔案..."
+        "loading": "正在載入個人檔案...",
+        "settings": "帳號設定",
+        "country": "國家 / 地區",
+        "country_desc": "您的地區能幫助我們了解全球的 Vocaloid 社群。",
+        "country_placeholder": "選擇國家...",
+        "save": "儲存變更",
+        "saving": "儲存中...",
+        "save_success": "個人檔案已成功更新！",
+        "save_error": "更新個人檔案失敗。"
     },
     "NotFound": {
         "title": "找不到頁面",

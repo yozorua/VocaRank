@@ -78,7 +78,8 @@
   "Navbar": {
     "ranking": "Ranking",
     "search": "Search",
-    "login": "Login"
+    "login": "Login",
+    "logout": "Sign Out"
   },
   "SearchPage": {
     "title": "Search Database",
@@ -105,7 +106,15 @@
   },
   "ProfilePage": {
     "title": "My Profile",
-    "loading": "Loading profile..."
+    "loading": "Loading profile...",
+    "settings": "Account Settings",
+    "country": "Country / Region",
+    "country_desc": "Your region helps us understand the global Vocaloid community.",
+    "country_placeholder": "Select a country...",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "save_success": "Profile updated successfully!",
+    "save_error": "Failed to update profile."
   },
   "NotFound": {
     "title": "Page Not Found",

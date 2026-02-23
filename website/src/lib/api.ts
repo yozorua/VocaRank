@@ -9,14 +9,28 @@ const getBaseUrl = () => {
 const API_BASE_URL = getBaseUrl();
 
 import { SongRanking, RankingMode, SongDetail, Artist } from '@/types';
+import { getSession } from 'next-auth/react';
 
 export const fetcher = async (url: string, options: RequestInit = {}) => {
+    // Attempt to get the NextAuth session to attach our custom API token
+    let token = undefined;
+    if (typeof window !== 'undefined') {
+        const session = await getSession();
+        token = session?.apiToken;
+    }
+
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        ...(options.headers as Record<string, string> || {}),
+    };
+
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const res = await fetch(`${API_BASE_URL}${url}`, {
         ...options,
-        headers: {
-            'Content-Type': 'application/json',
-            ...options.headers,
-        },
+        headers,
     });
 
     if (!res.ok) {

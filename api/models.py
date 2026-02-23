@@ -47,3 +47,24 @@ class Artist(Base):
     external_links = Column(Text) # JSON string
 
     songs = relationship("Song", secondary=song_artists, back_populates="artists")
+
+class User(Base):
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    name = Column(String)
+    picture_url = Column(String)
+    created_at = Column(String)
+    country = Column(String)
+    
+    oauth_accounts = relationship("OAuthAccount", back_populates="user", cascade="all, delete-orphan")
+
+class OAuthAccount(Base):
+    __tablename__ = "oauth_accounts"
+    
+    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    provider = Column(String, primary_key=True)
+    provider_account_id = Column(String, primary_key=True)
+    
+    user = relationship("User", back_populates="oauth_accounts")

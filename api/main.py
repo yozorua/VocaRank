@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import songs, artists, rankings
+from .routers import songs, artists, rankings, auth
 
 app = FastAPI(
     title="VocaRank API",
@@ -18,6 +18,7 @@ app.add_middleware(
 )
 
 # Include Routers
+app.include_router(auth.router)
 app.include_router(songs.router)
 app.include_router(artists.router)
 app.include_router(rankings.router)

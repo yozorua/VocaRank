@@ -114,3 +114,25 @@ class SongRanking(BaseModel):
     vocaloid_string: str # Legacy string
     artists: List[ArtistTiny] = [] # Structured data
     vocalists: List[ArtistTiny] = [] # Structured data
+
+# --- Auth Schemas ---
+class UserBase(BaseModel):
+    id: int
+    email: str
+    name: Optional[str] = None
+    picture_url: Optional[str] = None
+    created_at: Optional[str] = None
+    country: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+class UserUpdate(BaseModel):
+    country: Optional[str] = None
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class GoogleLogin(BaseModel):
+    id_token: str
