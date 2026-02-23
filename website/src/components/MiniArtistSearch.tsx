@@ -84,7 +84,7 @@ export default function MiniArtistSearch({ onSelect }: MiniArtistSearchProps) {
                         >
                             <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-800 flex-shrink-0">
                                 {artist.picture_url_thumb ? (
-                                    <img src={artist.picture_url_thumb} alt="" className="w-full h-full object-cover" />
+                                    <img src={artist.picture_url_thumb} alt="" className="w-full h-full object-cover object-top" />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-[10px]">👤</div>
                                 )}

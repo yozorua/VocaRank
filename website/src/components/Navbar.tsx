@@ -46,7 +46,7 @@ export default function Navbar() {
                 {t('search')}
             </Link>
             <div onClick={() => setIsOpen(false)}>
-                <AuthButton />
+                <AuthButton mobile={true} />
             </div>
         </div>
     ) : null;

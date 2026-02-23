@@ -80,7 +80,8 @@
     "search": "Search",
     "login": "Login",
     "logout": "Sign Out",
-    "profile": "Profile Settings"
+    "profile": "Profile",
+    "profile_settings": "My Profile"
   },
   "SearchPage": {
     "title": "Search Database",
@@ -119,6 +120,7 @@
     "avatar": "Profile Picture",
     "avatar_desc": "Click to upload a custom avatar. Max size: 5MB (JPEG, PNG).",
     "avatar_uploading": "Uploading...",
+    "upload_title": "Upload Image",
     "crop_title": "Crop Avatar",
     "crop_apply": "Apply",
     "crop_cancel": "Cancel",

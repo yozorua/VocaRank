@@ -72,7 +72,7 @@ export default function CustomRankingFilters({ initialFilters, onApply }: Custom
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Left Column: Types & Views */}
+                {/* Left Column: Types & Artists */}
                 <div className="space-y-6">
                     <div>
                         <label className="block text-[10px] text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-2">{t('label_song_types') || "Song Types"}</label>
@@ -83,7 +83,7 @@ export default function CustomRankingFilters({ initialFilters, onApply }: Custom
                                     <button
                                         key={type}
                                         onClick={() => toggleType(type)}
-                                        className={`px-3 py-1.5 text-xs font-bold tracking-widest uppercase transition-colors border ${active
+                                        className={`px-3 py-1.5 text-xs font-bold tracking-widest transition-colors border ${active
                                             ? 'border-white text-white bg-white/10'
                                             : 'border-[var(--hairline-strong)] text-[var(--text-secondary)] hover:border-white/50 hover:text-white'
                                             }`}
@@ -95,6 +95,37 @@ export default function CustomRankingFilters({ initialFilters, onApply }: Custom
                         </div>
                     </div>
 
+                    <div>
+                        <label className="block text-[10px] text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-2">{t('label_required_artists') || "Required Artists"}</label>
+                        <MiniArtistSearch onSelect={handleAddArtist} />
+
+                        {selectedArtists.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-3">
+                                {selectedArtists.map(artist => (
+                                    <div key={artist.id} className="flex items-center gap-2 bg-white/5 border border-white/20 pl-1 pr-3 py-1 rounded-full group">
+                                        <div className="w-5 h-5 rounded-full overflow-hidden bg-black flex-shrink-0">
+                                            {artist.picture_url_thumb ? (
+                                                <img src={artist.picture_url_thumb} alt="" className="w-full h-full object-cover object-top" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-[8px]">👤</div>
+                                            )}
+                                        </div>
+                                        <span className="text-xs font-bold text-white">{artist.name_default}</span>
+                                        <button
+                                            onClick={() => handleRemoveArtist(artist.id)}
+                                            className="text-gray-400 hover:text-white ml-1 font-bold"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Right Column: Views & Dates */}
+                <div className="space-y-6">
                     <div className="flex gap-4">
                         <div className="flex-1">
                             <label className="block text-[10px] text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-2">{t('label_min_views') || "Min Views"}</label>
@@ -119,10 +150,7 @@ export default function CustomRankingFilters({ initialFilters, onApply }: Custom
                             />
                         </div>
                     </div>
-                </div>
 
-                {/* Right Column: Dates & Artists */}
-                <div className="space-y-6">
                     <div className="flex gap-4">
                         <div className="flex-1">
                             <label className="block text-[10px] text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-2">{t('label_date_start') || "Start Date"}</label>
@@ -142,34 +170,6 @@ export default function CustomRankingFilters({ initialFilters, onApply }: Custom
                                 className="w-full bg-black/40 border border-[var(--hairline-strong)] px-3 py-2 text-sm text-white focus:outline-none focus:border-[var(--vermilion)] [color-scheme:dark]"
                             />
                         </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-[10px] text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-2">{t('label_required_artists') || "Required Artists"}</label>
-                        <MiniArtistSearch onSelect={handleAddArtist} />
-
-                        {selectedArtists.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-3">
-                                {selectedArtists.map(artist => (
-                                    <div key={artist.id} className="flex items-center gap-2 bg-white/5 border border-white/20 pl-1 pr-3 py-1 rounded-full group">
-                                        <div className="w-5 h-5 rounded-full overflow-hidden bg-black flex-shrink-0">
-                                            {artist.picture_url_thumb ? (
-                                                <img src={artist.picture_url_thumb} alt="" className="w-full h-full object-cover" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-[8px]">👤</div>
-                                            )}
-                                        </div>
-                                        <span className="text-xs font-bold text-white">{artist.name_default}</span>
-                                        <button
-                                            onClick={() => handleRemoveArtist(artist.id)}
-                                            className="text-gray-400 hover:text-white ml-1 font-bold"
-                                        >
-                                            ×
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>

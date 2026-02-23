@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState, useRef, useEffect } from "react";
 
-export default function AuthButton() {
+export default function AuthButton({ mobile }: { mobile?: boolean }) {
     const { data: session, status } = useSession();
     const t = useTranslations('Navbar');
     const [isOpen, setIsOpen] = useState(false);
@@ -28,6 +28,43 @@ export default function AuthButton() {
     }
 
     if (session && session.user) {
+        if (mobile) {
+            return (
+                <div className="flex flex-col items-center gap-6 w-full">
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setIsOpen(!isOpen);
+                        }}
+                        className="text-xl font-medium tracking-[0.4em] text-white hover:text-[var(--vermilion)] transition-colors uppercase flex items-center justify-center pl-[0.4em]"
+                    >
+                        {t('profile', { defaultMessage: 'Profile' })}
+                        <svg className={`w-5 h-5 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    {isOpen && (
+                        <div className="flex flex-col items-center gap-6 mt-2 mb-2 animate-fade-in w-full">
+                            <Link
+                                href="/profile"
+                                className="text-lg font-medium tracking-[0.3em] text-[var(--text-secondary)] hover:text-white transition-colors uppercase"
+                            >
+                                {t('profile_settings', { defaultMessage: 'My Profile' })}
+                            </Link>
+                            <button
+                                onClick={() => signOut({ callbackUrl: '/' })}
+                                className="text-lg font-medium tracking-[0.3em] text-red-500 hover:text-red-400 transition-colors uppercase"
+                            >
+                                {t('logout', { defaultMessage: 'Sign Out' })}
+                            </button>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
         return (
             <div className="relative" ref={dropdownRef}>
                 <button

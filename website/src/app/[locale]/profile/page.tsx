@@ -260,7 +260,7 @@ export default function ProfilePage() {
                         >
                             ✕
                         </button>
-                        <h3 className="text-xl font-bold tracking-widest uppercase mb-2 text-white">{t('crop_title', { defaultMessage: 'Upload Avatar' })}</h3>
+                        <h3 className="text-xl font-bold tracking-widest uppercase mb-2 text-white">{t('upload_title', { defaultMessage: 'Upload Image' })}</h3>
                         <p className="text-sm text-[var(--text-secondary)] mb-6">{t('avatar_desc', { defaultMessage: 'Click to upload a custom avatar. Max size: 5MB (JPEG, PNG).' })}</p>
 
                         <div

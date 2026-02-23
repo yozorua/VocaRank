@@ -13,9 +13,9 @@ export default function LanguageSwitcher() {
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     const languages = [
-        { code: 'en', label: 'English', flag: '🇺🇸' },
-        { code: 'zh-TW', label: '繁體中文', flag: '🇹🇼' },
-        { code: 'ja', label: '日本語', flag: '🇯🇵' }
+        { code: 'en', label: 'English' },
+        { code: 'zh-TW', label: '繁體中文' },
+        { code: 'ja', label: '日本語' }
     ];
 
     const currentLang = languages.find(l => l.code === locale) || languages[0];
@@ -52,7 +52,6 @@ export default function LanguageSwitcher() {
                     }
                 `}
             >
-                <span className="text-lg">{currentLang.flag}</span>
                 <span className="text-sm font-medium">{currentLang.label}</span>
                 <svg
                     className={`w-4 h-4 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
@@ -85,7 +84,6 @@ export default function LanguageSwitcher() {
                                 }
                             `}
                         >
-                            <span className="text-lg">{lang.flag}</span>
                             {lang.label}
                             {locale === lang.code && (
                                 <span className="ml-auto text-[var(--miku-teal)]">✓</span>

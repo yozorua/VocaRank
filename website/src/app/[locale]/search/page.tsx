@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import { SongRanking, Artist } from '@/types';
 import { Link } from '@/i18n/navigation';
 import SearchResultsClient from '@/components/SearchResultsClient';
+import LiveSearchInput from '@/components/LiveSearchInput';
 
 // Force dynamic since searchParams are used
 export const dynamic = 'force-dynamic';
@@ -46,14 +47,11 @@ export default async function SearchPage({ searchParams, params }: SearchPagePro
         <div className="max-w-[var(--max-width)] mx-auto px-6 py-12 md:py-16">
             <div className="mb-12">
                 <h1 className="text-3xl lg:text-[2.5rem] font-black tracking-[0.05em] mb-8 text-white">{t('title')}</h1>
-                <form action={`/${locale}/search`} method="GET" className="flex gap-2">
-                    <div className="relative flex-grow">
-                        <input
-                            type="text"
-                            name="q"
+                <form action={`/${locale}/search`} method="GET" className="flex gap-2 relative">
+                    <div className="flex-grow">
+                        <LiveSearchInput
                             defaultValue={query}
                             placeholder={t('placeholder')}
-                            className="w-full bg-[var(--bg-dark)] border-b-2 border-[var(--hairline-strong)] text-white text-lg px-2 py-4 focus:outline-none focus:border-[var(--vermilion)] transition-colors placeholder:text-[var(--text-secondary)] placeholder:text-sm placeholder:tracking-wider placeholder:font-sans font-bold"
                         />
                     </div>
                     <button

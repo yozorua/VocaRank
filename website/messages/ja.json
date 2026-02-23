@@ -84,7 +84,8 @@
         "search": "検索",
         "login": "ログイン",
         "logout": "ログアウト",
-        "profile": "プロフィール設定"
+        "profile": "プロフィール",
+        "profile_settings": "マイプロフィール"
     },
     "SearchPage": {
         "title": "データベース検索",
@@ -123,6 +124,7 @@
         "avatar": "プロフィール画像",
         "avatar_desc": "クリックしてカスタム画像をアップロードします。最大サイズ：5MB（JPEG、PNG）。",
         "avatar_uploading": "アップロード中...",
+        "upload_title": "画像をアップロード",
         "crop_title": "画像を切り抜く",
         "crop_apply": "適用",
         "crop_cancel": "キャンセル",

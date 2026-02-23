@@ -84,7 +84,8 @@
         "search": "搜尋",
         "login": "登入",
         "logout": "登出",
-        "profile": "個人檔案設定"
+        "profile": "個人檔案",
+        "profile_settings": "我的個人檔案"
     },
     "SearchPage": {
         "title": "搜尋資料庫",
@@ -123,6 +124,7 @@
         "avatar": "個人頭像",
         "avatar_desc": "點擊以上傳自訂頭像。最大尺寸：5MB（JPEG、PNG）。",
         "avatar_uploading": "上傳中...",
+        "upload_title": "上傳圖片",
         "crop_title": "裁切頭像",
         "crop_apply": "套用",
         "crop_cancel": "取消",
