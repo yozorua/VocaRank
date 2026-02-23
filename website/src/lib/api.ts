@@ -5,8 +5,7 @@ const getBaseUrl = () => {
     // Server-side
     return process.env.API_URL_INTERNAL || 'http://localhost:8000';
 };
-
-const API_BASE_URL = getBaseUrl();
+export const API_BASE_URL = getBaseUrl();
 
 import { SongRanking, RankingMode, SongDetail, Artist } from '@/types';
 import { getSession } from 'next-auth/react';

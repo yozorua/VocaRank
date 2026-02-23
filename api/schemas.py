@@ -123,12 +123,17 @@ class UserBase(BaseModel):
     picture_url: Optional[str] = None
     created_at: Optional[str] = None
     country: Optional[str] = None
+    age_range: Optional[str] = None
+    last_login: Optional[str] = None
 
     class Config:
         orm_mode = True
 
 class UserUpdate(BaseModel):
+    name: Optional[str] = None
     country: Optional[str] = None
+    age_range: Optional[str] = None
+    email: Optional[str] = None
 
 class Token(BaseModel):
     access_token: str

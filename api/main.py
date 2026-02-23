@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import os
 from .routers import songs, artists, rankings, auth
 
 app = FastAPI(
@@ -22,6 +24,10 @@ app.include_router(auth.router)
 app.include_router(songs.router)
 app.include_router(artists.router)
 app.include_router(rankings.router)
+
+# Mount static files
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 @app.get("/health")
 def health_check():

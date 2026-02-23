@@ -57,6 +57,8 @@ class User(Base):
     picture_url = Column(String)
     created_at = Column(String)
     country = Column(String)
+    age_range = Column(String)
+    last_login = Column(String)
     
     oauth_accounts = relationship("OAuthAccount", back_populates="user", cascade="all, delete-orphan")
 

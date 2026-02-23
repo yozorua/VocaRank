@@ -6,6 +6,8 @@ const withNextIntl = createNextIntlPlugin();
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
+  // @ts-ignore
+  allowedDevOrigins: ["https://vocarank.live", "http://vocarank.live", "vocarank.live"],
   images: {
     remotePatterns: [
       {
@@ -20,6 +22,10 @@ const nextConfig: NextConfig = {
       {
         source: '/api/auth/me',
         destination: 'http://localhost:8000/auth/me',
+      },
+      {
+        source: '/api/auth/avatar',
+        destination: 'http://localhost:8000/auth/avatar',
       },
       {
         source: '/api/:path((?!auth/).*)',

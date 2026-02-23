@@ -12,7 +12,14 @@ export const authOptions: AuthOptions = {
         strategy: "jwt",
     },
     callbacks: {
-        async jwt({ token, account }) {
+        async jwt({ token, account, trigger, session }) {
+            // Handle active session updates (e.g. from the Profile Page)
+            if (trigger === "update" && session) {
+                if (session.name) token.name = session.name;
+                if (session.email) token.email = session.email;
+                if (session.picture) token.picture = session.picture;
+            }
+
             // When user first signs in, send Google token to our backend
             if (account && account.provider === "google" && account.id_token) {
                 try {
@@ -28,8 +35,18 @@ export const authOptions: AuthOptions = {
 
                     if (res.ok) {
                         const data = await res.json();
-                        // Store the VocaRank API token in the JWT token object
                         token.apiToken = data.access_token;
+
+                        // Fetch the actual VocaRank profile to override Google's stale cache on sign-in
+                        const profileRes = await fetch(`${baseUrl}/auth/me`, {
+                            headers: { 'Authorization': `Bearer ${token.apiToken}` }
+                        });
+                        if (profileRes.ok) {
+                            const profileData = await profileRes.json();
+                            if (profileData.name) token.name = profileData.name;
+                            if (profileData.picture_url) token.picture = profileData.picture_url;
+                        }
+
                     } else {
                         console.error("Backend auth failed:", await res.text());
                     }
@@ -44,6 +61,10 @@ export const authOptions: AuthOptions = {
             if (token && token.apiToken) {
                 session.apiToken = token.apiToken as string;
             }
+            // Bind VocaRank customizations
+            if (token.name && session.user) session.user.name = token.name;
+            if (token.picture && session.user) session.user.image = token.picture as string;
+
             return session;
         },
     },
