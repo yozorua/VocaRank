@@ -148,5 +148,17 @@
     "title": "Page Not Found",
     "description": "The page you are looking for has been deleted or does not exist.",
     "back_home": "Return to Home"
+  },
+  "Moods": {
+    "title": "Community Vibe",
+    "already_voted": "You can only vote once per song!",
+    "votes_total": "Votes",
+    "happy": "Happy",
+    "sad": "Sad",
+    "love": "Love",
+    "chaos": "Chaos",
+    "chill": "Chill",
+    "emotional": "Emotional",
+    "vote_to_reveal": "Vote to reveal results!"
   }
 }

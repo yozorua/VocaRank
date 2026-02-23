@@ -152,6 +152,13 @@ def get_song(song_id: int, db: Session = Depends(get_db)):
                 niconico_views=original.niconico_views
             )
 
+    from sqlalchemy import func
+    counts = db.query(models.SongVote.vote_type, func.count(models.SongVote.id)).filter_by(song_id=song_id).group_by(models.SongVote.vote_type).all()
+    mood_votes = {"happy": 0, "sad": 0, "love": 0, "hype": 0, "chill": 0, "emotional": 0}
+    for vt, c in counts:
+        if vt in mood_votes:
+            mood_votes[vt] = c
+
     return schemas.SongDetail(
         id=song.id,
         name_english=song.name_english,
@@ -174,4 +181,5 @@ def get_song(song_id: int, db: Session = Depends(get_db)):
         niconico_thumb_url=nico_thumb,
         youtube_history=song.youtube_history,
         niconico_history=song.niconico_history,
+        mood_votes=mood_votes
     )

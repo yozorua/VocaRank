@@ -7,6 +7,7 @@ import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
 import { formatArtistType } from '@/lib/formatArtistType';
+import FavoriteButton from '@/components/FavoriteButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -76,7 +77,9 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
                         {/* Info */}
                         <div className="flex-1 min-w-0 text-center md:text-left">
                             <div className={`${typeColor} font-bold tracking-widest text-sm mb-2`}>{typeLabel}</div>
-                            <h1 className="text-3xl md:text-4xl font-black text-white mb-3">{getArtistName()}</h1>
+                            <div className="flex items-center justify-center md:justify-start gap-4 mb-3">
+                                <h1 className="text-3xl md:text-4xl font-black text-white">{getArtistName()}</h1>
+                            </div>
 
                             {/* Sub Names */}
                             <div className="flex flex-wrap gap-3 justify-center md:justify-start text-gray-400 text-base mb-4 font-medium">
@@ -84,9 +87,9 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
                                 {artist.name_japanese && <span className="border-l border-gray-600 pl-3">{artist.name_japanese}</span>}
                             </div>
 
-                            {/* Active Range */}
-                            {(artist.first_song_date || artist.last_song_date) && (
-                                <div className="flex flex-wrap justify-center md:justify-start mb-6">
+                            {/* Active Range & Actions */}
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mb-6">
+                                {(artist.first_song_date || artist.last_song_date) && (
                                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-gray-300">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                                         <span className="font-mono">
@@ -95,8 +98,9 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
                                             {artist.last_song_date ? new Date(artist.last_song_date).getFullYear() + '/' + String(new Date(artist.last_song_date).getMonth() + 1).padStart(2, '0') : '?'}
                                         </span>
                                     </div>
-                                </div>
-                            )}
+                                )}
+                                <FavoriteButton id={artist.id} type="artist" variant="small" />
+                            </div>
 
                             {/* Links + inline histogram — desktop */}
                             {artist.external_links && artist.external_links.length > 0 ? (

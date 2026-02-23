@@ -1,6 +1,8 @@
 import { SongDetail } from '@/types';
 import { useLocale, useTranslations } from 'next-intl';
 import ViewHistoryChart from './ViewHistoryChart';
+import FavoriteButton from './FavoriteButton';
+import MoodVoting from './MoodVoting';
 
 export default function SongInfo({ song }: { song: SongDetail }) {
     const t = useTranslations('SongDetail');
@@ -57,20 +59,23 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                         <h1 className="text-3xl lg:text-[2.5rem] font-black mb-6 tracking-[0.05em] text-white leading-none">
                             {displayTitle}
                         </h1>
-                        <p className="text-lg md:text-xl text-[var(--gold)] font-serif tracking-wider flex items-center flex-wrap">
-                            {song.artists && song.artists.length > 0 ? (
-                                song.artists.map((artist, i) => (
-                                    <span key={artist.id} className="flex items-center">
-                                        <a href={`/artist/${artist.id}`} className="hover:text-white transition-colors">
-                                            {artist.name}
-                                        </a>
-                                        {i < song.artists.length - 1 && <span className="text-white/40 font-normal mx-2 font-sans">・</span>}
-                                    </span>
-                                ))
-                            ) : (
-                                <span>{song.artist_string}</span>
-                            )}
-                        </p>
+                        <div className="flex items-start justify-between gap-4">
+                            <p className="text-lg md:text-xl text-[var(--gold)] font-serif tracking-wider flex items-center flex-wrap">
+                                {song.artists && song.artists.length > 0 ? (
+                                    song.artists.map((artist, i) => (
+                                        <span key={artist.id} className="flex items-center">
+                                            <a href={`/artist/${artist.id}`} className="hover:text-white transition-colors">
+                                                {artist.name}
+                                            </a>
+                                            {i < song.artists.length - 1 && <span className="text-white/40 font-normal mx-2 font-sans">・</span>}
+                                        </span>
+                                    ))
+                                ) : (
+                                    <span>{song.artist_string}</span>
+                                )}
+                            </p>
+                            <FavoriteButton id={song.id} type="song" variant="small" />
+                        </div>
                     </div>
 
                     {/* Metadata Grid - Traditional Table Style */}
@@ -120,9 +125,11 @@ export default function SongInfo({ song }: { song: SongDetail }) {
 
                     {/* Vocalist List */}
                     <div className="mb-0">
-                        <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-secondary)] mb-4 flex items-center gap-3">
-                            {t('vocalist')}
-                        </span>
+                        <div className="flex items-center justify-between mb-4">
+                            <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-secondary)] flex items-center gap-3">
+                                {t('vocalist')}
+                            </span>
+                        </div>
                         <div className="flex flex-wrap gap-4">
                             {song.vocalists && song.vocalists.length > 0 ? (
                                 song.vocalists.map((artist) => (
@@ -147,6 +154,11 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                                 <span className="font-bold text-sm text-white tracking-widest">{song.vocaloid_string}</span>
                             )}
                         </div>
+                    </div>
+
+                    {/* Interactive Actions */}
+                    <div className="mt-10 pt-8 border-t border-[var(--hairline)]">
+                        <MoodVoting songId={song.id} initialVotes={song.mood_votes} />
                     </div>
                 </div>
 

@@ -22,6 +22,8 @@ class Artist(ArtistBase):
     
     first_song_date: Optional[str] = None
     last_song_date: Optional[str] = None
+    
+    is_favorite: Optional[bool] = False
 
     @validator('external_links', pre=True)
     def parse_external_links(cls, v):
@@ -77,6 +79,9 @@ class SongDetail(SongBase):
     niconico_thumb_url: Optional[str] = None
     youtube_history: Optional[List[dict]] = None
     niconico_history: Optional[List[dict]] = None
+    
+    is_favorite: Optional[bool] = False
+    mood_votes: Optional[dict] = {"happy": 0, "sad": 0, "love": 0, "hype": 0, "chill": 0, "emotional": 0}
 
     @validator('youtube_history', 'niconico_history', pre=True)
     def parse_history(cls, v):
@@ -141,3 +146,7 @@ class Token(BaseModel):
 
 class GoogleLogin(BaseModel):
     id_token: str
+
+# --- Input Schemas ---
+class SongVoteCreate(BaseModel):
+    vote_type: str

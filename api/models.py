@@ -70,3 +70,36 @@ class OAuthAccount(Base):
     provider_account_id = Column(String, primary_key=True)
     
     user = relationship("User", back_populates="oauth_accounts")
+
+class UserFavoriteSong(Base):
+    __tablename__ = "user_favorite_songs"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+    song_id = Column(Integer, ForeignKey("songs.id"), index=True, nullable=False)
+    created_at = Column(String, nullable=False)
+
+    user = relationship("User")
+    song = relationship("Song")
+
+class UserFavoriteArtist(Base):
+    __tablename__ = "user_favorite_artists"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+    artist_id = Column(Integer, ForeignKey("artists.id"), index=True, nullable=False)
+    created_at = Column(String, nullable=False)
+
+    user = relationship("User")
+    artist = relationship("Artist")
+
+class SongVote(Base):
+    __tablename__ = "song_votes"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    song_id = Column(Integer, ForeignKey("songs.id"), index=True, nullable=False)
+    vote_type = Column(String, nullable=False) # e.g. happy, sad, love
+    ip_address = Column(String, nullable=False)
+    created_at = Column(String, nullable=False)
+
+    song = relationship("Song")

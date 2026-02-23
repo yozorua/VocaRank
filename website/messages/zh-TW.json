@@ -152,5 +152,17 @@
         "title": "找不到頁面",
         "description": "您尋找的頁面已被刪除或不存在。",
         "back_home": "返回首頁"
+    },
+    "Moods": {
+        "title": "社群氛圍",
+        "already_voted": "您只能為這首歌投票一次！",
+        "votes_total": "票",
+        "happy": "開心",
+        "sad": "悲傷",
+        "love": "戀愛",
+        "chaos": "混沌",
+        "chill": "放鬆",
+        "emotional": "感動",
+        "vote_to_reveal": "投票以查看結果！"
     }
 }

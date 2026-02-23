@@ -152,5 +152,17 @@
         "title": "ページが見つかりません",
         "description": "お探しのページは削除されたか、存在しません。",
         "back_home": "ホームに戻る"
+    },
+    "Moods": {
+        "title": "コミュニティの雰囲気",
+        "already_voted": "この楽曲には既に投票済みです！",
+        "votes_total": "票",
+        "happy": "ハッピー",
+        "sad": "悲しい",
+        "love": "ラブ",
+        "chaos": "カオス",
+        "chill": "チル",
+        "emotional": "エモい",
+        "vote_to_reveal": "投票して結果を見る！"
     }
 }

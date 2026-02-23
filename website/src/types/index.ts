@@ -19,6 +19,7 @@ export interface Artist {
     first_song_date: string | null;
     last_song_date: string | null;
     external_links: { description: string; url: string }[] | null;
+    is_favorite?: boolean;
 }
 
 export interface SongRanking {
@@ -52,6 +53,8 @@ export interface SongDetail extends SongRanking {
     niconico_views?: number;
     youtube_history?: { date: string; views: number }[] | null;
     niconico_history?: { date: string; views: number }[] | null;
+    is_favorite?: boolean;
+    mood_votes?: Record<string, number>;
 }
 
 export type RankingMode = 'daily' | 'weekly' | 'monthly' | 'total' | 'custom';
