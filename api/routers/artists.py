@@ -107,6 +107,37 @@ def get_artist_graph(db: Session = Depends(get_db)):
         
     return result
 
+@router.get("/graph/vocalists", response_model=dict)
+def get_vocalist_graph(db: Session = Depends(get_db)):
+    """
+    Returns a network graph of explicit vocalists collaborations.
+    Reads stringified JSON directly from the offline calculate_network_graph.py script.
+    """
+    from sqlalchemy import text
+    import json
+    
+    from ..cache import graph_cache, cache_lock
+    with cache_lock:
+        if "vocalist_network" in graph_cache:
+            return graph_cache["vocalist_network"]
+            
+    # Try Database Persistent Cache (SQLite)
+    sql = "SELECT json_data FROM system_cache WHERE key_name = 'vocalist_network_graph'"
+    row = db.execute(text(sql)).fetchone()
+    
+    if not row or not row[0]:
+        return {"nodes": [], "links": []}
+        
+    try:
+        result = json.loads(row[0]) 
+    except json.JSONDecodeError:
+        return {"nodes": [], "links": []}
+    
+    with cache_lock:
+        graph_cache["vocalist_network"] = result
+        
+    return result
+
 
 @router.get("/{artist_id}", response_model=schemas.Artist)
 def get_artist(artist_id: int, db: Session = Depends(get_db)):

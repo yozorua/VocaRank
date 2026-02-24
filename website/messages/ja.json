@@ -87,7 +87,8 @@
         "profile": "プロフィール",
         "profile_settings": "マイプロフィール",
         "statistics": "統計",
-        "statistics_producer_network": "ボカロPのネットワーク"
+        "statistics_producer_network": "ボカロPのネットワーク",
+        "statistics_vocalist_network": "歌声合成ソフトのネットワーク"
     },
     "SearchPage": {
         "title": "検索",
@@ -178,6 +179,10 @@
     "Graph": {
         "title": "ボカロPのネットワーク",
         "description": "コラボレーションによるボカロPのネットワークを探索する。"
+    },
+    "GraphVocalist": {
+        "title": "歌声合成ソフトのネットワーク",
+        "description": "複数の音声合成ソフトが同じ楽曲でコラボレーションしているネットワークを探索します。"
     },
     "GraphPage": {
         "loading": "読み込み中...",

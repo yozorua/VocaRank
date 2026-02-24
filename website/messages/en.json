@@ -83,7 +83,8 @@
     "profile": "Profile",
     "profile_settings": "My Profile",
     "statistics": "Statistics",
-    "statistics_producer_network": "Producers Network"
+    "statistics_producer_network": "Producers Network",
+    "statistics_vocalist_network": "Voicebank Network"
   },
   "SearchPage": {
     "title": "Search",
@@ -174,6 +175,10 @@
   "Graph": {
     "title": "Network of Vocaloid Producers",
     "description": "Explore the network of Vocaloid producers based on their collaborations."
+  },
+  "GraphVocalist": {
+    "title": "Network of Vocaloid Voicebanks",
+    "description": "Explore the multi-synth collaboration network where two voicebanks appear together in the same song."
   },
   "GraphPage": {
     "loading": "Loading...",

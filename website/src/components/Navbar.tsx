@@ -52,6 +52,9 @@ export default function Navbar() {
                 <Link href="/statistic/producer-network" className="text-md font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors uppercase pl-4 border-l-2 border-[var(--border-color)]" onClick={() => setIsOpen(false)}>
                     {t('statistics_producer_network', { defaultMessage: 'Producers Network' })}
                 </Link>
+                <Link href="/statistic/vocalist-network" className="text-md font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors uppercase pl-4 border-l-2 border-[var(--border-color)]" onClick={() => setIsOpen(false)}>
+                    {t('statistics_vocalist_network', { defaultMessage: 'Voicebank Network' })}
+                </Link>
             </div>
             <div onClick={() => setIsOpen(false)}>
                 <AuthButton mobile={true} />
@@ -111,6 +114,9 @@ export default function Navbar() {
                                 <div className="p-2 relative z-10 bg-[var(--bg-dark)]">
                                     <Link href="/statistic/producer-network" className="block w-full px-4 py-3 text-sm text-[var(--text-secondary)] hover:text-white hover:bg-white/5 transition-colors text-center font-bold">
                                         {t('statistics_producer_network', { defaultMessage: 'Producers Network' })}
+                                    </Link>
+                                    <Link href="/statistic/vocalist-network" className="block w-full px-4 py-3 text-sm text-[var(--text-secondary)] hover:text-white hover:bg-white/5 transition-colors text-center font-bold border-t border-[var(--hairline)]">
+                                        {t('statistics_vocalist_network', { defaultMessage: 'Voicebank Network' })}
                                     </Link>
                                 </div>
                             </div>

@@ -10,7 +10,11 @@ import { forceCollide } from 'd3-force';
 // Dynamically import react-force-graph-2d with ssr disabled because it relies on Canvas/Window
 const ForceGraph2D = dynamic(() => import('react-force-graph-2d'), { ssr: false });
 
-export default function ArtistGraphClient() {
+interface Props {
+    apiEndpoint?: string;
+}
+
+export default function ArtistGraphClient({ apiEndpoint = '/artists/graph' }: Props) {
     const [graphData, setGraphData] = useState({ nodes: [], links: [] });
     const [loading, setLoading] = useState(true);
     const fgRef = useRef<any>(null);
@@ -76,7 +80,7 @@ export default function ArtistGraphClient() {
         const fetchGraph = async () => {
             try {
                 // Fetch the network graph data we compiled in the API
-                const res = await fetch(`${API_BASE_URL}/artists/graph`);
+                const res = await fetch(`${API_BASE_URL}${apiEndpoint}`);
                 if (res.ok) {
                     const data = await res.json();
 
@@ -399,10 +403,20 @@ export default function ArtistGraphClient() {
                                 // Create Circular clip path
                                 ctx.beginPath();
                                 ctx.arc(node.x, node.y, r, 0, 2 * Math.PI, false);
+
+                                // Draw background for transparent PNGs
+                                ctx.fillStyle = 'var(--bg-dark, #111)';
+                                ctx.fill();
+
                                 ctx.clip();
 
-                                // Draw image filling the circle center
-                                ctx.drawImage(img, node.x - r, node.y - r, r * 2, r * 2);
+                                // Calculate square crop centered horizontally and anchored to the top
+                                const sourceSize = Math.min(img.naturalWidth, img.naturalHeight);
+                                const sx = (img.naturalWidth - sourceSize) / 2;
+                                const sy = 0; // Top align for full-body characters
+
+                                // Draw image filling the circle center without changing aspect ratio
+                                ctx.drawImage(img, sx, sy, sourceSize, sourceSize, node.x - r, node.y - r, r * 2, r * 2);
                                 ctx.restore();
 
                                 // Draw nice Border over the image
@@ -500,7 +514,8 @@ export default function ArtistGraphClient() {
 
                         if (hoverNode && isConnected) {
                             // Math.min limits max opacity to 1. The more connections, the more opaque gold.
-                            const opacity = Math.min(1, 0.1 + (weight * 0.1));
+                            const opacity = Math.min(1, 0.2 + (Math.log(weight + 1) * 0.15));
+                            const thickness = Math.min(3, 1 + Math.log(weight));
                             return `rgba(232, 170, 0, ${opacity})`;
                         }
                         if (hoverNode && !isConnected) {
@@ -508,7 +523,8 @@ export default function ArtistGraphClient() {
                         }
 
                         // Default state without hover
-                        const baseOpacity = Math.min(0.6, 0.05 + (weight * 0.05));
+                        // Use logarithmic scaling so thousands of overlapping low-weight links don't form a solid opaque wall
+                        const baseOpacity = Math.min(0.6, 0.05 + (Math.log(weight) * 0.05));
                         return `rgba(255,255,255,${baseOpacity})`;
                     }}
                     warmupTicks={0}

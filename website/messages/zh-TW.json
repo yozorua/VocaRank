@@ -87,7 +87,8 @@
         "profile": "個人檔案",
         "profile_settings": "我的個人檔案",
         "statistics": "統計資料",
-        "statistics_producer_network": "製作人網絡"
+        "statistics_producer_network": "製作人網絡",
+        "statistics_vocalist_network": "虛擬歌手關係圖"
     },
     "SearchPage": {
         "title": "搜尋",
@@ -178,6 +179,10 @@
     "Graph": {
         "title": "VOCALOID 製作人網絡",
         "description": "探索基於 VOCALOID 製作人合作關係建立的人際網絡。"
+    },
+    "GraphVocalist": {
+        "title": "虛擬歌手關係圖",
+        "description": "探索多個虛擬歌手在同一首歌曲中合作的人際網絡。"
     },
     "GraphPage": {
         "loading": "載入中...",
