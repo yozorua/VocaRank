@@ -65,7 +65,9 @@ def calculate_network_graph():
         SELECT sa1.artist_id as source, sa2.artist_id as target, COUNT(sa1.song_id) as weight
         FROM song_artists sa1
         JOIN song_artists sa2 ON sa1.song_id = sa2.song_id AND sa1.artist_id < sa2.artist_id
-        WHERE EXISTS (
+        JOIN songs s ON sa1.song_id = s.id
+        WHERE s.song_type IN ('Original', 'Remaster', 'Remix', 'Cover')
+          AND EXISTS (
               SELECT 1 FROM song_artists sa_voc 
               JOIN artists a_voc ON sa_voc.artist_id = a_voc.id 
               WHERE sa_voc.song_id = sa1.song_id 
@@ -192,10 +194,10 @@ def calculate_vocalist_network_graph(producer_links_rows):
             })
             
     # CRITICAL FIX: The Vocalist Graph is highly dense. 1000 vocalists group-singing implies a near-complete
-    # mathematical graph (120,000+ links). D3 ForceGraph in React will completely freeze the user's browser.
-    # We must sort links by collaboration strength and slice the top 4,000 links.
+    # mathematical graph (120,000+ links). Because we upgraded the frontend to vanilla `force-graph` and 
+    # patched the explicit browser DOM dimensions, we can safely scale up our rendering density to 10,000 links!
     links.sort(key=lambda x: x["value"], reverse=True)
-    links = links[:4000]
+    # links = links[:10000]
             
     # 4. Calculate NetworkX PageRank
     core.log_message("INFO", f"Building NetworkX Graph with {len(nodes)} nodes and {len(links)} links...")
