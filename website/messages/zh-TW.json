@@ -86,9 +86,8 @@
         "logout": "登出",
         "profile": "個人檔案",
         "profile_settings": "我的個人檔案",
-        "graph": "統計資料",
-        "graph_constellation": "製作人星圖",
-        "graph_network": "製作人網絡"
+        "statistics": "統計資料",
+        "statistics_producer_network": "製作人網絡"
     },
     "SearchPage": {
         "title": "搜尋",

@@ -113,10 +113,13 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory, publ
     const toX = (date: string) => PAD_L + ((new Date(date).getTime() - minTime) / timeRange) * chartW;
     const toY = (views: number) => PAD_T + chartH - ((views - minViews) / viewRange) * chartH;
 
-    const buildPath = (data: HistoryPoint[]) =>
-        data.map((p, i) => `${i === 0 ? 'M' : 'L'} ${toX(p.date).toFixed(1)} ${toY(p.views).toFixed(1)}`).join(' ');
+    const buildPath = (data: HistoryPoint[]) => {
+        if (!data || data.length === 0) return "";
+        return data.map((p, i) => `${i === 0 ? 'M' : 'L'} ${toX(p.date).toFixed(1)} ${toY(p.views).toFixed(1)}`).join(' ');
+    };
 
     const buildAreaPath = (data: HistoryPoint[]) => {
+        if (!data || data.length === 0) return "";
         const linePath = data.map((p, i) => `${i === 0 ? 'M' : 'L'} ${toX(p.date).toFixed(1)} ${toY(p.views).toFixed(1)}`).join(' ');
         const baseY = (PAD_T + chartH).toFixed(1);
         const firstX = toX(data[0].date).toFixed(1);

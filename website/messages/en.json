@@ -82,9 +82,8 @@
     "logout": "Sign Out",
     "profile": "Profile",
     "profile_settings": "My Profile",
-    "graph": "Statistics",
-    "graph_constellation": "Constellation",
-    "graph_network": "Producers Network"
+    "statistics": "Statistics",
+    "statistics_producer_network": "Producers Network"
   },
   "SearchPage": {
     "title": "Search",

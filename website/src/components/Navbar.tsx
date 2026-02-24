@@ -47,10 +47,10 @@ export default function Navbar() {
             </Link>
             <div className="flex flex-col items-center gap-4 w-full">
                 <span className="text-lg font-medium tracking-[0.4em] text-[var(--text-secondary)] uppercase">
-                    {t('graph', { defaultMessage: 'Graph' })}
+                    {t('statistics', { defaultMessage: 'Statistics' })}
                 </span>
-                <Link href="/graph" className="text-md font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors uppercase pl-4 border-l-2 border-[var(--border-color)]" onClick={() => setIsOpen(false)}>
-                    {t('graph_constellation', { defaultMessage: 'Constellation' })}
+                <Link href="/statistic/producer-network" className="text-md font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors uppercase pl-4 border-l-2 border-[var(--border-color)]" onClick={() => setIsOpen(false)}>
+                    {t('statistics_producer_network', { defaultMessage: 'Producers Network' })}
                 </Link>
             </div>
             <div onClick={() => setIsOpen(false)}>
@@ -99,7 +99,7 @@ export default function Navbar() {
                         </Link>
                         <div className="relative group py-2">
                             <span className="cursor-pointer font-bold text-[var(--text-secondary)] hover:text-white transition-colors text-xs tracking-[0.3em] uppercase flex items-center gap-1 group-hover:text-white">
-                                {t('graph', { defaultMessage: 'Graph' })}
+                                {t('statistics', { defaultMessage: 'Statistics' })}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:rotate-180">
                                     <polyline points="6 9 12 15 18 9"></polyline>
                                 </svg>
@@ -110,7 +110,7 @@ export default function Navbar() {
                             <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0 w-48 bg-[var(--bg-dark)] border border-[var(--hairline-strong)] shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-[200]">
                                 <div className="p-2 relative z-10 bg-[var(--bg-dark)]">
                                     <Link href="/statistic/producer-network" className="block w-full px-4 py-3 text-sm text-[var(--text-secondary)] hover:text-white hover:bg-white/5 transition-colors text-center font-bold">
-                                        {t('graph_network', { defaultMessage: 'Producers Network' })}
+                                        {t('statistics_producer_network', { defaultMessage: 'Producers Network' })}
                                     </Link>
                                 </div>
                             </div>

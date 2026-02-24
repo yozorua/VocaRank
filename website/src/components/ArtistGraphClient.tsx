@@ -13,7 +13,6 @@ const ForceGraph2D = dynamic(() => import('react-force-graph-2d'), { ssr: false 
 export default function ArtistGraphClient() {
     const [graphData, setGraphData] = useState({ nodes: [], links: [] });
     const [loading, setLoading] = useState(true);
-    const router = useRouter();
     const fgRef = useRef<any>(null);
     const imgCache = useRef<Record<string, HTMLImageElement>>({});
     const t = useTranslations('GraphPage');
@@ -192,9 +191,10 @@ export default function ArtistGraphClient() {
     }, [graphData, sizeMode]);
 
     const handleNodeClick = useCallback((node: any) => {
-        // Navigate to the artist's profile when they click a node
-        router.push(`/artist/${node.id}`);
-    }, [router]);
+        // Navigate to the artist's profile in a new tab to avoid losing graph state
+        const locale = window.location.pathname.split('/')[1] || 'en';
+        window.open(`/${locale}/artist/${node.id}`, '_blank');
+    }, []);
 
     if (loading) {
         return (
@@ -220,7 +220,7 @@ export default function ArtistGraphClient() {
                 {/* Mobile/Collapsed Toggle Button */}
                 <button
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    className="bg-[var(--bg-dark)]/80 backdrop-blur-md border border-[var(--hairline)] p-2 rounded-lg shadow-xl text-white hover:text-[var(--miku-teal)] transition-colors w-10 h-10 flex items-center justify-center"
+                    className={`bg-[var(--bg-dark)]/80 backdrop-blur-md border border-[var(--hairline)] p-2 rounded-lg shadow-xl text-white hover:text-[var(--miku-teal)] transition-all w-10 h-10 flex items-center justify-center ${!freezePhysics && !isMenuOpen ? 'animate-pulse shadow-[0_0_15px_rgba(255,87,34,0.4)] border-[var(--vermilion)]' : ''}`}
                 >
                     {isMenuOpen ? (
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -262,35 +262,55 @@ export default function ArtistGraphClient() {
                             </select>
                         </div>
 
-                        <div className="flex items-center gap-2 pt-1 border-t border-[var(--border-color)]">
-                            <input
-                                type="checkbox"
-                                id="showLabels"
-                                checked={showLabels}
-                                onChange={(e) => setShowLabels(e.target.checked)}
-                                className="accent-[var(--miku-teal)] w-4 h-4 cursor-pointer"
-                            />
-                            <label htmlFor="showLabels" className="text-sm text-white cursor-pointer select-none">{t('show_labels')}</label>
+                        <div className="flex items-center gap-2 pt-1 border-t border-[var(--border-color)] group">
+                            <label className="relative flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={showLabels}
+                                    onChange={(e) => setShowLabels(e.target.checked)}
+                                    className="sr-only peer"
+                                />
+                                <div className="w-4 h-4 rounded border border-[var(--hairline-strong)] bg-black/30 flex items-center justify-center peer-checked:bg-[var(--miku-teal)] peer-checked:border-[var(--miku-teal)] transition-colors">
+                                    <svg className="w-3 h-3 text-black opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                            </label>
+                            <span className="text-sm text-white cursor-pointer select-none group-hover:text-[var(--miku-teal)] transition-colors" onClick={() => setShowLabels(!showLabels)}>{t('show_labels')}</span>
                         </div>
-                        <div className="flex items-center gap-2 pt-1 border-t border-[var(--border-color)]">
-                            <input
-                                type="checkbox"
-                                id="showLines"
-                                checked={!showLines}
-                                onChange={(e) => setShowLines(!e.target.checked)}
-                                className="accent-[var(--miku-teal)] w-4 h-4 cursor-pointer"
-                            />
-                            <label htmlFor="showLines" className="text-sm text-white cursor-pointer select-none">{t('hide_lines')}</label>
+                        <div className="flex items-center gap-2 pt-1 border-t border-[var(--border-color)] group">
+                            <label className="relative flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={!showLines}
+                                    onChange={(e) => setShowLines(!e.target.checked)}
+                                    className="sr-only peer"
+                                />
+                                <div className="w-4 h-4 rounded border border-[var(--hairline-strong)] bg-black/30 flex items-center justify-center peer-checked:bg-[var(--miku-teal)] peer-checked:border-[var(--miku-teal)] transition-colors">
+                                    <svg className="w-3 h-3 text-black opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                            </label>
+                            <span className="text-sm text-white cursor-pointer select-none group-hover:text-[var(--miku-teal)] transition-colors" onClick={() => setShowLines(!showLines)}>{t('hide_lines')}</span>
                         </div>
-                        <div className="flex items-center gap-2 pt-1 border-t border-[var(--border-color)]">
-                            <input
-                                type="checkbox"
-                                id="freezePhysics"
-                                checked={freezePhysics}
-                                onChange={(e) => setFreezePhysics(e.target.checked)}
-                                className="accent-[var(--vermilion)] w-4 h-4 cursor-pointer"
-                            />
-                            <label htmlFor="freezePhysics" className="text-sm text-white cursor-pointer select-none">{t('freeze_physics', { defaultMessage: 'Lock Map (Save Battery)' })}</label>
+                        <div className={`flex items-center gap-2 pt-1 border-t border-[var(--border-color)] group transition-all duration-500 rounded p-1 -mx-1 ${!freezePhysics ? 'bg-[rgba(255,87,34,0.15)] shadow-[0_0_10px_rgba(255,87,34,0.2)] animate-pulse' : ''}`}>
+                            <label className="relative flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={freezePhysics}
+                                    onChange={(e) => setFreezePhysics(e.target.checked)}
+                                    className="sr-only peer"
+                                />
+                                <div className={`w-4 h-4 rounded border bg-black/30 flex items-center justify-center transition-colors ${!freezePhysics ? 'border-[var(--vermilion)]' : 'border-[var(--hairline-strong)] peer-checked:bg-[var(--vermilion)] peer-checked:border-[var(--vermilion)]'}`}>
+                                    <svg className="w-3 h-3 text-black opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                            </label>
+                            <span className={`text-sm cursor-pointer select-none transition-colors ${!freezePhysics ? 'text-[var(--vermilion)] font-bold' : 'text-white group-hover:text-[var(--vermilion)]'}`} onClick={() => setFreezePhysics(!freezePhysics)}>
+                                {t('freeze_physics', { defaultMessage: 'Lock Map (Save Battery)' })}
+                            </span>
                         </div>
                     </div>
                 )}
@@ -479,9 +499,9 @@ export default function ArtistGraphClient() {
                             link.source.id === hoverNode.id || link.target.id === hoverNode.id);
 
                         if (hoverNode && isConnected) {
-                            // Math.min limits max opacity to 1. The more connections, the more opaque red.
-                            const opacity = Math.min(1, 0.5 + (weight * 0.1));
-                            return `rgba(255, 87, 34, ${opacity})`;
+                            // Math.min limits max opacity to 1. The more connections, the more opaque gold.
+                            const opacity = Math.min(1, 0.1 + (weight * 0.1));
+                            return `rgba(232, 170, 0, ${opacity})`;
                         }
                         if (hoverNode && !isConnected) {
                             return 'rgba(255,255,255,0.02)'; // Fade out deeply

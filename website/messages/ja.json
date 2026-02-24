@@ -86,9 +86,8 @@
         "logout": "ログアウト",
         "profile": "プロフィール",
         "profile_settings": "マイプロフィール",
-        "graph": "統計",
-        "graph_constellation": "プロデューサーの星座",
-        "graph_network": "プロデューサーネットワーク"
+        "statistics": "統計",
+        "statistics_producer_network": "ボカロPのネットワーク"
     },
     "SearchPage": {
         "title": "検索",
