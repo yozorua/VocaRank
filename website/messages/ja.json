@@ -164,5 +164,12 @@
         "chill": "チル",
         "emotional": "エモい",
         "vote_to_reveal": "投票して結果を見る！"
+    },
+    "Favorites": {
+        "title": "お気に入り",
+        "description": "保存したコンテンツを管理する",
+        "songs": "楽曲",
+        "artists": "アーティスト",
+        "no_favorites": "お気に入りがありません"
     }
 }

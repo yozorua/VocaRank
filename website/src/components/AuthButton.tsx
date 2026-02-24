@@ -9,6 +9,7 @@ import { useState, useRef, useEffect } from "react";
 export default function AuthButton({ mobile }: { mobile?: boolean }) {
     const { data: session, status } = useSession();
     const t = useTranslations('Navbar');
+    const tFav = useTranslations('Favorites');
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -52,6 +53,12 @@ export default function AuthButton({ mobile }: { mobile?: boolean }) {
                                 className="text-lg font-medium tracking-[0.3em] text-[var(--text-secondary)] hover:text-white transition-colors uppercase"
                             >
                                 {t('profile_settings', { defaultMessage: 'My Profile' })}
+                            </Link>
+                            <Link
+                                href="/favorites"
+                                className="text-lg font-medium tracking-[0.3em] text-[var(--text-secondary)] hover:text-[var(--vermilion)] transition-colors uppercase"
+                            >
+                                {tFav('title', { defaultMessage: 'My Favorites' })}
                             </Link>
                             <button
                                 onClick={() => signOut({ callbackUrl: '/' })}
@@ -100,6 +107,13 @@ export default function AuthButton({ mobile }: { mobile?: boolean }) {
                                 className="px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-white hover:bg-[var(--surface)] transition-colors text-left"
                             >
                                 {t('profile', { defaultMessage: 'Profile Settings' })}
+                            </Link>
+                            <Link
+                                href="/favorites"
+                                onClick={() => setIsOpen(false)}
+                                className="px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--vermilion)] hover:bg-[var(--surface)] transition-colors text-left"
+                            >
+                                {tFav('title', { defaultMessage: 'My Favorites' })}
                             </Link>
                             <button
                                 onClick={() => signOut({ callbackUrl: '/' })}

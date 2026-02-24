@@ -164,5 +164,12 @@
         "chill": "放鬆",
         "emotional": "感動",
         "vote_to_reveal": "投票以查看結果！"
+    },
+    "Favorites": {
+        "title": "我的最愛",
+        "description": "管理您儲存的內容",
+        "songs": "歌曲",
+        "artists": "歌手",
+        "no_favorites": "沒有找到最愛"
     }
 }

@@ -107,6 +107,9 @@ export default function MoodVoting({ songId, initialVotes }: { songId: number, i
                         </span>
                     )}
                 </h3>
+                <div className="text-right text-[10px] text-[var(--text-secondary)] tracking-widest uppercase font-mono">
+                    {totalVotes} {t('votes_total', { defaultMessage: 'Votes' })}
+                </div>
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
@@ -157,10 +160,6 @@ export default function MoodVoting({ songId, initialVotes }: { songId: number, i
                         </button>
                     );
                 })}
-            </div>
-
-            <div className="mt-4 text-right text-[10px] text-[var(--text-secondary)] tracking-widest uppercase font-mono">
-                {totalVotes} {t('votes_total', { defaultMessage: 'Votes' })}
             </div>
         </div>
     );

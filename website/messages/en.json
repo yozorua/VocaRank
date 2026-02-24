@@ -160,5 +160,12 @@
     "chill": "Chill",
     "emotional": "Emotional",
     "vote_to_reveal": "Vote to reveal results!"
+  },
+  "Favorites": {
+    "title": "My Favorites",
+    "description": "Manage your saved content",
+    "songs": "Songs",
+    "artists": "Artists",
+    "no_favorites": "No favorites found"
   }
 }

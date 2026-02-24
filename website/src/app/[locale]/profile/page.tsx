@@ -248,7 +248,7 @@ export default function ProfilePage() {
     if (!profile) return null;
 
     return (
-        <main className="max-w-4xl mx-auto px-6 py-12 md:py-20 animate-fade-in relative z-10">
+        <main className="max-w-[var(--max-width)] mx-auto px-4 md:px-6 py-6 md:py-8 animate-fade-in relative z-10">
             {/* Avatar Upload Selection Modal */}
             {isAvatarModalOpen && !imageSrc && (
                 <div className="fixed inset-0 z-[300] bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-4">
@@ -324,9 +324,11 @@ export default function ProfilePage() {
                 </div>
             )}
 
-            <h1 className="text-3xl md:text-5xl font-bold mb-4 tracking-tight drop-shadow-md">
-                {t('title')}
-            </h1>
+            <div className="mb-4 md:mb-4 pt-2">
+                <h1 className="text-2xl md:text-3xl font-bold mb-2 tracking-tight drop-shadow-md">
+                    {t('title')}
+                </h1>
+            </div>
 
             <div className="bg-[var(--bg-dark)]/50 backdrop-blur-xl border border-[var(--hairline-strong)] p-8 mt-8 flex flex-col md:flex-row gap-12 rounded-xl shadow-[0_0_40px_rgba(255,51,51,0.03)] relative overflow-hidden">
 

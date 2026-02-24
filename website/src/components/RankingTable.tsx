@@ -101,13 +101,13 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
         return `${y}/${m}/${d}`;
     };
 
-    const getViews = (song: SongRanking) => {
-        if (sort === 'youtube') return song.views_youtube;
-        if (sort === 'niconico') return song.views_niconico;
-        return song.total_views;
+    const getViews = (song: any) => {
+        if (sort === 'youtube') return song.views_youtube ?? song.youtube_views ?? 0;
+        if (sort === 'niconico') return song.views_niconico ?? song.niconico_views ?? 0;
+        return song.total_views ?? ((song.youtube_views || 0) + (song.niconico_views || 0));
     };
 
-    const getIncrement = (song: SongRanking) => {
+    const getIncrement = (song: any) => {
         if (sort === 'youtube') return song.increment_youtube ?? 0;
         if (sort === 'niconico') return song.increment_niconico ?? 0;
         return song.increment_total ?? 0;
@@ -300,7 +300,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                     {/* Views */}
                                     <div className="text-right">
                                         <div className="text-[9px] text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-1">{t('views')}</div>
-                                        <div className="font-mono text-sm text-white tracking-wider">{getViews(song).toLocaleString()}</div>
+                                        <div className="font-mono text-sm text-white tracking-wider">{(getViews(song) || 0).toLocaleString()}</div>
                                     </div>
 
                                     {/* Increment (Gain) */}
@@ -399,7 +399,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                     </td>
                                     <td className={`py-4 text-right font-mono text-base tracking-wider ${(mode !== 'total' && mode !== 'custom') ? 'pr-6' : 'pr-4'}`}>
                                         <div className="text-white group-hover:text-[var(--gold)] transition-colors duration-300">
-                                            {getViews(song).toLocaleString()}
+                                            {(getViews(song) || 0).toLocaleString()}
                                         </div>
                                     </td>
 
