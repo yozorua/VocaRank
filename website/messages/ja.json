@@ -87,10 +87,12 @@
         "profile": "プロフィール",
         "profile_settings": "マイプロフィール",
         "graph": "統計",
-        "graph_constellation": "プロデューサーの星座"
+        "graph_constellation": "プロデューサーの星座",
+        "graph_network": "プロデューサーネットワーク"
     },
     "SearchPage": {
-        "title": "データベース検索",
+        "title": "検索",
+        "description": "お気に入りの楽曲やアーティストを探す。",
         "placeholder": "曲名を入力（英語、日本語、ローマ字）...",
         "search": "検索",
         "results_for": "「{query}」の検索結果",
@@ -175,10 +177,11 @@
         "no_favorites": "お気に入りがありません"
     },
     "Graph": {
-        "title": "プロデューサーの星座",
+        "title": "ボカロPのネットワーク",
         "description": "コラボレーションによるボカロPのネットワークを探索する。"
     },
     "GraphPage": {
+        "loading": "読み込み中...",
         "search": "検索",
         "search_placeholder": "名前を入力...",
         "node_size_weight": "ノードサイズの重み",

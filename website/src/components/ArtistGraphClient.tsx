@@ -18,13 +18,19 @@ export default function ArtistGraphClient() {
     const imgCache = useRef<Record<string, HTMLImageElement>>({});
     const t = useTranslations('GraphPage');
 
-    // Interaction State
     const [hoverNode, setHoverNode] = useState<any>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+    // CRITICAL UX FIX: The "Bloom" Animation
+    // If we spawn 1000 nodes using their massive 'views' radii, the D3 physics engine immediately traps them 
+    // in an inescapable overlapped tangle. However, if we spawn them using the tiny 'pagerank' radii, they perfectly 
+    // and instantly untangle. 
+    // We default to 'pagerank', let the graph breathe and spread out, and then smoothly 
+    // transition to 'views' 1.5 seconds later. This creates a gorgeous "swelling" bloom effect on load and guarantees zero overlap!
+    const [sizeMode, setSizeMode] = useState<'views' | 'pagerank' | 'uniform'>('pagerank');
+
     // Render Options State
     const [searchText, setSearchText] = useState("");
-    const [sizeMode, setSizeMode] = useState<'views' | 'pagerank' | 'uniform'>('uniform');
     const [showLabels, setShowLabels] = useState(true);
     const [showLines, setShowLines] = useState(true);
 
@@ -35,6 +41,22 @@ export default function ArtistGraphClient() {
                 const res = await fetch(`${API_BASE_URL}/artists/graph`);
                 if (res.ok) {
                     const data = await res.json();
+
+                    // CRITICAL FIX: D3 force naturally spawns all 1000 new nodes at exactly (0,0).
+                    // This creates an infinitely dense singularity point. `collide` force cannot un-stack 1000 
+                    // massive 'Views' nodes in only 300 ticks because they literally have to travel thousands of pixels 
+                    // to escape each other. By pre-scattering them in a wide circle BEFORE initialization, 
+                    // the D3 physics engine only has to do local snap adjustments, perfectly resolving overlaps instantly!
+                    if (data.nodes) {
+                        data.nodes.forEach((node: any) => {
+                            const spawnRadius = Math.random() * 1500;
+                            const spawnAngle = Math.random() * 2 * Math.PI;
+                            // Set initial explicit position coordinates so ForceGraph uses them as anchors
+                            node.x = Math.cos(spawnAngle) * spawnRadius;
+                            node.y = Math.sin(spawnAngle) * spawnRadius;
+                        });
+                    }
+
                     setGraphData(data);
                 }
             } catch (e) {
@@ -47,41 +69,86 @@ export default function ArtistGraphClient() {
         fetchGraph();
     }, []);
 
+    // Trigger the Bloom Effect 1.5 seconds after the graph data is fully loaded and mounted
+    useEffect(() => {
+        if (graphData.nodes.length > 0) {
+            const timer = setTimeout(() => {
+                setSizeMode('views');
+            }, 1000); // 1 second gives the pagerank graph enough time to effectively distance the nodes
+            return () => clearTimeout(timer);
+        }
+    }, [graphData]);
+
     // Update Graph Physics when sizeMode or data changes to prevent overlap
     useEffect(() => {
         if (fgRef.current && graphData.nodes.length > 0) {
-            // Apply standard repulsion
-            const chargeForce = fgRef.current.d3Force('charge');
-            if (chargeForce) {
-                // Significantly increase negative repulsion for 'views' to spread out the crowded center
-                const repulsion = sizeMode === 'views' ? -1200 : (sizeMode === 'pagerank' ? -250 : -100);
-                chargeForce.strength(repulsion);
-                chargeForce.distanceMax(1500);
-            }
 
-            // Apply strict anti-collision physics so bubbles bounce off each other
-            fgRef.current.d3Force('collide', forceCollide().radius((node: any) => {
-                let score = 1;
-                if (sizeMode === 'views') score = node.val_views || 1;
-                else if (sizeMode === 'pagerank') score = node.val_pagerank || 1;
+            const applyForces = () => {
+                if (!fgRef.current) return;
 
-                let r = 15;
-                if (sizeMode === 'views') r = Math.cbrt(Math.max(0, score)) * 0.04 + 2;
-                else if (sizeMode === 'pagerank') r = Math.sqrt(Math.max(0, score)) * 1.5 + 8;
-                else if (sizeMode === 'uniform') r = 15;
+                // Apply standard repulsion
+                const chargeForce = fgRef.current.d3Force('charge');
+                if (chargeForce) {
+                    // Significantly increase negative repulsion for 'views' to spread out the crowded center
+                    const repulsion = sizeMode === 'views' ? -1200 : (sizeMode === 'pagerank' ? -250 : -100);
+                    chargeForce.strength(repulsion);
+                    chargeForce.distanceMax(1500);
+                }
 
-                // Extra padding in 'views' mode to make the center less claustrophobic
-                const padding = sizeMode === 'views' ? 8 : 5;
-                return r + padding;
-            }).strength(1).iterations(8)); // High iterations ensures strict physics enforcement
+                // Dynamically loosen the Node Link spring physics!
+                const linkForce = fgRef.current.d3Force('link');
+                if (linkForce) {
+                    linkForce.distance((link: any) => {
+                        const getRadius = (node: any) => {
+                            let score = 1;
+                            if (sizeMode === 'views') score = node.val_views || 1;
+                            else if (sizeMode === 'pagerank') score = node.val_pagerank || 1;
 
-            // Re-ignite the simulation so bubbles have kinetic energy to spread out
-            // We use a small timeout to guarantee the physics engine has digested the nodes array first on initial load
-            setTimeout(() => {
-                if (fgRef.current) {
-                    fgRef.current.d3ReheatSimulation();
+                            let r = 15;
+                            if (sizeMode === 'views') r = Math.cbrt(Math.max(0, score)) * 0.04 + 2;
+                            else if (sizeMode === 'pagerank') r = Math.sqrt(Math.max(0, score)) * 1.5 + 8;
+                            else if (sizeMode === 'uniform') r = 15;
+                            return r;
+                        };
+                        const r1 = getRadius(link.source);
+                        const r2 = getRadius(link.target);
+                        const padding = sizeMode === 'views' ? 16 : 10;
+                        return r1 + r2 + padding + 15;
+                    });
+                }
+
+                // Apply strict anti-collision physics so bubbles bounce off each other.
+                fgRef.current.d3Force('collide', forceCollide().radius((node: any) => {
+                    let score = 1;
+                    if (sizeMode === 'views') score = node.val_views || 1;
+                    else if (sizeMode === 'pagerank') score = node.val_pagerank || 1;
+
+                    let r = 15;
+                    if (sizeMode === 'views') r = Math.cbrt(Math.max(0, score)) * 0.04 + 2;
+                    else if (sizeMode === 'pagerank') r = Math.sqrt(Math.max(0, score)) * 1.5 + 8;
+                    else if (sizeMode === 'uniform') r = 15;
+
+                    const padding = sizeMode === 'views' ? 12 : 6;
+                    return r + padding;
+                }).strength(1.5).iterations(8));
+
+                // Re-ignite the simulation so bubbles have kinetic energy to spread out
+                fgRef.current.d3ReheatSimulation();
+            };
+
+            // Re-inject physics over the first 1.5 seconds to survive ForceGraph's asynchronous internal reboot
+            let ticks = 0;
+            const intervalId = setInterval(() => {
+                applyForces();
+                ticks++;
+                if (ticks > 15) {
+                    clearInterval(intervalId);
                 }
             }, 100);
+
+            applyForces();
+
+            return () => clearInterval(intervalId);
         }
     }, [graphData, sizeMode]);
 
@@ -92,16 +159,16 @@ export default function ArtistGraphClient() {
 
     if (loading) {
         return (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-[var(--text-secondary)]">
-                <div className="w-8 h-8 border-2 border-[var(--hairline-strong)] border-t-[var(--miku-teal)] rounded-full animate-spin"></div>
-                <p className="text-xs uppercase tracking-[0.2em] animate-pulse">Loading Constellation Data...</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-[var(--text-secondary)] z-0 bg-[var(--bg-dark)]">
+                <div className="w-8 h-8 border-2 border-[var(--hairline-strong)] border-t-[var(--text-secondary)] rounded-full animate-spin"></div>
+                <p className="text-xs uppercase tracking-[0.2em] animate-pulse">{t('loading', { defaultMessage: 'Loading...' })}</p>
             </div>
         );
     }
 
     if (graphData.nodes.length === 0) {
         return (
-            <div className="absolute inset-0 flex items-center justify-center text-[var(--text-secondary)]">
+            <div className="absolute inset-0 flex items-center justify-center text-[var(--text-secondary)] z-0 bg-[var(--bg-dark)]">
                 <p>No graph data available.</p>
             </div>
         );
@@ -180,205 +247,211 @@ export default function ArtistGraphClient() {
                 )}
             </div>
 
-            <ForceGraph2D
-                ref={fgRef}
-                graphData={graphData}
-                nodeAutoColorBy="group"
-                // Disable browser native tooltip since we draw labels ourselves on canvas
-                nodeLabel={() => ""}
-                // Feed custom math radius back into the D3 physics engine to prevent physical overlap
-                nodeVal={(node: any) => {
-                    let score = 1;
-                    if (sizeMode === 'views') score = node.val_views || 1;
-                    else if (sizeMode === 'pagerank') score = node.val_pagerank || 1;
+            <div className="w-full h-full animate-in fade-in duration-1000">
+                <ForceGraph2D
+                    ref={fgRef}
+                    graphData={graphData}
+                    nodeAutoColorBy="group"
+                    // Disable browser native tooltip since we draw labels ourselves on canvas
+                    nodeLabel={() => ""}
+                    // Feed custom math radius back into the D3 physics engine to prevent physical overlap
+                    nodeVal={(node: any) => {
+                        let score = 1;
+                        if (sizeMode === 'views') score = node.val_views || 1;
+                        else if (sizeMode === 'pagerank') score = node.val_pagerank || 1;
 
-                    let r = 15;
-                    if (sizeMode === 'views') r = Math.cbrt(Math.max(0, score)) * 0.04 + 2;
-                    else if (sizeMode === 'pagerank') r = Math.sqrt(Math.max(0, score)) * 1.5 + 8;
-                    else if (sizeMode === 'uniform') r = 15;
+                        let r = 15;
+                        if (sizeMode === 'views') r = Math.cbrt(Math.max(0, score)) * 0.04 + 2;
+                        else if (sizeMode === 'pagerank') r = Math.sqrt(Math.max(0, score)) * 1.5 + 8;
+                        else if (sizeMode === 'uniform') r = 15;
 
-                    // ForceGraph internal radius is `sqrt(val) * 4`. We do reverse math so Physics matches Visual
-                    return Math.pow(r / 4, 2);
-                }}
-                linkWidth={1.5}
-                nodeCanvasObject={(node: any, ctx, globalScale) => {
-                    const label = node.name;
-                    const fontSize = 12 / globalScale;
+                        // ForceGraph automatically creates a d3Force collide using the Math.sqrt(nodeVal) * 4 to represent radius.
+                        // However, we want strict anti-collision so we manually override the radius multiplier padding.
+                        // Native formula: R = Math.sqrt(node.val) * 4
+                        // padding = sizeMode === 'views' ? 8 : 5
+                        const padding = sizeMode === 'views' ? 8 : 5;
 
-                    // Determine node size based on selected mode
-                    let score = 1;
-                    if (sizeMode === 'views') score = node.val_views || 1;
-                    else if (sizeMode === 'pagerank') score = node.val_pagerank || 1;
+                        // By returning the reverse-math equivalent of our visual radius PLUS padding,
+                        // the native synchronous `d3Collide` handles the overlap before the first frame even paints.
+                        return Math.pow((r + padding) / 4, 2);
+                    }}
+                    linkWidth={1.5}
+                    nodeCanvasObject={(node: any, ctx, globalScale) => {
+                        const label = node.name;
+                        const fontSize = 12 / globalScale;
 
-                    // Calculate radius using cubic root for a graceful curve of extremely large view counts
-                    let r = 15;
-                    if (sizeMode === 'views') {
-                        r = Math.cbrt(Math.max(0, score)) * 0.04 + 2;
-                    } else if (sizeMode === 'pagerank') {
-                        r = Math.sqrt(Math.max(0, score)) * 1.5 + 8;
-                    } else if (sizeMode === 'uniform') {
-                        r = 15;
-                    }
+                        // Determine node size based on selected mode
+                        let score = 1;
+                        if (sizeMode === 'views') score = node.val_views || 1;
+                        else if (sizeMode === 'pagerank') score = node.val_pagerank || 1;
 
-                    // Search and Hover Highlight Logic
-                    const isSearching = searchText.trim().length > 0;
-                    const isMatch = isSearching && label.toLowerCase().includes(searchText.toLowerCase());
-                    const isHovered = hoverNode === node;
-                    const isHoverLinked = hoverNode && (
-                        hoverNode === node ||
-                        graphData.links.some((l: any) =>
-                            (l.source.id === hoverNode.id && l.target.id === node.id) ||
-                            (l.target.id === hoverNode.id && l.source.id === node.id) ||
-                            (l.source === hoverNode && l.target === node) ||
-                            (l.target === hoverNode && l.source === node)
-                        )
-                    );
-
-                    // Apply Global Alpha Dimming
-                    let alpha = 1.0;
-                    if (hoverNode) {
-                        alpha = isHoverLinked ? 1.0 : (isSearching ? 0.05 : 0.2);
-                    } else if (isSearching) {
-                        alpha = isMatch ? 1.0 : 0.15;
-                    }
-                    ctx.globalAlpha = alpha;
-
-                    // Draw Image if we have one
-                    let imageDrawn = false;
-                    if (node.img) {
-                        let img = imgCache.current[node.id];
-                        if (!img) {
-                            img = new Image();
-                            img.src = node.img;
-                            imgCache.current[node.id] = img;
+                        // Calculate radius using cubic root for a graceful curve of extremely large view counts
+                        let r = 15;
+                        if (sizeMode === 'views') {
+                            r = Math.cbrt(Math.max(0, score)) * 0.04 + 2;
+                        } else if (sizeMode === 'pagerank') {
+                            r = Math.sqrt(Math.max(0, score)) * 1.5 + 8;
+                        } else if (sizeMode === 'uniform') {
+                            r = 15;
                         }
 
-                        if (img.complete && img.naturalHeight !== 0) {
-                            ctx.save();
-                            // Create Circular clip path
-                            ctx.beginPath();
-                            ctx.arc(node.x, node.y, r, 0, 2 * Math.PI, false);
-                            ctx.clip();
+                        // Search and Hover Highlight Logic
+                        const isSearching = searchText.trim().length > 0;
+                        const isMatch = isSearching && label.toLowerCase().includes(searchText.toLowerCase());
+                        const isHovered = hoverNode === node;
+                        const isHoverLinked = hoverNode && (
+                            hoverNode === node ||
+                            graphData.links.some((l: any) =>
+                                (l.source.id === hoverNode.id && l.target.id === node.id) ||
+                                (l.target.id === hoverNode.id && l.source.id === node.id) ||
+                                (l.source === hoverNode && l.target === node) ||
+                                (l.target === hoverNode && l.source === node)
+                            )
+                        );
 
-                            // Draw image filling the circle center
-                            ctx.drawImage(img, node.x - r, node.y - r, r * 2, r * 2);
-                            ctx.restore();
+                        // Apply Global Alpha Dimming
+                        let alpha = 1.0;
+                        if (hoverNode) {
+                            alpha = isHoverLinked ? 1.0 : (isSearching ? 0.05 : 0.2);
+                        } else if (isSearching) {
+                            alpha = isMatch ? 1.0 : 0.15;
+                        }
+                        ctx.globalAlpha = alpha;
 
-                            // Draw nice Border over the image
-                            ctx.beginPath();
-                            ctx.arc(node.x, node.y, r, 0, 2 * Math.PI, false);
-                            if (isSearching && !isMatch) {
-                                ctx.strokeStyle = 'rgba(100, 100, 100, 0.15)';
-                                ctx.lineWidth = 1 / globalScale;
-                            } else if (isMatch || isHovered) {
-                                ctx.strokeStyle = 'white';
-                                ctx.lineWidth = (isHovered ? 4 : 6) / globalScale;
-
-                                // Outer glow for vermilion highlighting
-                                ctx.shadowColor = 'var(--vermilion)';
-                                ctx.shadowBlur = 10 / globalScale;
-                            } else {
-                                ctx.strokeStyle = node.color || 'var(--miku-teal)';
-                                ctx.lineWidth = 1.5 / globalScale;
+                        // Draw Image if we have one
+                        let imageDrawn = false;
+                        if (node.img) {
+                            let img = imgCache.current[node.id];
+                            if (!img) {
+                                img = new Image();
+                                img.src = node.img;
+                                imgCache.current[node.id] = img;
                             }
-                            ctx.stroke();
-                            ctx.shadowBlur = 0; // Reset shadow
 
-                            imageDrawn = true;
+                            if (img.complete && img.naturalHeight !== 0) {
+                                ctx.save();
+                                // Create Circular clip path
+                                ctx.beginPath();
+                                ctx.arc(node.x, node.y, r, 0, 2 * Math.PI, false);
+                                ctx.clip();
+
+                                // Draw image filling the circle center
+                                ctx.drawImage(img, node.x - r, node.y - r, r * 2, r * 2);
+                                ctx.restore();
+
+                                // Draw nice Border over the image
+                                ctx.beginPath();
+                                ctx.arc(node.x, node.y, r, 0, 2 * Math.PI, false);
+                                if (isSearching && !isMatch) {
+                                    ctx.strokeStyle = 'rgba(100, 100, 100, 0.15)';
+                                    ctx.lineWidth = 1 / globalScale;
+                                } else if (isMatch || isHovered) {
+                                    ctx.strokeStyle = 'white';
+                                    ctx.lineWidth = (isHovered ? 4 : 6) / globalScale;
+
+                                    // Outer glow for vermilion highlighting
+                                    ctx.shadowColor = 'var(--vermilion)';
+                                    ctx.shadowBlur = 10 / globalScale;
+                                } else {
+                                    ctx.strokeStyle = node.color || 'var(--miku-teal)';
+                                    ctx.lineWidth = 1.5 / globalScale;
+                                }
+                                ctx.stroke();
+                                ctx.shadowBlur = 0; // Reset shadow
+
+                                imageDrawn = true;
+                            }
                         }
-                    }
 
-                    // Fallback to solid color circle if no image or image is still loading
-                    if (!imageDrawn) {
+                        // Fallback to solid color circle if no image or image is still loading
+                        if (!imageDrawn) {
+                            ctx.beginPath();
+                            ctx.arc(node.x, node.y, r, 0, 2 * Math.PI, false);
+
+                            // Dim non-matching nodes if searching, pop hovered nodes
+                            if (isSearching && !isMatch) {
+                                ctx.fillStyle = 'rgba(100, 100, 100, 0.15)';
+                            } else if (isMatch || isHovered) {
+                                ctx.fillStyle = 'var(--vermilion)';
+                                ctx.lineWidth = (isHovered ? 2 : 4) / globalScale;
+                                ctx.strokeStyle = 'white';
+                                ctx.stroke();
+                            } else {
+                                ctx.fillStyle = node.color || 'var(--miku-teal)';
+                            }
+                            ctx.fill();
+                        }
+
+                        // Draw Text Label
+                        if (showLabels && ((globalScale > 2 && !isSearching) || isMatch || isHovered)) {
+                            ctx.globalAlpha = 1.0; // Force full opacity for labels of highlighted nodes
+                            ctx.font = (isMatch || isHovered) ? `bold ${fontSize * 1.5}px Sans-Serif` : `${fontSize}px Sans-Serif`;
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillStyle = isSearching && !isMatch && !isHovered ? 'rgba(255,255,255,0.1)' : 'white';
+
+                            // Add slight background to text for readability when highlighted
+                            if (isMatch || isHovered) {
+                                const textWidth = ctx.measureText(label).width;
+                                ctx.fillStyle = 'rgba(0,0,0,0.6)';
+                                ctx.fillRect(node.x - textWidth / 2 - 2, node.y + r + fontSize / 2, textWidth + 4, fontSize * 1.5 + 4);
+                                ctx.fillStyle = 'white';
+                            }
+
+                            ctx.fillText(label, node.x, node.y + r + fontSize + 2);
+                        }
+
+                        ctx.globalAlpha = 1.0; // Reset canvas context
+                    }}
+                    nodePointerAreaPaint={(node: any, color, ctx) => {
+                        let score = 1;
+                        if (sizeMode === 'views') score = node.val_views || 1;
+                        else if (sizeMode === 'pagerank') score = node.val_pagerank || 1;
+
+                        let r = 15;
+                        if (sizeMode === 'views') {
+                            r = Math.cbrt(Math.max(0, score)) * 0.04 + 2;
+                        } else if (sizeMode === 'pagerank') {
+                            r = Math.sqrt(Math.max(0, score)) * 1.5 + 8;
+                        } else if (sizeMode === 'uniform') {
+                            r = 15;
+                        }
+
+                        ctx.fillStyle = color;
                         ctx.beginPath();
-                        ctx.arc(node.x, node.y, r, 0, 2 * Math.PI, false);
-
-                        // Dim non-matching nodes if searching, pop hovered nodes
-                        if (isSearching && !isMatch) {
-                            ctx.fillStyle = 'rgba(100, 100, 100, 0.15)';
-                        } else if (isMatch || isHovered) {
-                            ctx.fillStyle = 'var(--vermilion)';
-                            ctx.lineWidth = (isHovered ? 2 : 4) / globalScale;
-                            ctx.strokeStyle = 'white';
-                            ctx.stroke();
-                        } else {
-                            ctx.fillStyle = node.color || 'var(--miku-teal)';
-                        }
+                        ctx.arc(node.x, node.y, r + 2, 0, 2 * Math.PI, false); // +2 for easier clicking
                         ctx.fill();
-                    }
+                    }}
+                    onNodeClick={handleNodeClick}
+                    onNodeHover={setHoverNode}
+                    backgroundColor="transparent"
+                    linkVisibility={showLines}
+                    linkColor={(link: any) => {
+                        // Line width is uniform, but color opacity and brightness depends on connections
+                        const weight = link.value || 1;
+                        const isConnected = hoverNode && (link.source === hoverNode || link.target === hoverNode ||
+                            link.source.id === hoverNode.id || link.target.id === hoverNode.id);
 
-                    // Draw Text Label
-                    if (showLabels && ((globalScale > 2 && !isSearching) || isMatch || isHovered)) {
-                        ctx.globalAlpha = 1.0; // Force full opacity for labels of highlighted nodes
-                        ctx.font = (isMatch || isHovered) ? `bold ${fontSize * 1.5}px Sans-Serif` : `${fontSize}px Sans-Serif`;
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-                        ctx.fillStyle = isSearching && !isMatch && !isHovered ? 'rgba(255,255,255,0.1)' : 'white';
-
-                        // Add slight background to text for readability when highlighted
-                        if (isMatch || isHovered) {
-                            const textWidth = ctx.measureText(label).width;
-                            ctx.fillStyle = 'rgba(0,0,0,0.6)';
-                            ctx.fillRect(node.x - textWidth / 2 - 2, node.y + r + fontSize / 2, textWidth + 4, fontSize * 1.5 + 4);
-                            ctx.fillStyle = 'white';
+                        if (hoverNode && isConnected) {
+                            // Math.min limits max opacity to 1. The more connections, the more opaque red.
+                            const opacity = Math.min(1, 0.5 + (weight * 0.1));
+                            return `rgba(255, 87, 34, ${opacity})`;
+                        }
+                        if (hoverNode && !isConnected) {
+                            return 'rgba(255,255,255,0.02)'; // Fade out deeply
                         }
 
-                        ctx.fillText(label, node.x, node.y + r + fontSize + 2);
-                    }
-
-                    ctx.globalAlpha = 1.0; // Reset canvas context
-                }}
-                nodePointerAreaPaint={(node: any, color, ctx) => {
-                    let score = 1;
-                    if (sizeMode === 'views') score = node.val_views || 1;
-                    else if (sizeMode === 'pagerank') score = node.val_pagerank || 1;
-
-                    let r = 15;
-                    if (sizeMode === 'views') {
-                        r = Math.cbrt(Math.max(0, score)) * 0.04 + 2;
-                    } else if (sizeMode === 'pagerank') {
-                        r = Math.sqrt(Math.max(0, score)) * 1.5 + 8;
-                    } else if (sizeMode === 'uniform') {
-                        r = 15;
-                    }
-
-                    ctx.fillStyle = color;
-                    ctx.beginPath();
-                    ctx.arc(node.x, node.y, r + 2, 0, 2 * Math.PI, false); // +2 for easier clicking
-                    ctx.fill();
-                }}
-                onNodeClick={handleNodeClick}
-                onNodeHover={setHoverNode}
-                backgroundColor="transparent"
-                linkVisibility={showLines}
-                linkColor={(link: any) => {
-                    // Line width is uniform, but color opacity and brightness depends on connections
-                    const weight = link.value || 1;
-                    const isConnected = hoverNode && (link.source === hoverNode || link.target === hoverNode ||
-                        link.source.id === hoverNode.id || link.target.id === hoverNode.id);
-
-                    if (hoverNode && isConnected) {
-                        // Math.min limits max opacity to 1. The more connections, the more opaque red.
-                        const opacity = Math.min(1, 0.5 + (weight * 0.1));
-                        return `rgba(255, 87, 34, ${opacity})`;
-                    }
-                    if (hoverNode && !isConnected) {
-                        return 'rgba(255,255,255,0.02)'; // Fade out deeply
-                    }
-
-                    // Default state without hover
-                    const baseOpacity = Math.min(0.6, 0.05 + (weight * 0.05));
-                    return `rgba(255,255,255,${baseOpacity})`;
-                }}
-                // We REMOVE cooldownTicks so that the extremely heavy initial Top 500 collision un-tangling
-                // has infinite time to settle on first-load. `react-force-graph` will naturally stop calculating
-                // once alpha dips below the D3 `alphaMin` threshold (approx 300 ticks). 
-                // Previously, capping it at 100 ticks forced it to stop rendering before overlapping nodes escaped each other.
-                // We crank warmupTicks to 150. This forces D3 to synchronously compute 150 frames of heavy repulsion
-                // entirely in the background BEFORE the very first Canvas frame is drawn. This permanently prevents visible overlap on load.
-                warmupTicks={150}
-                onEngineStop={() => { if (fgRef.current) fgRef.current.zoomToFit(400); }}
-            />
+                        // Default state without hover
+                        const baseOpacity = Math.min(0.6, 0.05 + (weight * 0.05));
+                        return `rgba(255,255,255,${baseOpacity})`;
+                    }}
+                    warmupTicks={0}
+                    cooldownTicks={300} // Increase to 300 ticks to ensure 1000 nodes are completely un-overlapped
+                    onEngineStop={() => {
+                        if (fgRef.current) fgRef.current.zoomToFit(400);
+                    }}
+                />
+            </div>
         </div>
     );
 }

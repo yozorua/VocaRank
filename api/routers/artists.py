@@ -76,7 +76,7 @@ def search_artists(
 def get_artist_graph(db: Session = Depends(get_db)):
     """
     Returns a network graph of artists based on collaborations.
-    Reads stringified JSON directly from the offline calculate_constellation_graph.py script.
+    Reads stringified JSON directly from the offline calculate_network_graph.py script.
     """
     from sqlalchemy import text
     import json
@@ -88,7 +88,7 @@ def get_artist_graph(db: Session = Depends(get_db)):
             return graph_cache["network"]
             
     # Try Database Persistent Cache (SQLite)
-    sql = "SELECT json_data FROM system_cache WHERE key_name = 'constellation_graph'"
+    sql = "SELECT json_data FROM system_cache WHERE key_name = 'network_graph'"
     row = db.execute(text(sql)).fetchone()
     
     if not row or not row[0]:

@@ -9,8 +9,8 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import scripts.core as core
 
-def calculate_constellation_graph():
-    core.log_message("INFO", "Starting Constellation Graph (PageRank) calculation...")
+def calculate_network_graph():
+    core.log_message("INFO", "Starting Network Graph (PageRank) calculation...")
     
     conn = core.get_db_connection()
     core.setup_database_schema(conn) # Ensure system_cache exists
@@ -121,12 +121,12 @@ def calculate_constellation_graph():
     cursor.execute('''
         INSERT OR REPLACE INTO system_cache (key_name, json_data, last_updated)
         VALUES (?, ?, ?)
-    ''', ("constellation_graph", json_data, last_updated))
+    ''', ("network_graph", json_data, last_updated))
     
     conn.commit()
     conn.close()
     
-    core.log_message("SUCCESS", "Constellation Graph successfully generated and cached!")
+    core.log_message("SUCCESS", "Network Graph successfully generated and cached!")
 
 if __name__ == "__main__":
-    calculate_constellation_graph()
+    calculate_network_graph()

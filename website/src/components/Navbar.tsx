@@ -107,11 +107,10 @@ export default function Navbar() {
                             </span>
 
                             {/* Dropdown Menu */}
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0 w-48 bg-[var(--bg-dark)] border border-[var(--hairline)] shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-[200]">
-                                <div className="absolute top-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-[var(--bg-dark)] border-l border-t border-[var(--hairline)] rotate-45"></div>
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0 w-48 bg-[var(--bg-dark)] border border-[var(--hairline-strong)] shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-[200]">
                                 <div className="p-2 relative z-10 bg-[var(--bg-dark)]">
-                                    <Link href="/graph" className="block w-full px-4 py-3 text-xs tracking-wider uppercase text-[var(--text-secondary)] hover:text-white hover:bg-white/5 transition-colors text-center font-bold">
-                                        {t('graph_constellation', { defaultMessage: 'Constellation' })}
+                                    <Link href="/statistic/producer-network" className="block w-full px-4 py-3 text-sm text-[var(--text-secondary)] hover:text-white hover:bg-white/5 transition-colors text-center font-bold">
+                                        {t('graph_network', { defaultMessage: 'Producers Network' })}
                                     </Link>
                                 </div>
                             </div>

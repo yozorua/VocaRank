@@ -83,10 +83,12 @@
     "profile": "Profile",
     "profile_settings": "My Profile",
     "graph": "Statistics",
-    "graph_constellation": "Constellation"
+    "graph_constellation": "Constellation",
+    "graph_network": "Producers Network"
   },
   "SearchPage": {
-    "title": "Search Database",
+    "title": "Search",
+    "description": "Find your favorite songs and artists.",
     "placeholder": "Enter song title (English, Japanese, Romaji)...",
     "search": "Search",
     "results_for": "Results for \"{query}\"",
@@ -171,10 +173,11 @@
     "no_favorites": "No favorites found"
   },
   "Graph": {
-    "title": "Producer Constellation",
+    "title": "Network of Vocaloid Producers",
     "description": "Explore the network of Vocaloid producers based on their collaborations."
   },
   "GraphPage": {
+    "loading": "Loading...",
     "search": "Search",
     "search_placeholder": "Type name...",
     "node_size_weight": "Node Size Weight",

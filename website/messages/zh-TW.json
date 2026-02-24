@@ -87,10 +87,12 @@
         "profile": "個人檔案",
         "profile_settings": "我的個人檔案",
         "graph": "統計資料",
-        "graph_constellation": "製作人星圖"
+        "graph_constellation": "製作人星圖",
+        "graph_network": "製作人網絡"
     },
     "SearchPage": {
-        "title": "搜尋資料庫",
+        "title": "搜尋",
+        "description": "尋找您最愛的歌曲和藝人。",
         "placeholder": "輸入歌曲標題（英文、日文、羅馬拼音）...",
         "search": "搜尋",
         "results_for": "搜尋結果：\"{query}\"",
@@ -175,10 +177,11 @@
         "no_favorites": "沒有找到最愛"
     },
     "Graph": {
-        "title": "製作人星圖",
+        "title": "VOCALOID 製作人網絡",
         "description": "探索基於 VOCALOID 製作人合作關係建立的人際網絡。"
     },
     "GraphPage": {
+        "loading": "載入中...",
         "search": "搜尋",
         "search_placeholder": "輸入名稱...",
         "node_size_weight": "節點大小權重",
