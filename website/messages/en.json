@@ -81,7 +81,9 @@
     "login": "Login",
     "logout": "Sign Out",
     "profile": "Profile",
-    "profile_settings": "My Profile"
+    "profile_settings": "My Profile",
+    "graph": "Statistics",
+    "graph_constellation": "Constellation"
   },
   "SearchPage": {
     "title": "Search Database",
@@ -167,5 +169,19 @@
     "songs": "Songs",
     "artists": "Artists",
     "no_favorites": "No favorites found"
+  },
+  "Graph": {
+    "title": "Producer Constellation",
+    "description": "Explore the network of Vocaloid producers based on their collaborations."
+  },
+  "GraphPage": {
+    "search": "Search",
+    "search_placeholder": "Type name...",
+    "node_size_weight": "Node Size Weight",
+    "weight_views": "Total Views (Popularity)",
+    "weight_pagerank": "Collaborations (Centrality)",
+    "weight_uniform": "Uniform Size",
+    "show_labels": "Show Names on Zoom",
+    "hide_lines": "Hide Connection Lines"
   }
 }

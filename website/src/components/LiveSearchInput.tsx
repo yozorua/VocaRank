@@ -65,7 +65,7 @@ export default function LiveSearchInput({ defaultValue, placeholder }: LiveSearc
 
     const handleSelectSong = (id: number) => {
         setIsOpen(false);
-        router.push(`/songs/${id}`);
+        router.push(`/song/${id}`);
     };
 
     const getSongThumbnail = (song: SongRanking) => {
@@ -86,7 +86,7 @@ export default function LiveSearchInput({ defaultValue, placeholder }: LiveSearc
     };
 
     return (
-        <div ref={wrapperRef} className="w-full">
+        <div ref={wrapperRef} className="relative w-full">
             <input
                 type="text"
                 name="q"

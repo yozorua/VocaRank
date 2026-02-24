@@ -102,6 +102,14 @@ def setup_database_schema(conn: sqlite3.Connection):
             FOREIGN KEY(song_id) REFERENCES songs(id)
         )
     ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS system_cache (
+            key_name TEXT PRIMARY KEY,
+            json_data TEXT,
+            last_updated TEXT
+        )
+    ''')
     conn.commit()
 
 def log_message(level: str, message: str):

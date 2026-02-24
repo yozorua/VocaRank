@@ -72,6 +72,42 @@ def search_artists(
         
     return artists
 
+@router.get("/graph", response_model=dict)
+def get_artist_graph(db: Session = Depends(get_db)):
+    """
+    Returns a network graph of artists based on collaborations.
+    Reads stringified JSON directly from the offline calculate_constellation_graph.py script.
+    """
+    from sqlalchemy import text
+    import json
+    
+    # Try TTLCache first (in-memory)
+    from ..cache import graph_cache, cache_lock
+    with cache_lock:
+        if "network" in graph_cache:
+            return graph_cache["network"]
+            
+    # Try Database Persistent Cache (SQLite)
+    sql = "SELECT json_data FROM system_cache WHERE key_name = 'constellation_graph'"
+    row = db.execute(text(sql)).fetchone()
+    
+    if not row or not row[0]:
+        # If the crontab script hasn't run yet, return an empty graph
+        return {"nodes": [], "links": []}
+        
+    try:
+        # Parse the JSON string from sqlite back into a dict for FastAPI's response model
+        result = json.loads(row[0]) 
+    except json.JSONDecodeError:
+        return {"nodes": [], "links": []}
+    
+    # Store it back into the TTLCache for fast subsequent access
+    with cache_lock:
+        graph_cache["network"] = result
+        
+    return result
+
+
 @router.get("/{artist_id}", response_model=schemas.Artist)
 def get_artist(artist_id: int, db: Session = Depends(get_db)):
     """

@@ -43,8 +43,16 @@ export default function Navbar() {
                 {t('ranking')}
             </Link>
             <Link href="/search" className="text-xl font-medium tracking-[0.4em] text-white hover:text-[var(--vermilion)] transition-colors uppercase" onClick={() => setIsOpen(false)}>
-                {t('search')}
+                {t('search', { defaultMessage: 'Search' })}
             </Link>
+            <div className="flex flex-col items-center gap-4 w-full">
+                <span className="text-lg font-medium tracking-[0.4em] text-[var(--text-secondary)] uppercase">
+                    {t('graph', { defaultMessage: 'Graph' })}
+                </span>
+                <Link href="/graph" className="text-md font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors uppercase pl-4 border-l-2 border-[var(--border-color)]" onClick={() => setIsOpen(false)}>
+                    {t('graph_constellation', { defaultMessage: 'Constellation' })}
+                </Link>
+            </div>
             <div onClick={() => setIsOpen(false)}>
                 <AuthButton mobile={true} />
             </div>
@@ -86,9 +94,28 @@ export default function Navbar() {
                     {/* Desktop Links */}
                     <div className="hidden md:flex items-center gap-10">
                         <Link href="/ranking" className="relative font-bold text-[var(--text-secondary)] hover:text-white transition-colors py-2 text-xs tracking-[0.3em] uppercase group">
-                            {t('ranking')}
+                            {t('ranking', { defaultMessage: 'Ranking' })}
                             <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--vermilion)] scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></span>
                         </Link>
+                        <div className="relative group py-2">
+                            <span className="cursor-pointer font-bold text-[var(--text-secondary)] hover:text-white transition-colors text-xs tracking-[0.3em] uppercase flex items-center gap-1 group-hover:text-white">
+                                {t('graph', { defaultMessage: 'Graph' })}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:rotate-180">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                                <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--vermilion)] scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></span>
+                            </span>
+
+                            {/* Dropdown Menu */}
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0 w-48 bg-[var(--bg-dark)] border border-[var(--hairline)] shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-[200]">
+                                <div className="absolute top-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-[var(--bg-dark)] border-l border-t border-[var(--hairline)] rotate-45"></div>
+                                <div className="p-2 relative z-10 bg-[var(--bg-dark)]">
+                                    <Link href="/graph" className="block w-full px-4 py-3 text-xs tracking-wider uppercase text-[var(--text-secondary)] hover:text-white hover:bg-white/5 transition-colors text-center font-bold">
+                                        {t('graph_constellation', { defaultMessage: 'Constellation' })}
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
 
                         {/* Search Icon */}
                         <Link href="/search" className="p-2 transition-all text-[var(--text-secondary)] hover:text-[var(--vermilion)] group" aria-label={t('search')}>

@@ -27,5 +27,8 @@ ranking_cache: TTLCache = TTLCache(maxsize=50, ttl=TTL)
 # ~5 000 distinct artists, each entry is tiny (20 year buckets)
 song_dates_cache: TTLCache = TTLCache(maxsize=5000, ttl=TTL)
 
+# Graph cache: key = constant "graph", value = large dict
+graph_cache: TTLCache = TTLCache(maxsize=1, ttl=TTL)
+
 # Thread lock — FastAPI can handle concurrent requests; TTLCache is not thread-safe
 cache_lock = threading.Lock()

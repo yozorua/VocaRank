@@ -85,7 +85,9 @@
         "login": "登入",
         "logout": "登出",
         "profile": "個人檔案",
-        "profile_settings": "我的個人檔案"
+        "profile_settings": "我的個人檔案",
+        "graph": "統計資料",
+        "graph_constellation": "製作人星圖"
     },
     "SearchPage": {
         "title": "搜尋資料庫",
@@ -171,5 +173,19 @@
         "songs": "歌曲",
         "artists": "歌手",
         "no_favorites": "沒有找到最愛"
+    },
+    "Graph": {
+        "title": "製作人星圖",
+        "description": "探索基於 VOCALOID 製作人合作關係建立的人際網絡。"
+    },
+    "GraphPage": {
+        "search": "搜尋",
+        "search_placeholder": "輸入名稱...",
+        "node_size_weight": "節點大小權重",
+        "weight_views": "總播放數 (受歡迎程度)",
+        "weight_pagerank": "合作 (中心性)",
+        "weight_uniform": "統一大小",
+        "show_labels": "縮放時顯示名稱",
+        "hide_lines": "隱藏連接線"
     }
 }

@@ -7,3 +7,4 @@ cachetools
 google-auth
 google-auth-httplib2
 PyJWT
+networkx

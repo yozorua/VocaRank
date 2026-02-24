@@ -85,7 +85,9 @@
         "login": "ログイン",
         "logout": "ログアウト",
         "profile": "プロフィール",
-        "profile_settings": "マイプロフィール"
+        "profile_settings": "マイプロフィール",
+        "graph": "統計",
+        "graph_constellation": "プロデューサーの星座"
     },
     "SearchPage": {
         "title": "データベース検索",
@@ -171,5 +173,19 @@
         "songs": "楽曲",
         "artists": "アーティスト",
         "no_favorites": "お気に入りがありません"
+    },
+    "Graph": {
+        "title": "プロデューサーの星座",
+        "description": "コラボレーションによるボカロPのネットワークを探索する。"
+    },
+    "GraphPage": {
+        "search": "検索",
+        "search_placeholder": "名前を入力...",
+        "node_size_weight": "ノードサイズの重み",
+        "weight_views": "総再生数（人気度）",
+        "weight_pagerank": "コラボレーション（中心性）",
+        "weight_uniform": "均一サイズ",
+        "show_labels": "ズーム時に名前を表示",
+        "hide_lines": "接続線を非表示"
     }
 }
