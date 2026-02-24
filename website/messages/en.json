@@ -185,6 +185,7 @@
     "weight_pagerank": "Collaborations (Centrality)",
     "weight_uniform": "Uniform Size",
     "show_labels": "Show Names on Zoom",
-    "hide_lines": "Hide Connection Lines"
+    "hide_lines": "Hide Connection Lines",
+    "freeze_physics": "Lock Map (Save Battery)"
   }
 }

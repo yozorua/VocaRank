@@ -189,6 +189,7 @@
         "weight_pagerank": "合作 (中心性)",
         "weight_uniform": "統一大小",
         "show_labels": "縮放時顯示名稱",
-        "hide_lines": "隱藏連接線"
+        "hide_lines": "隱藏連接線",
+        "freeze_physics": "鎖定地圖 (節省電池)"
     }
 }

@@ -33,6 +33,45 @@ export default function ArtistGraphClient() {
     const [searchText, setSearchText] = useState("");
     const [showLabels, setShowLabels] = useState(true);
     const [showLines, setShowLines] = useState(true);
+    const [freezePhysics, setFreezePhysics] = useState(false);
+
+    // PERFORMANCE OPTIMIZATION: Pre-calculate O(1) Lookups
+    // Checking all 3,000 links inside `nodeCanvasObject` for all 1,000 nodes at 60 frames per second
+    // results in ~180,000,000 array iterations per second, which completely drains smartphone batteries!
+    // We precalculate neighbor links and search matches into O(1) Sets to eliminate render loop math.
+    const [linkedNodes, setLinkedNodes] = useState<Map<string, Set<string>>>(new Map());
+    const [matchedSearchIds, setMatchedSearchIds] = useState<Set<string>>(new Set());
+
+    // Build Hover Neighbor Cache precisely once
+    useEffect(() => {
+        if (graphData.nodes.length > 0) {
+            const map = new Map<string, Set<string>>();
+            graphData.nodes.forEach((n: any) => map.set(n.id, new Set()));
+            graphData.links.forEach((l: any) => {
+                const sourceId = typeof l.source === 'object' ? l.source.id : l.source;
+                const targetId = typeof l.target === 'object' ? l.target.id : l.target;
+                map.get(sourceId)?.add(targetId);
+                map.get(targetId)?.add(sourceId);
+            });
+            setLinkedNodes(map);
+        }
+    }, [graphData]);
+
+    // Build Text Search Cache when input changes
+    useEffect(() => {
+        if (searchText.trim().length > 0) {
+            const lowerSearch = searchText.toLowerCase();
+            const matches = new Set<string>();
+            graphData.nodes.forEach((n: any) => {
+                if (n.name && n.name.toLowerCase().includes(lowerSearch)) {
+                    matches.add(n.id);
+                }
+            });
+            setMatchedSearchIds(matches);
+        } else {
+            setMatchedSearchIds(new Set());
+        }
+    }, [searchText, graphData]);
 
     useEffect(() => {
         const fetchGraph = async () => {
@@ -243,6 +282,16 @@ export default function ArtistGraphClient() {
                             />
                             <label htmlFor="showLines" className="text-sm text-white cursor-pointer select-none">{t('hide_lines')}</label>
                         </div>
+                        <div className="flex items-center gap-2 pt-1 border-t border-[var(--border-color)]">
+                            <input
+                                type="checkbox"
+                                id="freezePhysics"
+                                checked={freezePhysics}
+                                onChange={(e) => setFreezePhysics(e.target.checked)}
+                                className="accent-[var(--vermilion)] w-4 h-4 cursor-pointer"
+                            />
+                            <label htmlFor="freezePhysics" className="text-sm text-white cursor-pointer select-none">{t('freeze_physics', { defaultMessage: 'Lock Map (Save Battery)' })}</label>
+                        </div>
                     </div>
                 )}
             </div>
@@ -252,6 +301,8 @@ export default function ArtistGraphClient() {
                     ref={fgRef}
                     graphData={graphData}
                     nodeAutoColorBy="group"
+                    enableNodeDrag={!freezePhysics} // Freezing kills D3 engine reheating
+                    cooldownTicks={freezePhysics ? 0 : 300} // Skip cooldown if frozen to drop CPU instantly
                     // Disable browser native tooltip since we draw labels ourselves on canvas
                     nodeLabel={() => ""}
                     // Feed custom math radius back into the D3 physics engine to prevent physical overlap
@@ -297,16 +348,11 @@ export default function ArtistGraphClient() {
 
                         // Search and Hover Highlight Logic
                         const isSearching = searchText.trim().length > 0;
-                        const isMatch = isSearching && label.toLowerCase().includes(searchText.toLowerCase());
+                        const isMatch = isSearching && matchedSearchIds.has(node.id);
                         const isHovered = hoverNode === node;
                         const isHoverLinked = hoverNode && (
-                            hoverNode === node ||
-                            graphData.links.some((l: any) =>
-                                (l.source.id === hoverNode.id && l.target.id === node.id) ||
-                                (l.target.id === hoverNode.id && l.source.id === node.id) ||
-                                (l.source === hoverNode && l.target === node) ||
-                                (l.target === hoverNode && l.source === node)
-                            )
+                            hoverNode.id === node.id ||
+                            linkedNodes.get(hoverNode.id)?.has(node.id)
                         );
 
                         // Apply Global Alpha Dimming
@@ -446,7 +492,6 @@ export default function ArtistGraphClient() {
                         return `rgba(255,255,255,${baseOpacity})`;
                     }}
                     warmupTicks={0}
-                    cooldownTicks={300} // Increase to 300 ticks to ensure 1000 nodes are completely un-overlapped
                     onEngineStop={() => {
                         if (fgRef.current) fgRef.current.zoomToFit(400);
                     }}
