@@ -22,6 +22,8 @@ export const metadata: Metadata = {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/components/AuthProvider";
+import { PlayerProvider } from "@/contexts/PlayerContext";
+import GlobalPlayer from "@/components/GlobalPlayer";
 
 export default async function RootLayout({
   children,
@@ -37,13 +39,16 @@ export default async function RootLayout({
     <html lang={locale} suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} flex flex-col min-h-screen`}>
         <AuthProvider>
-          <NextIntlClientProvider messages={messages}>
-            <Navbar />
-            <main className="flex-grow pt-[var(--header-height)]">
-              {children}
-            </main>
-            <Footer />
-          </NextIntlClientProvider>
+          <PlayerProvider>
+            <NextIntlClientProvider messages={messages}>
+              <Navbar />
+              <main className="flex-grow pt-[var(--header-height)]">
+                {children}
+              </main>
+              <Footer />
+              <GlobalPlayer />
+            </NextIntlClientProvider>
+          </PlayerProvider>
         </AuthProvider>
       </body>
     </html>

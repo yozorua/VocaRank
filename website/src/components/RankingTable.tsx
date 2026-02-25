@@ -17,6 +17,7 @@ interface RankingTableProps {
 }
 
 import NoThumbnail from './NoThumbnail';
+import { usePlayer } from '@/contexts/PlayerContext';
 
 function ThumbnailWithFallback({ song, className }: { song: SongRanking, className?: string }) {
     const [src, setSrc] = useState<string | null>(() => {
@@ -82,6 +83,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
     const locale = useLocale();
     const router = useRouter();
     const [showAll, setShowAll] = useState(false);
+    const { playSong } = usePlayer();
 
     // Limit to 20 unless expanded or explicitly forced by parent
     const displayedSongs = forceShowAll || showAll ? songs : songs.slice(0, 20);
@@ -276,8 +278,20 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                 )}
 
                                 {/* Thumbnail */}
-                                <div className="w-24 h-16 bg-black border border-[var(--hairline)] flex-shrink-0 relative">
-                                    <ThumbnailWithFallback song={song} className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-500" />
+                                <div className="w-24 h-16 bg-black border border-[var(--hairline)] flex-shrink-0 relative group/thumb cursor-pointer" onClick={(e) => {
+                                    if (song.youtube_id) {
+                                        e.stopPropagation();
+                                        playSong(song, displayedSongs);
+                                    } else {
+                                        router.push(`/song/${song.id}`);
+                                    }
+                                }}>
+                                    <ThumbnailWithFallback song={song} className="w-full h-full object-cover grayscale-[30%] group-hover/thumb:grayscale-0 transition-all duration-500" />
+                                    {song.youtube_id && (
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Info */}
@@ -365,8 +379,23 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                         </td>
                                     )}
                                     <td className={`py-4 ${!showRank ? 'pl-4' : ''}`}>
-                                        <div className="w-24 h-16 relative border border-[var(--hairline)] bg-black mr-4 overflow-hidden">
-                                            <ThumbnailWithFallback song={song} className="w-full h-full object-cover grayscale-[30%] group-hover:-translate-y-1 group-hover:scale-105 group-hover:grayscale-0 transition-all duration-700 ease-out" />
+                                        <div
+                                            className="w-24 h-16 relative border border-[var(--hairline)] bg-black mr-4 overflow-hidden group/dtthumb cursor-pointer"
+                                            onClick={(e) => {
+                                                if (song.youtube_id) {
+                                                    e.stopPropagation();
+                                                    playSong(song, displayedSongs);
+                                                } else {
+                                                    router.push(`/song/${song.id}`);
+                                                }
+                                            }}
+                                        >
+                                            <ThumbnailWithFallback song={song} className="w-full h-full object-cover grayscale-[30%] group-hover/dtthumb:scale-105 group-hover/dtthumb:grayscale-0 transition-all duration-700 ease-out" />
+                                            {song.youtube_id && (
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/dtthumb:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                                </div>
+                                            )}
                                         </div>
                                     </td>
                                     <td className="py-4 pl-2 pr-4 text-ellipsis overflow-hidden">
