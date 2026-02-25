@@ -56,27 +56,6 @@ export default function GlobalPlayer() {
 
     return (
         <>
-            {/* The hidden YouTube player stays permanently mounted to fix iOS/Safari double-click autoplay policies. Must not be display:none or 0x0 */}
-            <div className="fixed bottom-0 right-0 w-px h-px opacity-0 pointer-events-none z-[-1] overflow-hidden">
-                <ReactPlayer
-                    ref={playerRef}
-                    url={currentSong?.youtube_id ? `https://www.youtube.com/watch?v=${currentSong.youtube_id}` : undefined}
-                    playing={isPlaying}
-                    volume={volume}
-                    loop={loopMode === 'song'}
-                    onProgress={handleProgress as any}
-                    onDuration={handleDuration}
-                    onEnded={nextSong}
-                    width="0"
-                    height="0"
-                    config={{
-                        youtube: {
-                            playerVars: { showinfo: 0, controls: 0, autoplay: 1, playsinline: 1 } as any
-                        }
-                    }}
-                />
-            </div>
-
             {currentSong && (
                 <div className="fixed bottom-0 left-0 w-full z-[100] animate-in slide-in-from-bottom-full duration-500">
                     {/* Global Player UI container */}
@@ -99,14 +78,47 @@ export default function GlobalPlayer() {
 
                             {/* 1. Track Info Section */}
                             <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0 h-full py-2">
-                                {/* Thumbnail */}
-                                <div className="h-full aspect-video bg-black rounded overflow-hidden flex-shrink-0 relative group cursor-pointer border border-[var(--hairline)]" onClick={() => router.push(`/song/${currentSong.id}`)}>
+                                {/* Thumbnail & Player Mask */}
+                                <div
+                                    className="h-full aspect-video bg-black rounded overflow-hidden flex-shrink-0 relative group cursor-pointer border border-[var(--hairline)]"
+                                    onClick={() => router.push(`/song/${currentSong.id}`)}
+                                >
+                                    {/* Static Thumbnail Fallback */}
                                     <img
                                         src={`https://i.ytimg.com/vi/${currentSong.youtube_id}/mqdefault.jpg`}
                                         alt="Thumbnail"
-                                        className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-300"
+                                        className="absolute inset-0 w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-300 z-0"
                                     />
-                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+
+                                    {/* Live YouTube Player Mask (TOS Compliant: 200x200 scaled down) */}
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] pointer-events-none z-10 opacity-100 mix-blend-screen overflow-hidden" style={{ transform: 'translate(-50%, -50%) scale(0.35)' }}>
+                                        <ReactPlayer
+                                            ref={playerRef}
+                                            url={`https://www.youtube.com/watch?v=${currentSong.youtube_id}`}
+                                            playing={isPlaying}
+                                            volume={volume}
+                                            loop={loopMode === 'song'}
+                                            onProgress={handleProgress as any}
+                                            onDuration={handleDuration}
+                                            onEnded={nextSong}
+                                            width="200px"
+                                            height="200px"
+                                            config={{
+                                                youtube: {
+                                                    playerVars: {
+                                                        showinfo: 0, controls: 0, autoplay: 1, playsinline: 1,
+                                                        disablekb: 1, fs: 0, iv_load_policy: 3, rel: 0,
+                                                        modestbranding: 1
+                                                    } as any
+                                                }
+                                            }}
+                                            style={{ filter: 'grayscale(0.3)' }}
+                                            className="group-hover:!saturate-100 transition-all duration-300"
+                                        />
+                                    </div>
+
+                                    {/* Hover Overlay */}
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="white" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                                     </div>
                                 </div>
