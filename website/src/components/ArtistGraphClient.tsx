@@ -146,7 +146,6 @@ export default function ArtistGraphClient({ apiEndpoint = '/artists/graph' }: Pr
                 .width(rect.width > 0 ? rect.width : 800)
                 .height(rect.height > 0 ? rect.height : 600)
                 .backgroundColor("transparent")
-                .nodeAutoColorBy("group")
                 .linkWidth(1.5)
                 .nodeLabel(() => "")
                 .warmupTicks(0)
@@ -325,7 +324,7 @@ export default function ArtistGraphClient({ apiEndpoint = '/artists/graph' }: Pr
                         ctx.shadowColor = '#FF5722';
                         ctx.shadowBlur = 10 / globalScale;
                     } else {
-                        ctx.strokeStyle = node.color || '#39C5BB';
+                        ctx.strokeStyle = node.color || '#cccccc';
                         ctx.lineWidth = 1.5 / globalScale;
                     }
                     ctx.stroke();
@@ -344,7 +343,7 @@ export default function ArtistGraphClient({ apiEndpoint = '/artists/graph' }: Pr
                 } else if (isMatch || isHovered) {
                     ctx.fillStyle = '#FF5722';
                 } else {
-                    ctx.fillStyle = node.color || '#39C5BB';
+                    ctx.fillStyle = node.color || '#cccccc';
                 }
                 ctx.fill();
             }

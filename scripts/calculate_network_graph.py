@@ -161,13 +161,28 @@ def calculate_vocalist_network_graph(producer_links_rows):
     nodes = []
     artist_map = {}
     
+    color_map = {
+        "Vocaloid": "#39C5BB",        # Miku Cyan
+        "UTAU": "#E23C6D",            # Teto Pink
+        "SynthesizerV": "#8A2BE2",    # SynthV Purple
+        "CeVIO": "#FF9800",           # CeVIO Orange
+        "NEUTRINO": "#4CAF50",        # NEUTRINO Green
+        "VOICEVOX": "#2196F3",        # VOICEVOX Blue
+        "AIVOICE": "#F44336",         # A.I.VOICE Red
+        "Voiceroid": "#E91E63",       # Voiceroid Magenta
+        "NewType": "#FFC107",         # NewType Yellow
+        "ACEVirtualSinger": "#00BCD4" # ACE Cyan
+    }
+    
     for row in top_artists_rows:
         aid = str(row[0])
         views = int(row[5])
+        group = row[2] or "Unknown"
         nodes.append({
             "id": aid,
             "name": row[1],
-            "group": row[2] or "Unknown",
+            "group": group,
+            "color": color_map.get(group, "#cccccc"),
             "img": row[3] or row[4] or "",
             "views": views,
             "val_views": views
