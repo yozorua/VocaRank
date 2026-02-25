@@ -67,14 +67,14 @@ export default function ArtistSongsClient({ artistId, initialSongs }: ArtistSong
                     <button
                         onClick={() => handleSortChange('total_views')}
                         disabled={loading}
-                        className={`pb-1 border-b-2 text-xs font-bold tracking-widest uppercase transition-all ${sortBy === 'total_views' ? 'border-[var(--vermilion)] text-white' : 'border-transparent text-[var(--text-secondary)] hover:text-white hover:border-[var(--hairline-strong)]'}`}
+                        className={`pb-1 border-b-2 text-sm font-bold tracking-widest uppercase transition-all ${sortBy === 'total_views' ? 'border-[var(--vermilion)] text-white' : 'border-transparent text-[var(--text-secondary)] hover:text-white hover:border-[var(--hairline-strong)]'}`}
                     >
                         {tArtist('popular', { defaultMessage: 'Popular' })}
                     </button>
                     <button
                         onClick={() => handleSortChange('publish_date')}
                         disabled={loading}
-                        className={`pb-1 border-b-2 text-xs font-bold tracking-widest uppercase transition-all ${sortBy === 'publish_date' ? 'border-[var(--vermilion)] text-white' : 'border-transparent text-[var(--text-secondary)] hover:text-white hover:border-[var(--hairline-strong)]'}`}
+                        className={`pb-1 border-b-2 text-sm font-bold tracking-widest uppercase transition-all ${sortBy === 'publish_date' ? 'border-[var(--vermilion)] text-white' : 'border-transparent text-[var(--text-secondary)] hover:text-white hover:border-[var(--hairline-strong)]'}`}
                     >
                         {tArtist('latest', { defaultMessage: 'Latest' })}
                     </button>

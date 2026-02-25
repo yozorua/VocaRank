@@ -149,9 +149,12 @@ export default function ArtistGraphClient({ apiEndpoint = '/artists/graph' }: Pr
                 .linkWidth(1.5)
                 .nodeLabel(() => "")
                 .warmupTicks(0)
+                .d3VelocityDecay(0.4) // INCREASED FRICTION to suppress rapid oscillations
                 .onEngineStop(() => {
                     if (graphInstanceRef.current && mounted) {
                         graphInstanceRef.current.zoomToFit(400);
+                        // Automatically freeze the physics to save battery once stabilized
+                        setFreezePhysics(true);
                     }
                 });
 
@@ -461,12 +464,34 @@ export default function ArtistGraphClient({ apiEndpoint = '/artists/graph' }: Pr
                 </div>
             )}
 
+            {/* Standalone Search Bar */}
+            <div className="absolute top-4 left-[68px] right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-full md:max-w-sm z-10 transition-all">
+                <div className="relative w-full">
+                    <input
+                        type="text"
+                        value={searchText}
+                        onChange={(e) => setSearchText(e.target.value)}
+                        placeholder={t('search_placeholder')}
+                        className="w-full bg-black/60 backdrop-blur-md border border-[var(--hairline)] rounded-full px-4 py-2 pl-10 text-sm text-white shadow-[0_4px_20px_rgba(0,0,0,0.5)] focus:outline-none focus:border-[var(--miku-teal)] focus:ring-1 focus:ring-[var(--miku-teal)] transition-all placeholder:text-gray-500"
+                    />
+                    <svg
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+            </div>
+
             {/* Floating Control Panel Menu */}
             <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
                 {/* Mobile/Collapsed Toggle Button */}
                 <button
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    className={`bg-[var(--bg-dark)]/80 backdrop-blur-md border border-[var(--hairline)] p-2 rounded-lg shadow-xl text-white hover:text-[var(--miku-teal)] transition-all w-10 h-10 flex items-center justify-center ${!freezePhysics && !isMenuOpen ? 'animate-pulse shadow-[0_0_15px_rgba(255,87,34,0.4)] border-[var(--vermilion)]' : ''}`}
+                    className={`bg-[var(--bg-dark)]/80 backdrop-blur-md border border-[var(--hairline)] p-2 rounded-lg shadow-xl text-white hover:text-[var(--miku-teal)] transition-all w-10 h-10 flex items-center justify-center`}
                 >
                     {isMenuOpen ? (
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -485,17 +510,6 @@ export default function ArtistGraphClient({ apiEndpoint = '/artists/graph' }: Pr
                 {isMenuOpen && (
                     <div className="bg-[var(--bg-dark)]/80 backdrop-blur-md border border-[var(--hairline)] p-4 rounded-lg flex flex-col gap-4 shadow-xl w-64 animate-in fade-in slide-in-from-top-4">
                         <div>
-                            <label className="block text-xs text-[var(--text-secondary)] mb-1 font-bold">{t('search')}</label>
-                            <input
-                                type="text"
-                                value={searchText}
-                                onChange={(e) => setSearchText(e.target.value)}
-                                placeholder={t('search_placeholder')}
-                                className="w-full bg-black/50 border border-[var(--hairline)] rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-[var(--miku-teal)] transition-colors"
-                            />
-                        </div>
-
-                        <div>
                             <label className="block text-xs text-[var(--text-secondary)] mb-1 font-bold">{t('node_size_weight')}</label>
                             <select
                                 value={sizeMode}
@@ -508,55 +522,50 @@ export default function ArtistGraphClient({ apiEndpoint = '/artists/graph' }: Pr
                             </select>
                         </div>
 
-                        <div className="flex items-center gap-2 pt-1 border-t border-[var(--border-color)] group">
-                            <label className="relative flex items-center cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={showLabels}
-                                    onChange={(e) => setShowLabels(e.target.checked)}
-                                    className="sr-only peer"
-                                />
-                                <div className="w-4 h-4 rounded border border-[var(--hairline-strong)] bg-black/30 flex items-center justify-center peer-checked:bg-[var(--miku-teal)] peer-checked:border-[var(--miku-teal)] transition-colors">
-                                    <svg className="w-3 h-3 text-black opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                    </svg>
+                        <div className="flex flex-col gap-3 pt-3 border-t border-[var(--border-color)]">
+                            <label className="flex items-center justify-between w-full group cursor-pointer">
+                                <span className="text-sm text-gray-300 group-hover:text-white transition-colors select-none pr-4">{t('show_labels')}</span>
+                                <div className="relative flex-shrink-0">
+                                    <input
+                                        type="checkbox"
+                                        checked={showLabels}
+                                        onChange={(e) => setShowLabels(e.target.checked)}
+                                        className="sr-only peer"
+                                    />
+                                    <div className="w-10 h-5 bg-black/50 border border-[var(--hairline)] rounded-full peer peer-checked:bg-[var(--miku-teal)]/30 peer-checked:border-[var(--miku-teal)] transition-all"></div>
+                                    <div className="absolute left-[2px] top-[2px] w-4 h-4 bg-gray-400 rounded-full peer-checked:translate-x-5 transition-all"></div>
                                 </div>
                             </label>
-                            <span className="text-sm text-white cursor-pointer select-none group-hover:text-[var(--miku-teal)] transition-colors" onClick={() => setShowLabels(!showLabels)}>{t('show_labels')}</span>
-                        </div>
-                        <div className="flex items-center gap-2 pt-1 border-t border-[var(--border-color)] group">
-                            <label className="relative flex items-center cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={!showLines}
-                                    onChange={(e) => setShowLines(!e.target.checked)}
-                                    className="sr-only peer"
-                                />
-                                <div className="w-4 h-4 rounded border border-[var(--hairline-strong)] bg-black/30 flex items-center justify-center peer-checked:bg-[var(--miku-teal)] peer-checked:border-[var(--miku-teal)] transition-colors">
-                                    <svg className="w-3 h-3 text-black opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                    </svg>
+
+                            <label className="flex items-center justify-between w-full group cursor-pointer">
+                                <span className="text-sm text-gray-300 group-hover:text-white transition-colors select-none pr-4">{t('hide_lines')}</span>
+                                <div className="relative flex-shrink-0">
+                                    <input
+                                        type="checkbox"
+                                        checked={!showLines}
+                                        onChange={(e) => setShowLines(!e.target.checked)}
+                                        className="sr-only peer"
+                                    />
+                                    <div className="w-10 h-5 bg-black/50 border border-[var(--hairline)] rounded-full peer peer-checked:bg-[var(--miku-teal)]/30 peer-checked:border-[var(--miku-teal)] transition-all"></div>
+                                    <div className="absolute left-[2px] top-[2px] w-4 h-4 bg-gray-400 rounded-full peer-checked:translate-x-5 transition-all"></div>
                                 </div>
                             </label>
-                            <span className="text-sm text-white cursor-pointer select-none group-hover:text-[var(--miku-teal)] transition-colors" onClick={() => setShowLines(!showLines)}>{t('hide_lines')}</span>
-                        </div>
-                        <div className={`flex items-center gap-2 pt-1 border-t border-[var(--border-color)] group transition-all duration-500 rounded p-1 -mx-1 ${!freezePhysics ? 'bg-[rgba(255,87,34,0.15)] shadow-[0_0_10px_rgba(255,87,34,0.2)] animate-pulse' : ''}`}>
-                            <label className="relative flex items-center cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={freezePhysics}
-                                    onChange={(e) => setFreezePhysics(e.target.checked)}
-                                    className="sr-only peer"
-                                />
-                                <div className={`w-4 h-4 rounded border bg-black/30 flex items-center justify-center transition-colors ${!freezePhysics ? 'border-[var(--vermilion)]' : 'border-[var(--hairline-strong)] peer-checked:bg-[var(--vermilion)] peer-checked:border-[var(--vermilion)]'}`}>
-                                    <svg className="w-3 h-3 text-black opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                    </svg>
+
+                            <label className="flex items-center justify-between w-full group cursor-pointer mt-1">
+                                <span className="text-sm text-gray-300 group-hover:text-white transition-colors select-none pr-4">
+                                    {t('freeze_physics', { defaultMessage: 'Lock Map (Save Battery)' })}
+                                </span>
+                                <div className="relative flex-shrink-0">
+                                    <input
+                                        type="checkbox"
+                                        checked={freezePhysics}
+                                        onChange={(e) => setFreezePhysics(e.target.checked)}
+                                        className="sr-only peer"
+                                    />
+                                    <div className="w-10 h-5 bg-black/50 border border-[var(--hairline)] rounded-full peer peer-checked:bg-[var(--miku-teal)]/30 peer-checked:border-[var(--miku-teal)] transition-all"></div>
+                                    <div className="absolute left-[2px] top-[2px] w-4 h-4 bg-gray-400 rounded-full peer-checked:translate-x-5 transition-all"></div>
                                 </div>
                             </label>
-                            <span className={`text-sm cursor-pointer select-none transition-colors ${!freezePhysics ? 'text-[var(--vermilion)] font-bold' : 'text-white group-hover:text-[var(--vermilion)]'}`} onClick={() => setFreezePhysics(!freezePhysics)}>
-                                {t('freeze_physics', { defaultMessage: 'Lock Map (Save Battery)' })}
-                            </span>
                         </div>
                     </div>
                 )}

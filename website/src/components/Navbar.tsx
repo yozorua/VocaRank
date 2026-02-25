@@ -9,6 +9,7 @@ import AuthButton from './AuthButton';
 export default function Navbar() {
     const t = useTranslations('Navbar');
     const [isOpen, setIsOpen] = useState(false);
+    const [isStatsOpen, setIsStatsOpen] = useState(false); // Used for mobile dropdown
     const [mounted, setMounted] = useState(false);
 
     // Required for createPortal to work in SSR (Next.js)
@@ -45,16 +46,26 @@ export default function Navbar() {
             <Link href="/search" className="text-xl font-medium tracking-[0.4em] text-white hover:text-[var(--vermilion)] transition-colors uppercase" onClick={() => setIsOpen(false)}>
                 {t('search', { defaultMessage: 'Search' })}
             </Link>
-            <div className="flex flex-col items-center gap-4 w-full">
-                <span className="text-lg font-medium tracking-[0.4em] text-[var(--text-secondary)] uppercase">
+            <div className="flex flex-col items-center gap-6 w-full mt-2">
+                <button
+                    onClick={() => setIsStatsOpen(!isStatsOpen)}
+                    className="text-xl font-medium tracking-[0.4em] text-white hover:text-[var(--vermilion)] transition-colors uppercase flex items-center justify-center pl-[0.4em]"
+                >
                     {t('statistics', { defaultMessage: 'Statistics' })}
-                </span>
-                <Link href="/statistic/producer-network" className="text-md font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors uppercase pl-4 border-l-2 border-[var(--border-color)]" onClick={() => setIsOpen(false)}>
-                    {t('statistics_producer_network', { defaultMessage: 'Producers Network' })}
-                </Link>
-                <Link href="/statistic/vocalist-network" className="text-md font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors uppercase pl-4 border-l-2 border-[var(--border-color)]" onClick={() => setIsOpen(false)}>
-                    {t('statistics_vocalist_network', { defaultMessage: 'Voicebank Network' })}
-                </Link>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`ml-2 transition-transform duration-300 ${isStatsOpen ? 'rotate-180' : ''}`}>
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+
+                {/* Expandable Folder */}
+                <div className={`flex flex-col items-center gap-6 overflow-hidden transition-all duration-300 ${isStatsOpen ? 'max-h-40 opacity-100 mt-2 mb-2' : 'max-h-0 opacity-0'}`}>
+                    <Link href="/statistic/producer-network" className="text-lg font-medium tracking-[0.3em] text-[var(--text-secondary)] hover:text-white transition-colors uppercase" onClick={() => setIsOpen(false)}>
+                        {t('statistics_producer_network', { defaultMessage: 'Producers Network' })}
+                    </Link>
+                    <Link href="/statistic/vocalist-network" className="text-lg font-medium tracking-[0.3em] text-[var(--text-secondary)] hover:text-white transition-colors uppercase" onClick={() => setIsOpen(false)}>
+                        {t('statistics_vocalist_network', { defaultMessage: 'Voicebank Network' })}
+                    </Link>
+                </div>
             </div>
             <div onClick={() => setIsOpen(false)}>
                 <AuthButton mobile={true} />
