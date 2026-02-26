@@ -195,5 +195,11 @@
         "show_labels": "ズーム時に名前を表示",
         "hide_lines": "接続線を非表示にする",
         "freeze_physics": "マップを固定（バッテリー節約）"
+    },
+    "Player": {
+        "up_next": "次に再生",
+        "tracks": "曲",
+        "share": "共有",
+        "link_copied": "プレイリストのリンクをコピーしました！"
     }
 }

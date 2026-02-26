@@ -54,7 +54,12 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
             if (savedVolume) setVolumeState(parseFloat(savedVolume));
 
             const savedIsPlaying = localStorage.getItem('vocarank_isPlaying');
-            if (savedIsPlaying === 'true') setIsPlaying(true);
+            const isMobile = window.innerWidth <= 768;
+            if (savedIsPlaying === 'true' && !isMobile) {
+                setIsPlaying(true);
+            } else if (isMobile) {
+                setIsPlaying(false);
+            }
         } catch (e) {
             console.error('Failed to parse player state', e);
         }

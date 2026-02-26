@@ -191,5 +191,11 @@
     "show_labels": "Show Names on Zoom",
     "hide_lines": "Hide Connection Lines",
     "freeze_physics": "Lock Map (Save Battery)"
+  },
+  "Player": {
+    "up_next": "Up Next",
+    "tracks": "Tracks",
+    "share": "Share",
+    "link_copied": "Playlist link copied to clipboard!"
   }
 }

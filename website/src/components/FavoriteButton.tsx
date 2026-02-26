@@ -16,6 +16,7 @@ export default function FavoriteButton({ id, type, initialState = false, variant
     const { data: session } = useSession();
     const [isFavorite, setIsFavorite] = useState(initialState);
     const [isLoading, setIsLoading] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(false);
     const locale = useLocale();
 
     const favText = locale === 'ja' ? 'お気に入りに追加' : locale === 'zh-TW' ? '加入最愛' : 'Favorite';
@@ -77,6 +78,10 @@ export default function FavoriteButton({ id, type, initialState = false, variant
         // Optimistic UI Update
         const previousState = isFavorite;
         setIsFavorite(!isFavorite);
+        if (!isFavorite) {
+            setIsAnimating(true);
+            setTimeout(() => setIsAnimating(false), 500);
+        }
         setIsLoading(true);
 
         const method = isFavorite ? 'DELETE' : 'POST';
@@ -157,12 +162,18 @@ export default function FavoriteButton({ id, type, initialState = false, variant
         <button
             onClick={toggleFavorite}
             disabled={isLoading}
-            className={`transition-all duration-300 transform hover:scale-110 flex-shrink-0 ${isFavorite ? 'text-[var(--vermilion)]' : 'text-gray-600 hover:text-white'}`}
+            className={`relative transition-all duration-300 transform flex-shrink-0 
+                ${isFavorite ? 'text-[var(--vermilion)] hover:scale-110' : 'text-gray-600 hover:text-white hover:scale-110'}
+                ${isAnimating ? 'animate-[bounce_0.5s]' : ''}
+            `}
             title={isFavorite ? "Unfavorite" : "Favorite"}
         >
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill={isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={isLoading ? "animate-pulse" : ""}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill={isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={isLoading ? "animate-pulse" : "transition-transform duration-300"}>
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
             </svg>
+            {isAnimating && (
+                <div className="absolute inset-0 rounded-full animate-ping border-2 border-[var(--vermilion)] opacity-0 pointer-events-none"></div>
+            )}
         </button>
     );
 }

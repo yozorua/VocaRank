@@ -84,9 +84,12 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory, publ
 
     if (!hasYoutube && !hasNiconico) return null;
 
+    const effectiveTab = (activeTab === 'youtube' && !hasYoutube) ? 'niconico'
+        : (activeTab === 'niconico' && !hasNiconico) ? 'youtube' : activeTab;
+
     // Pick the active dataset
     const activeData: HistoryPoint[] =
-        activeTab === 'youtube' ? (ytHistory ?? []) : (nicoHistory ?? []);
+        effectiveTab === 'youtube' ? (ytHistory ?? []) : (nicoHistory ?? []);
 
     const allViews = activeData.map(p => p.views);
     const minViews = Math.min(...allViews);
@@ -129,11 +132,11 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory, publ
 
     // Active line/area color
     const lineColor =
-        activeTab === 'youtube' ? '#FF4444' : '#E8954A';
+        effectiveTab === 'youtube' ? '#FF4444' : '#E8954A';
 
-    const gradId = activeTab === 'youtube' ? 'ytGrad' : 'nicoGrad';
+    const gradId = effectiveTab === 'youtube' ? 'ytGrad' : 'nicoGrad';
     const gradColor =
-        activeTab === 'youtube' ? '#FF4444' : '#E8954A';
+        effectiveTab === 'youtube' ? '#FF4444' : '#E8954A';
 
     // X-axis ticks — pick up to 4 evenly-spaced ticks by time
     const tickCount = Math.min(4, allDates.length);
@@ -239,7 +242,7 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory, publ
                                 y: toY(p.views),
                                 views: p.views,
                                 date: p.date,
-                                source: activeTab === 'youtube' ? t('tab_youtube') : activeTab === 'niconico' ? t('tab_niconico') : t('tab_total'),
+                                source: effectiveTab === 'youtube' ? t('tab_youtube') : effectiveTab === 'niconico' ? t('tab_niconico') : t('tab_total'),
                             })}
                         />
                     ))}

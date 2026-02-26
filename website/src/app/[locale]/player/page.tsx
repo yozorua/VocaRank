@@ -6,6 +6,8 @@ import { usePlayer } from '@/contexts/PlayerContext';
 import { useRouter } from 'next/navigation';
 import FavoriteButton from '@/components/FavoriteButton';
 import { useTranslations, useLocale } from 'next-intl';
+import { API_BASE_URL } from '@/lib/api';
+import { SongRanking } from '@/types';
 
 export default function PlayerPage() {
     const {
@@ -35,6 +37,7 @@ export default function PlayerPage() {
     const [duration, setDuration] = useState(0);
     const [isMounted, setIsMounted] = useState(false);
     const [savedProgress, setSavedProgress] = useState<number | null>(null);
+    const [showCopied, setShowCopied] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
@@ -44,10 +47,31 @@ export default function PlayerPage() {
 
     // Redirect to home if no song is in the queue, BUT wait until Context is Initialized
     useEffect(() => {
-        if (isMounted && isInitialized && !currentSong) {
+        if (!isMounted || !isInitialized) return;
+
+        // Check if loading a shared queue
+        const searchParams = new URLSearchParams(window.location.search);
+        const listIds = searchParams.get('list');
+        if (listIds) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+            const fetchQueue = async () => {
+                try {
+                    const ids = listIds.split(',').slice(0, 50); // Hard limit 50 songs
+                    const songsRaw = await Promise.all(ids.map(id => fetch(`${API_BASE_URL}/songs/${id}`).then(res => res.ok ? res.json() : null)));
+                    const validSongs = songsRaw.filter(s => s && s.youtube_id);
+                    if (validSongs.length > 0) {
+                        playSong(validSongs[0], validSongs);
+                    }
+                } catch (e) { }
+            };
+            fetchQueue();
+            return;
+        }
+
+        if (!currentSong) {
             router.push('/');
         }
-    }, [currentSong, isMounted, isInitialized, router]);
+    }, [currentSong, isMounted, isInitialized, router, playSong]);
 
     const handleProgress = useCallback((state: { played: number, playedSeconds: number, loaded: number }) => {
         setProgress(state.played);
@@ -62,6 +86,21 @@ export default function PlayerPage() {
             setSavedProgress(null);
         }
     }, [savedProgress]);
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Only trigger if we aren't typing in an input field
+            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+            if (e.code === 'Space') {
+                e.preventDefault();
+                togglePlay();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [togglePlay]);
 
     const handleDuration = useCallback((d: number) => {
         setDuration(d);
@@ -103,24 +142,23 @@ export default function PlayerPage() {
     return (
         <div ref={containerRef} className="min-h-[calc(100vh-16px)] w-full flex flex-col pt-4 pb-12 sm:pb-8 px-4 sm:px-6 md:px-8 max-w-[var(--max-width)] mx-auto animate-in fade-in duration-500 bg-[var(--bg-dark)]">
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12 items-center lg:items-start justify-center">
+            <div className="flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8 items-center lg:items-start justify-start lg:justify-center">
 
                 {/* Left Side: The Video Player (TOS Compliant) */}
                 <div className="w-full lg:flex-1 max-w-4xl flex flex-col gap-6">
                     {/* Video Container with Overlaid Protection Shield */}
                     <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-[var(--hairline-strong)] bg-black group">
 
-                        {/* Live YouTube Player (Satisfies 200x200 Minimum API Rule easily) */}
                         <ReactPlayer
                             ref={playerRef}
                             url={`https://www.youtube.com/watch?v=${currentSong.youtube_id}`}
                             playing={isPlaying}
                             volume={volume}
-                            loop={isLooping}
+                            loop={loopMode === 'song'}
                             onProgress={handleProgress as any}
                             onDuration={handleDuration}
                             onReady={handleReady}
-                            onEnded={nextSong}
+                            onEnded={loopMode === 'song' ? undefined : nextSong}
                             width="100%"
                             height="100%"
                             className="absolute inset-0"
@@ -132,14 +170,6 @@ export default function PlayerPage() {
                             }}
                         />
 
-                        {/* Pause Indicator overlay (optional flair) */}
-                        {!isPlaying && (
-                            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 pointer-events-none transition-all duration-300">
-                                <div className="w-20 h-20 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/20">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="white" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                                </div>
-                            </div>
-                        )}
                     </div>
 
                     {/* Meta & Controls Bar */}
@@ -148,45 +178,115 @@ export default function PlayerPage() {
                         {/* Title, Artist, and Favorite */}
                         <div className="flex items-start justify-between gap-4">
                             <div className="flex-1 min-w-0">
-                                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white truncate tracking-wide mb-2" title={displayTitle || ''}>
-                                    {displayTitle}
-                                </h1>
-                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                                    {currentSong.artists && currentSong.artists.map((artist, idx) => (
-                                        <React.Fragment key={artist.id}>
-                                            <a
-                                                href={`/artist/${artist.id}`}
-                                                className="text-base sm:text-lg font-serif text-[var(--gold)] hover:text-[#ff8f83] truncate transition-colors cursor-pointer tracking-widest"
-                                                onClick={(e) => { e.preventDefault(); router.push(`/artist/${artist.id}`); }}
-                                            >
-                                                {artist.name}
-                                            </a>
-                                            {idx < currentSong.artists.length - 1 && (
-                                                <span className="text-[var(--text-tertiary)] opacity-50 px-1.5 text-[10px]">•</span>
-                                            )}
-                                        </React.Fragment>
-                                    ))}
+                                <a
+                                    href={`/song/${currentSong.id}`}
+                                    onClick={(e) => { e.preventDefault(); router.push(`/song/${currentSong.id}`); }}
+                                    className="block group/title w-max max-w-full pb-1"
+                                >
+                                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-[0.05em] text-white leading-tight truncate mb-2 group-hover/title:text-[var(--gold)] transition-colors" title={displayTitle || ''}>
+                                        {displayTitle}
+                                    </h1>
+                                </a>
+                                <div className="flex flex-col gap-1.5">
+                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                        {currentSong.artists && currentSong.artists.map((artist, idx) => (
+                                            <React.Fragment key={artist.id}>
+                                                <a
+                                                    href={`/artist/${artist.id}`}
+                                                    className="text-base sm:text-lg font-serif text-[var(--gold)] hover:text-[#ff8f83] truncate transition-colors cursor-pointer tracking-widest"
+                                                    onClick={(e) => { e.preventDefault(); router.push(`/artist/${artist.id}`); }}
+                                                >
+                                                    {artist.name}
+                                                </a>
+                                                {idx < currentSong.artists.length - 1 && (
+                                                    <span className="text-[var(--text-tertiary)] opacity-50 px-1.5 text-[10px]">•</span>
+                                                )}
+                                            </React.Fragment>
+                                        ))}
+                                    </div>
+                                    {/* Desktop Vocalists (Capsules - Square corners) */}
+                                    <div className="hidden sm:flex flex-wrap gap-3 mt-3">
+                                        {currentSong.vocalists && currentSong.vocalists.length > 0 ? (
+                                            currentSong.vocalists.map((artist: any) => (
+                                                <a
+                                                    key={artist.id}
+                                                    href={`/artist/${artist.id}`}
+                                                    onClick={(e) => { e.preventDefault(); router.push(`/artist/${artist.id}`); }}
+                                                    className="group inline-flex w-max items-center gap-2 pr-3 border border-[var(--hairline)] hover:border-[var(--vermilion)] transition-all bg-[var(--bg-dark)]"
+                                                >
+                                                    <div className="w-6 h-6 flex justify-center items-center bg-[var(--hairline)] shrink-0 overflow-hidden">
+                                                        {artist.picture_url_thumb ? (
+                                                            <img src={artist.picture_url_thumb} alt={artist.name} className="w-full h-full object-cover object-top grayscale-[10%] group-hover:grayscale-0 transition-transform scale-[1.3] origin-top" />
+                                                        ) : (
+                                                            <span className="text-[8px] font-serif text-[var(--text-secondary)]">{artist.name.charAt(0)}</span>
+                                                        )}
+                                                    </div>
+                                                    <span className="text-xs font-bold text-[var(--text-secondary)] group-hover:text-white transition-colors tracking-widest">
+                                                        {artist.name}
+                                                    </span>
+                                                </a>
+                                            ))
+                                        ) : currentSong.vocaloid_string ? (
+                                            <span className="font-bold text-[10px] text-[var(--text-tertiary)] uppercase tracking-[0.2em] mt-1">{currentSong.vocaloid_string}</span>
+                                        ) : null}
+                                    </div>
+
+                                    {/* Mobile Vocalists (Overlapping Circles, Head Cropped) */}
+                                    <div className="flex sm:hidden flex-wrap items-center gap-2 mt-3">
+                                        {currentSong.vocalists && currentSong.vocalists.length > 0 ? (
+                                            currentSong.vocalists.map((artist: any) => (
+                                                <a
+                                                    key={artist.id}
+                                                    href={`/artist/${artist.id}`}
+                                                    title={artist.name}
+                                                    onClick={(e) => { e.preventDefault(); router.push(`/artist/${artist.id}`); }}
+                                                    className="group relative w-8 h-8 rounded-full overflow-hidden border border-[var(--hairline)] hover:border-[var(--vermilion)] transition-all bg-[var(--hairline-strong)] flex items-center justify-center hover:z-10 shadow-sm"
+                                                >
+                                                    {artist.picture_url_thumb ? (
+                                                        <img src={artist.picture_url_thumb} alt={artist.name} className="w-full h-full object-cover object-top grayscale-[20%] group-hover:grayscale-0 transition-transform scale-[1.4] origin-top" />
+                                                    ) : (
+                                                        <span className="text-[10px] font-serif text-[var(--text-secondary)]">{artist.name.charAt(0)}</span>
+                                                    )}
+                                                </a>
+                                            ))
+                                        ) : currentSong.vocaloid_string ? (
+                                            <span className="font-bold text-[10px] text-[var(--text-tertiary)] uppercase tracking-[0.2em] mt-1">{currentSong.vocaloid_string}</span>
+                                        ) : null}
+                                    </div>
                                 </div>
                             </div>
-                            <div className="flex-shrink-0 pt-1">
+                            <div className="flex-shrink-0 flex items-center self-start mt-2 sm:mt-1">
                                 <FavoriteButton id={currentSong.id} type="song" variant="icon" />
                             </div>
                         </div>
 
                         {/* Interactive Progress Bar */}
                         <div className="w-full flex items-center gap-4">
-                            <span className="text-xs font-mono text-[var(--text-secondary)] w-10 text-right">{formatTime(progress * duration)}</span>
-                            <div
-                                className="flex-1 h-1.5 sm:h-2 bg-black/40 rounded-full cursor-pointer group/progress relative overflow-hidden"
-                                onClick={handleSeek}
-                            >
-                                <div
-                                    className="h-full bg-[var(--vermilion)] relative transition-all duration-100 ease-out"
-                                    style={{ width: `${Math.max(0, Math.min(100, progress * 100))}%` }}
-                                >
-                                    {/* Hover pip */}
-                                    <div className="absolute right-0 top-1/2 -translate-y-1/2 -mr-1.5 w-3 h-3 bg-white rounded-full opacity-0 group-hover/progress:opacity-100 shadow-md"></div>
+                            <span className="text-xs font-mono text-[var(--text-secondary)] w-10 text-left">{formatTime(progress * duration)}</span>
+                            <div className="flex-1 flex items-center group/progress relative py-4 cursor-pointer">
+                                {/* Visual Track */}
+                                <div className="absolute inset-x-0 w-full h-1.5 sm:h-2 bg-black/40 rounded-full pointer-events-none m-auto" style={{ top: 'calc(50% - 3px)' }}>
+                                    <div className="absolute left-0 top-0 bottom-0 h-full bg-[var(--vermilion)] rounded-full transition-all duration-75 ease-out" style={{ width: `${Math.max(0, Math.min(100, progress * 100))}%` }} />
                                 </div>
+                                {/* Invisible Range Slider for huge hitbox */}
+                                <input
+                                    type="range"
+                                    min={0}
+                                    max={1}
+                                    step="0.001"
+                                    value={progress}
+                                    onChange={(e) => {
+                                        const v = parseFloat(e.target.value);
+                                        setProgress(v);
+                                        if (playerRef.current) playerRef.current.seekTo(v, 'fraction');
+                                    }}
+                                    className="w-full h-8 opacity-0 z-10 cursor-pointer absolute inset-0 m-auto"
+                                />
+                                {/* Custom Thumb Dot */}
+                                <div
+                                    className="absolute w-3 h-3 bg-white rounded-full shadow-md z-20 pointer-events-none transition-transform sm:scale-0 sm:group-hover/progress:scale-100"
+                                    style={{ left: `calc(${progress * 100}% - 6px)`, top: '50%', transform: 'translateY(-50%)' }}
+                                />
                             </div>
                             <span className="text-xs font-mono text-[var(--text-secondary)] w-10">{formatTime(duration)}</span>
                         </div>
@@ -194,7 +294,7 @@ export default function PlayerPage() {
                         {/* Transport Controls */}
                         <div className="flex items-center justify-between w-full pt-2">
                             {/* Left Side: Volume */}
-                            <div className="hidden sm:flex items-center group/volume gap-3 w-32 border border-transparent hover:border-white/10 rounded-full px-2 py-1 transition-all">
+                            <div className="hidden sm:flex items-center group/volume gap-3 w-32 border border-transparent hover:border-white/10 rounded-full pl-0 pr-2 py-1 transition-all">
                                 <button
                                     className="text-[var(--text-secondary)] hover:text-white transition-colors"
                                     onClick={() => setVolume(volume === 0 ? 0.5 : 0)}
@@ -268,10 +368,13 @@ export default function PlayerPage() {
                                 {/* Loop */}
                                 <button
                                     onClick={toggleLoop}
-                                    className={`p-2 transition-colors ${loopMode !== 'off' ? 'text-[var(--vermilion)] drop-shadow-[0_0_8px_rgba(255,100,80,0.5)]' : 'text-[var(--text-secondary)] hover:text-white'}`}
-                                    title={loopMode !== 'off' ? "Loop On" : "Loop Off"}
+                                    className={`relative p-2 transition-colors ${loopMode !== 'off' ? 'text-[var(--vermilion)] drop-shadow-[0_0_8px_rgba(255,100,80,0.5)]' : 'text-[var(--text-secondary)] hover:text-white'}`}
+                                    title={loopMode === 'song' ? "Loop Song" : loopMode === 'list' ? "Loop List" : "Loop Off"}
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                                    {loopMode === 'song' && (
+                                        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black mt-0.5 pointer-events-none" style={{ textShadow: '0 0 4px black' }}>1</span>
+                                    )}
                                 </button>
                             </div>
 
@@ -289,15 +392,33 @@ export default function PlayerPage() {
                     </div>
                 </div>
 
-                {/* Right Side: Up Next Sidebar (Optional enhancement for desktop) */}
-                <div className="w-full lg:w-96 flex flex-col gap-4 bg-[var(--bg-dark)]/50 backdrop-blur-md rounded-2xl border border-[var(--hairline)] p-4 max-h-[800px] overflow-hidden hidden lg:flex">
+                {/* Right Side: Up Next Sidebar */}
+                <div className="w-full lg:w-96 flex flex-col gap-4 bg-[var(--bg-dark)]/50 backdrop-blur-md rounded-2xl border border-[var(--hairline)] p-4 max-h-[60vh] lg:max-h-[800px] overflow-hidden">
                     <div className="flex items-center justify-between pb-2 border-b border-[var(--hairline-strong)]">
-                        <h2 className="text-lg font-bold text-white">Up Next</h2>
+                        <h2 className="text-lg font-bold text-white">{t('Player.up_next')}</h2>
                         <div className="flex items-center gap-2">
-                            <span className="text-sm text-[var(--text-secondary)] bg-white/5 px-2 py-0.5 rounded-full">{queue.length} Tracks</span>
+                            <span className="text-sm text-[var(--text-secondary)] bg-white/5 px-2 py-0.5 rounded-full">{queue.length} {t('Player.tracks')}</span>
+
+                            {/* Share Queue Link */}
+                            {queue.length > 0 && (
+                                <button
+                                    onClick={() => {
+                                        const ids = queue.map(s => s.id).join(',');
+                                        const url = `${window.location.origin}/${locale}/player?list=${ids}`;
+                                        navigator.clipboard.writeText(url);
+                                        setShowCopied(true);
+                                        setTimeout(() => setShowCopied(false), 3000);
+                                    }}
+                                    title="Copy Queue Link"
+                                    className="p-1.5 text-[var(--text-secondary)] hover:text-white transition-colors rounded-full hover:bg-white/5 relative"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M14 9V5l7 7-7 7v-4.1c-5 0-8.5 1.6-11 5.1 1-5 4-10 11-10z" /></svg>
+                                </button>
+                            )}
+
                             {queue.length > 0 && (
                                 <a
-                                    href={`https://www.youtube.com/watch_videos?video_ids=${queue.filter(s => s.youtube_id).map(s => s.youtube_id).slice(0, 50).join(',')}`}
+                                    href={`https://www.youtube.com/watch_videos?video_ids=${queue.filter((s: SongRanking) => s.youtube_id).map((s: SongRanking) => s.youtube_id).slice(0, 50).join(',')}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     title="Open as YouTube Playlist"
@@ -309,8 +430,8 @@ export default function PlayerPage() {
                         </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
-                        {queue.map((song, idx) => {
+                    <div className="flex-1 overflow-y-auto space-y-1 pr-1 hover:pr-0 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full transition-all duration-300 [scrollbar-width:none] hover:[scrollbar-width:thin]">
+                        {queue.map((song: SongRanking, idx: number) => {
                             const isCurrent = idx === currentIndex;
                             const queueSongTitle = locale === 'ja' || locale === 'zh-TW'
                                 ? (song.name_japanese || song.name_romaji || song.name_english)
@@ -341,13 +462,23 @@ export default function PlayerPage() {
                                             {queueSongTitle}
                                         </p>
                                         <p className={`text-[11px] truncate mt-0.5 text-[var(--text-secondary)]`}>
-                                            {song.artists?.map(a => a.name).join(' • ')}
+                                            {song.artists?.map((a: any) => a.name).join(' • ')}
                                         </p>
                                     </div>
                                 </div>
                             );
                         })}
                     </div>
+                </div>
+            </div>
+
+            {/* Toast Notification overlay */}
+            <div className={`fixed bottom-8 sm:bottom-12 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 pointer-events-none ${showCopied ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                <div className="bg-white/10 backdrop-blur-xl text-white px-6 py-3 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.6)] font-bold text-sm tracking-wide flex items-center gap-3 border border-white/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-[#3fc15f]">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    {t('Player.link_copied')}
                 </div>
             </div>
         </div>
