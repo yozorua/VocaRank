@@ -87,8 +87,8 @@
         "profile": "プロフィール",
         "profile_settings": "マイプロフィール",
         "statistics": "統計",
-        "statistics_producer_network": "クリエイターネットワーク",
-        "statistics_vocalist_network": "シンガーネットワーク",
+        "statistics_producer_network": "ボカロPのネットワーク",
+        "statistics_vocalist_network": "ボイスバンクのネットワーク",
         "statistics_vocaloid": "ボーカロイドの統計"
     },
     "SearchPage": {

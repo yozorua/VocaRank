@@ -87,8 +87,8 @@
         "profile": "個人檔案",
         "profile_settings": "我的個人檔案",
         "statistics": "統計資料",
-        "statistics_producer_network": "創作者網路圖",
-        "statistics_vocalist_network": "歌手網路圖",
+        "statistics_producer_network": "作曲家關係圖",
+        "statistics_vocalist_network": "虛擬歌手關係圖",
         "statistics_vocaloid": "Vocaloid 統計資料"
     },
     "SearchPage": {
