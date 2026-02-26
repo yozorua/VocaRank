@@ -23,7 +23,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/components/AuthProvider";
 import { PlayerProvider } from "@/contexts/PlayerContext";
-import GlobalPlayer from "@/components/GlobalPlayer";
 
 export default async function RootLayout({
   children,
@@ -46,7 +45,6 @@ export default async function RootLayout({
                 {children}
               </main>
               <Footer />
-              <GlobalPlayer />
             </NextIntlClientProvider>
           </PlayerProvider>
         </AuthProvider>

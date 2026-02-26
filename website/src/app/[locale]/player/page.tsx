@@ -1,0 +1,355 @@
+'use client';
+
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import ReactPlayer from 'react-player/youtube';
+import { usePlayer } from '@/contexts/PlayerContext';
+import { useRouter } from 'next/navigation';
+import FavoriteButton from '@/components/FavoriteButton';
+import { useTranslations, useLocale } from 'next-intl';
+
+export default function PlayerPage() {
+    const {
+        currentSong,
+        isPlaying,
+        togglePlay,
+        volume,
+        setVolume,
+        nextSong,
+        prevSong,
+        currentIndex,
+        queue,
+        loopMode,
+        toggleLoop,
+        isShuffled,
+        toggleShuffle,
+        playSong,
+        isInitialized
+    } = usePlayer();
+
+    const router = useRouter();
+    const t = useTranslations();
+    const locale = useLocale();
+    const playerRef = useRef<ReactPlayer>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [progress, setProgress] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [isMounted, setIsMounted] = useState(false);
+    const [savedProgress, setSavedProgress] = useState<number | null>(null);
+
+    useEffect(() => {
+        setIsMounted(true);
+        const lp = localStorage.getItem('vocarank_progress');
+        if (lp) setSavedProgress(parseFloat(lp));
+    }, []);
+
+    // Redirect to home if no song is in the queue, BUT wait until Context is Initialized
+    useEffect(() => {
+        if (isMounted && isInitialized && !currentSong) {
+            router.push('/');
+        }
+    }, [currentSong, isMounted, isInitialized, router]);
+
+    const handleProgress = useCallback((state: { played: number, playedSeconds: number, loaded: number }) => {
+        setProgress(state.played);
+        if (state.playedSeconds > 0) {
+            localStorage.setItem('vocarank_progress', state.playedSeconds.toString());
+        }
+    }, []);
+
+    const handleReady = useCallback(() => {
+        if (savedProgress !== null && savedProgress > 0 && playerRef.current) {
+            playerRef.current.seekTo(savedProgress, 'seconds');
+            setSavedProgress(null);
+        }
+    }, [savedProgress]);
+
+    const handleDuration = useCallback((d: number) => {
+        setDuration(d);
+    }, []);
+
+    const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+        if (!playerRef.current) return;
+        const bounds = e.currentTarget.getBoundingClientRect();
+        const percent = (e.clientX - bounds.left) / bounds.width;
+        playerRef.current.seekTo(percent);
+        setProgress(percent);
+    }, []);
+
+    const formatTime = (seconds: number) => {
+        if (!seconds) return '0:00';
+        const m = Math.floor(seconds / 60);
+        const s = Math.floor(seconds % 60);
+        return `${m}:${s.toString().padStart(2, '0')}`;
+    };
+
+    if (!isMounted || !currentSong) return null;
+
+    const isLooping = loopMode !== 'off';
+
+    const toggleFullscreen = () => {
+        if (!document.fullscreenElement) {
+            containerRef.current?.requestFullscreen().catch(err => {
+                console.error(`Error attempting to enable fullscreen: ${err.message}`);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    };
+
+    const displayTitle = locale === 'ja' || locale === 'zh-TW'
+        ? (currentSong.name_japanese || currentSong.name_romaji || currentSong.name_english)
+        : (currentSong.name_english || currentSong.name_romaji || currentSong.name_japanese);
+
+    return (
+        <div ref={containerRef} className="min-h-[calc(100vh-16px)] w-full flex flex-col pt-4 pb-12 sm:pb-8 px-4 sm:px-6 md:px-8 max-w-[var(--max-width)] mx-auto animate-in fade-in duration-500 bg-[var(--bg-dark)]">
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex-col lg:flex-row gap-8 lg:gap-12 items-center lg:items-start justify-center">
+
+                {/* Left Side: The Video Player (TOS Compliant) */}
+                <div className="w-full lg:flex-1 max-w-4xl flex flex-col gap-6">
+                    {/* Video Container with Overlaid Protection Shield */}
+                    <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-[var(--hairline-strong)] bg-black group">
+
+                        {/* Live YouTube Player (Satisfies 200x200 Minimum API Rule easily) */}
+                        <ReactPlayer
+                            ref={playerRef}
+                            url={`https://www.youtube.com/watch?v=${currentSong.youtube_id}`}
+                            playing={isPlaying}
+                            volume={volume}
+                            loop={isLooping}
+                            onProgress={handleProgress as any}
+                            onDuration={handleDuration}
+                            onReady={handleReady}
+                            onEnded={nextSong}
+                            width="100%"
+                            height="100%"
+                            className="absolute inset-0"
+                            config={{
+                                playerVars: {
+                                    showinfo: 0 as any, controls: 0 as any, autoplay: 1 as any, playsinline: 1 as any,
+                                    disablekb: 1 as any, fs: 0 as any, iv_load_policy: 3 as any, rel: 0 as any, modestbranding: 1 as any
+                                }
+                            }}
+                        />
+
+                        {/* Pause Indicator overlay (optional flair) */}
+                        {!isPlaying && (
+                            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 pointer-events-none transition-all duration-300">
+                                <div className="w-20 h-20 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/20">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="white" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Meta & Controls Bar */}
+                    <div className="w-full bg-[var(--bg-dark)]/80 backdrop-blur-xl border border-[var(--hairline)] rounded-2xl p-4 sm:p-6 flex flex-col gap-6 shadow-xl">
+
+                        {/* Title, Artist, and Favorite */}
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1 min-w-0">
+                                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white truncate tracking-wide mb-2" title={displayTitle || ''}>
+                                    {displayTitle}
+                                </h1>
+                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                    {currentSong.artists && currentSong.artists.map((artist, idx) => (
+                                        <React.Fragment key={artist.id}>
+                                            <a
+                                                href={`/artist/${artist.id}`}
+                                                className="text-base sm:text-lg font-serif text-[var(--gold)] hover:text-[#ff8f83] truncate transition-colors cursor-pointer tracking-widest"
+                                                onClick={(e) => { e.preventDefault(); router.push(`/artist/${artist.id}`); }}
+                                            >
+                                                {artist.name}
+                                            </a>
+                                            {idx < currentSong.artists.length - 1 && (
+                                                <span className="text-[var(--text-tertiary)] opacity-50 px-1.5 text-[10px]">•</span>
+                                            )}
+                                        </React.Fragment>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="flex-shrink-0 pt-1">
+                                <FavoriteButton id={currentSong.id} type="song" variant="icon" />
+                            </div>
+                        </div>
+
+                        {/* Interactive Progress Bar */}
+                        <div className="w-full flex items-center gap-4">
+                            <span className="text-xs font-mono text-[var(--text-secondary)] w-10 text-right">{formatTime(progress * duration)}</span>
+                            <div
+                                className="flex-1 h-1.5 sm:h-2 bg-black/40 rounded-full cursor-pointer group/progress relative overflow-hidden"
+                                onClick={handleSeek}
+                            >
+                                <div
+                                    className="h-full bg-[var(--vermilion)] relative transition-all duration-100 ease-out"
+                                    style={{ width: `${Math.max(0, Math.min(100, progress * 100))}%` }}
+                                >
+                                    {/* Hover pip */}
+                                    <div className="absolute right-0 top-1/2 -translate-y-1/2 -mr-1.5 w-3 h-3 bg-white rounded-full opacity-0 group-hover/progress:opacity-100 shadow-md"></div>
+                                </div>
+                            </div>
+                            <span className="text-xs font-mono text-[var(--text-secondary)] w-10">{formatTime(duration)}</span>
+                        </div>
+
+                        {/* Transport Controls */}
+                        <div className="flex items-center justify-between w-full pt-2">
+                            {/* Left Side: Volume */}
+                            <div className="hidden sm:flex items-center group/volume gap-3 w-32 border border-transparent hover:border-white/10 rounded-full px-2 py-1 transition-all">
+                                <button
+                                    className="text-[var(--text-secondary)] hover:text-white transition-colors"
+                                    onClick={() => setVolume(volume === 0 ? 0.5 : 0)}
+                                >
+                                    {volume === 0 ? (
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                                    ) : volume < 0.5 ? (
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                                    ) : (
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+                                    )}
+                                </button>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="1"
+                                    step="0.01"
+                                    value={volume}
+                                    onChange={(e) => setVolume(parseFloat(e.target.value))}
+                                    className="w-16 h-1 flex-1 opacity-50 group-hover/volume:opacity-100 transition-all duration-300 accent-white cursor-pointer bg-[var(--hairline-strong)] rounded-full appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-2.5 [&::-webkit-slider-thumb]:h-2.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
+                                />
+                            </div>
+
+                            {/* Center: Play Controls */}
+                            <div className="flex items-center justify-center gap-4 sm:gap-6 flex-1 sm:flex-none">
+                                {/* Shuffle */}
+                                <button
+                                    onClick={toggleShuffle}
+                                    className={`p-2 transition-colors ${isShuffled ? 'text-white' : 'text-[var(--text-secondary)] hover:text-white'}`}
+                                    title={isShuffled ? "Shuffle On" : "Shuffle Off"}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="16 3 21 3 21 8"></polyline>
+                                        <line x1="4" y1="20" x2="21" y2="3"></line>
+                                        <polyline points="21 16 21 21 16 21"></polyline>
+                                        <line x1="15" y1="15" x2="21" y2="21"></line>
+                                        <line x1="4" y1="4" x2="9" y2="9"></line>
+                                    </svg>
+                                </button>
+
+                                {/* Prev */}
+                                <button
+                                    onClick={prevSong}
+                                    disabled={currentIndex === 0}
+                                    className="text-white hover:text-[var(--vermilion)] disabled:opacity-30 disabled:hover:text-white transition-colors p-2"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"></line></svg>
+                                </button>
+
+                                {/* Play/Pause */}
+                                <button
+                                    onClick={togglePlay}
+                                    className="w-12 h-12 sm:w-14 sm:h-14 bg-white/10 hover:bg-white/20 border border-[var(--hairline)] text-white backdrop-blur-md rounded-full flex items-center justify-center transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 flex-shrink-0"
+                                >
+                                    {isPlaying ? (
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                                    ) : (
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                    )}
+                                </button>
+
+                                {/* Next */}
+                                <button
+                                    onClick={nextSong}
+                                    disabled={currentIndex === queue.length - 1 && loopMode === 'off' && !isShuffled}
+                                    className="text-white hover:text-[var(--vermilion)] disabled:opacity-30 disabled:hover:text-white transition-colors p-2"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" strokeWidth="2" strokeLinecap="round"></line></svg>
+                                </button>
+
+                                {/* Loop */}
+                                <button
+                                    onClick={toggleLoop}
+                                    className={`p-2 transition-colors ${loopMode !== 'off' ? 'text-[var(--vermilion)] drop-shadow-[0_0_8px_rgba(255,100,80,0.5)]' : 'text-[var(--text-secondary)] hover:text-white'}`}
+                                    title={loopMode !== 'off' ? "Loop On" : "Loop Off"}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                                </button>
+                            </div>
+
+                            {/* Right side spacer for flex centering on desktop */}
+                            <div className="hidden sm:flex w-32 items-center justify-end">
+                                <button
+                                    onClick={toggleFullscreen}
+                                    className="text-[var(--text-secondary)] hover:text-white transition-colors p-2"
+                                    title="Toggle Fullscreen"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right Side: Up Next Sidebar (Optional enhancement for desktop) */}
+                <div className="w-full lg:w-96 flex flex-col gap-4 bg-[var(--bg-dark)]/50 backdrop-blur-md rounded-2xl border border-[var(--hairline)] p-4 max-h-[800px] overflow-hidden hidden lg:flex">
+                    <div className="flex items-center justify-between pb-2 border-b border-[var(--hairline-strong)]">
+                        <h2 className="text-lg font-bold text-white">Up Next</h2>
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm text-[var(--text-secondary)] bg-white/5 px-2 py-0.5 rounded-full">{queue.length} Tracks</span>
+                            {queue.length > 0 && (
+                                <a
+                                    href={`https://www.youtube.com/watch_videos?video_ids=${queue.filter(s => s.youtube_id).map(s => s.youtube_id).slice(0, 50).join(',')}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title="Open as YouTube Playlist"
+                                    className="p-1.5 text-[var(--text-secondary)] hover:text-[#FF0000] transition-colors rounded-full hover:bg-white/5"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29.07 29.07 0 0 0 1 11.75a29.07 29.07 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29.07 29.07 0 0 0 .46-5.33 29.07 29.07 0 0 0-.46-5.33zM9.75 15.02l5.75-3.27-5.75-3.27v6.54z" /></svg>
+                                </a>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
+                        {queue.map((song, idx) => {
+                            const isCurrent = idx === currentIndex;
+                            const queueSongTitle = locale === 'ja' || locale === 'zh-TW'
+                                ? (song.name_japanese || song.name_romaji || song.name_english)
+                                : (song.name_english || song.name_romaji || song.name_japanese);
+
+                            return (
+                                <div
+                                    key={`${song.id}-${idx}`}
+                                    className={`flex items-center gap-3 p-2 rounded-lg group transition-colors ${isCurrent ? 'bg-white/10 border border-white/20' : 'hover:bg-white/5 border border-transparent cursor-pointer'}`}
+                                    onClick={() => {
+                                        if (!isCurrent) {
+                                            playSong(song, queue);
+                                        }
+                                    }}
+                                >
+                                    <div className="relative w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-black">
+                                        <img src={`https://i.ytimg.com/vi/${song.youtube_id}/default.jpg`} alt="" className="w-full h-full object-cover grayscale-[30%]" />
+                                        {isCurrent && (
+                                            <div className="absolute inset-0 bg-[var(--vermilion)]/20 flex items-center justify-center">
+                                                <div className="w-1.5 h-3 bg-white mx-0.5 animate-[bounce_1s_infinite]"></div>
+                                                <div className="w-1.5 h-4 bg-white mx-0.5 animate-[bounce_1.2s_infinite]"></div>
+                                                <div className="w-1.5 h-2.5 bg-white mx-0.5 animate-[bounce_0.8s_infinite]"></div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className={`text-sm font-bold truncate ${isCurrent ? 'text-white' : 'text-[var(--text-secondary)] group-hover:text-white'}`}>
+                                            {queueSongTitle}
+                                        </p>
+                                        <p className={`text-[11px] truncate mt-0.5 text-[var(--text-secondary)]`}>
+                                            {song.artists?.map(a => a.name).join(' • ')}
+                                        </p>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
