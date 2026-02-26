@@ -1,0 +1,19 @@
+import { getTranslations } from 'next-intl/server';
+import VocaloidStatsClient from './VocaloidStatsClient';
+
+export default async function VocaloidStatisticPage() {
+    const t = await getTranslations('StatisticVocaloid');
+
+    return (
+        <main className="min-h-screen py-6 md:py-8 px-4 md:px-6 w-full max-w-5xl mx-auto flex flex-col gap-8">
+            <div className="pt-2">
+                <h1 className="text-2xl md:text-3xl font-bold mb-2">{t('title')}</h1>
+                <p className="text-[var(--text-secondary)] text-sm md:text-base">
+                    {t('description')}
+                </p>
+            </div>
+
+            <VocaloidStatsClient />
+        </main>
+    );
+}

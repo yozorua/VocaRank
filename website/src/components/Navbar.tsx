@@ -65,6 +65,9 @@ export default function Navbar() {
                     <Link href="/statistic/vocalist-network" className="text-lg font-medium tracking-[0.3em] text-[var(--text-secondary)] hover:text-white transition-colors uppercase" onClick={() => setIsOpen(false)}>
                         {t('statistics_vocalist_network', { defaultMessage: 'Voicebank Network' })}
                     </Link>
+                    <Link href="/statistic/vocaloid" className="text-lg font-medium tracking-[0.3em] text-[var(--text-secondary)] hover:text-white transition-colors uppercase" onClick={() => setIsOpen(false)}>
+                        {t('statistics_vocaloid', { defaultMessage: 'Stats for Vocaloid' })}
+                    </Link>
                 </div>
             </div>
             <div onClick={() => setIsOpen(false)}>
@@ -86,9 +89,6 @@ export default function Navbar() {
 
                     {/* Logo */}
                     <Link href="/" className="group flex items-center gap-3 z-50 transition-opacity hover:opacity-80" onClick={() => setIsOpen(false)}>
-                        <div className="w-8 h-8 flex items-center justify-center bg-[var(--vermilion)] text-white font-serif text-lg leading-none pt-1">
-                            V
-                        </div>
                         <span className="text-white tracking-[0.3em] font-black uppercase text-sm mt-1">
                             VocaRank
                         </span>
@@ -128,6 +128,9 @@ export default function Navbar() {
                                     </Link>
                                     <Link href="/statistic/vocalist-network" className="block w-full px-4 py-3 text-sm text-[var(--text-secondary)] hover:text-white hover:bg-white/5 transition-colors text-center font-bold border-t border-[var(--hairline)]">
                                         {t('statistics_vocalist_network', { defaultMessage: 'Voicebank Network' })}
+                                    </Link>
+                                    <Link href="/statistic/vocaloid" className="block w-full px-4 py-3 text-sm text-[var(--text-secondary)] hover:text-white hover:bg-white/5 transition-colors text-center font-bold border-t border-[var(--hairline)]">
+                                        {t('statistics_vocaloid', { defaultMessage: 'Stats for Vocaloid' })}
                                     </Link>
                                 </div>
                             </div>

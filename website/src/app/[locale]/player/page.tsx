@@ -140,7 +140,7 @@ export default function PlayerPage() {
         : (currentSong.name_english || currentSong.name_romaji || currentSong.name_japanese);
 
     return (
-        <div ref={containerRef} className="min-h-[calc(100vh-16px)] w-full flex flex-col pt-4 pb-12 sm:pb-8 px-4 sm:px-6 md:px-8 max-w-[var(--max-width)] mx-auto animate-in fade-in duration-500 bg-[var(--bg-dark)]">
+        <div ref={containerRef} className="min-h-[calc(100vh-16px)] w-full flex flex-col pt-4 pb-12 sm:pb-8 px-4 sm:px-6 md:px-8 max-w-[var(--max-width)] mx-auto animate-in fade-in duration-500">
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8 items-center lg:items-start justify-start lg:justify-center">
 

@@ -84,7 +84,8 @@
     "profile_settings": "My Profile",
     "statistics": "Statistics",
     "statistics_producer_network": "Producers Network",
-    "statistics_vocalist_network": "Voicebank Network"
+    "statistics_vocalist_network": "Voicebank Network",
+    "statistics_vocaloid": "Stats for Vocaloid"
   },
   "SearchPage": {
     "title": "Search",
@@ -191,6 +192,19 @@
     "show_labels": "Show Names on Zoom",
     "hide_lines": "Hide Connection Lines",
     "freeze_physics": "Lock Map (Save Battery)"
+  },
+  "StatisticVocaloid": {
+    "title": "Vocaloid Trends",
+    "description": "Explore historical publishing trends and engine market-share distributions across the VocaRank database.",
+    "songs_over_time": "Songs Published Over Time",
+    "voicebank_distribution": "Voicebank Usage Ratio",
+    "engine_over_time": "Voicebank Ratio Over Time",
+    "year": "Year",
+    "month": "Month",
+    "switch_year": "Yearly",
+    "switch_month": "Monthly",
+    "song_count": "Published Tracks",
+    "songs": "songs"
   },
   "Player": {
     "up_next": "Up Next",

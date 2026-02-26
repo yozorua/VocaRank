@@ -87,8 +87,9 @@
         "profile": "個人檔案",
         "profile_settings": "我的個人檔案",
         "statistics": "統計資料",
-        "statistics_producer_network": "作曲家關係圖",
-        "statistics_vocalist_network": "虛擬歌手關係圖"
+        "statistics_producer_network": "創作者網路圖",
+        "statistics_vocalist_network": "歌手網路圖",
+        "statistics_vocaloid": "Vocaloid 統計資料"
     },
     "SearchPage": {
         "title": "搜尋",
@@ -187,7 +188,7 @@
     "GraphPage": {
         "loading": "載入中...",
         "search": "搜尋",
-        "search_placeholder": "輸入名稱...",
+        "search_placeholder": "搜尋創作者、作品…",
         "node_size_weight": "節點大小權重",
         "weight_views": "總播放數 (受歡迎程度)",
         "weight_pagerank": "合作 (中心性)",
@@ -195,6 +196,19 @@
         "show_labels": "縮放時顯示名稱",
         "hide_lines": "隱藏連接線",
         "freeze_physics": "鎖定地圖 (節省電池)"
+    },
+    "StatisticVocaloid": {
+        "title": "Vocaloid 趨勢",
+        "description": "瀏覽虛擬歌手的歷史發布趨勢與各知名聲庫引擎的市場結構比例。",
+        "songs_over_time": "歷年合成音軌發表首數",
+        "voicebank_distribution": "聲庫使用比例",
+        "engine_over_time": "聲庫使用比例時間軸",
+        "year": "年度",
+        "month": "月份",
+        "switch_year": "按年顯示",
+        "switch_month": "按月顯示",
+        "song_count": "發布軌道數量",
+        "songs": "首"
     },
     "Player": {
         "up_next": "接下來播放",

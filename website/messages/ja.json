@@ -87,8 +87,9 @@
         "profile": "プロフィール",
         "profile_settings": "マイプロフィール",
         "statistics": "統計",
-        "statistics_producer_network": "ボカロPのネットワーク",
-        "statistics_vocalist_network": "歌声合成ソフトのネットワーク"
+        "statistics_producer_network": "クリエイターネットワーク",
+        "statistics_vocalist_network": "シンガーネットワーク",
+        "statistics_vocaloid": "ボーカロイドの統計"
     },
     "SearchPage": {
         "title": "検索",
@@ -187,19 +188,32 @@
     "GraphPage": {
         "loading": "読み込み中...",
         "search": "検索",
-        "search_placeholder": "名前を入力...",
+        "search_placeholder": "クリエイター、曲を検索...",
         "node_size_weight": "ノードサイズの重み",
         "weight_views": "総再生数（人気度）",
         "weight_pagerank": "コラボレーション（中心性）",
-        "weight_uniform": "均一サイズ",
+        "weight_uniform": "同じサイズ",
         "show_labels": "ズーム時に名前を表示",
-        "hide_lines": "接続線を非表示にする",
+        "hide_lines": "接続線を隠す",
         "freeze_physics": "マップを固定（バッテリー節約）"
+    },
+    "StatisticVocaloid": {
+        "title": "ボーカロイドのトレンド",
+        "description": "VocaRankデータベース全体の歴史的な公開傾向とエンジン市場シェアの分布を探ります。",
+        "songs_over_time": "期間別公開曲数",
+        "voicebank_distribution": "音声ライブラリの利用割合",
+        "engine_over_time": "音声ライブラリの利用割合推移",
+        "year": "年",
+        "month": "月",
+        "switch_year": "年別",
+        "switch_month": "月別",
+        "song_count": "公開トラック数",
+        "songs": "曲"
     },
     "Player": {
         "up_next": "次に再生",
         "tracks": "曲",
-        "share": "共有",
+        "share": "シェア",
         "link_copied": "プレイリストのリンクをコピーしました！"
     }
 }
