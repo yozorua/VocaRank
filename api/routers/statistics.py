@@ -12,6 +12,62 @@ router = APIRouter(
 # In-memory application cache specifically for these heavy analytical queries
 STATS_CACHE = {}
 
+@router.get("/site-stats")
+def get_site_stats(db: Session = Depends(get_db)):
+    """
+    Returns filtered vocaloid song count and producer count.
+    - vocaloid_songs: Original/Remix/Remaster/Cover songs that have a vocalist (Vocaloid/UTAU/etc.)
+    - vocaloid_producers: Producers/Circles who have at least one qualifying vocaloid song.
+    Used by the homepage stat strip.
+    """
+    with cache_lock:
+        if "site-stats" in STATS_CACHE:
+            return STATS_CACHE["site-stats"]
+
+    from sqlalchemy import text as sql_text
+
+    SYNTH_IN = "('Vocaloid','UTAU','CeVIO','SynthesizerV','Neutrino','VoiSona','OtherVoiceSynthesizer')"
+    TYPE_IN  = "('Original','Remix','Remaster','Cover')"
+    PROD_IN  = "('Producer','Circle','OtherGroup')"
+
+    vocaloid_songs = db.execute(sql_text(f"""
+        SELECT COUNT(DISTINCT s.id) FROM songs s
+        WHERE s.song_type IN {TYPE_IN}
+          AND EXISTS (
+            SELECT 1 FROM song_artists sa
+            JOIN artists a ON sa.artist_id = a.id
+            WHERE sa.song_id = s.id AND a.artist_type IN {SYNTH_IN}
+          )
+    """)).scalar() or 0
+
+    vocaloid_producers = db.execute(sql_text(f"""
+        SELECT COUNT(DISTINCT a.id) FROM artists a
+        WHERE a.artist_type IN {PROD_IN}
+          AND EXISTS (
+            SELECT 1 FROM song_artists sa
+            JOIN songs s ON sa.song_id = s.id
+            WHERE sa.artist_id = a.id
+              AND s.song_type IN {TYPE_IN}
+              AND EXISTS (
+                SELECT 1 FROM song_artists sa2
+                JOIN artists a2 ON sa2.artist_id = a2.id
+                WHERE sa2.song_id = s.id AND a2.artist_type IN {SYNTH_IN}
+              )
+          )
+    """)).scalar() or 0
+
+    result = {
+        "vocaloid_songs": int(vocaloid_songs),
+        "vocaloid_producers": int(vocaloid_producers),
+    }
+
+    with cache_lock:
+        STATS_CACHE["site-stats"] = result
+
+    return result
+
+
+
 @router.get("/vocaloids/over-time")
 def get_vocaloids_over_time(db: Session = Depends(get_db)):
     """

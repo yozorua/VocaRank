@@ -38,7 +38,7 @@ export default function AuthButton({ mobile }: { mobile?: boolean }) {
                             e.stopPropagation();
                             setIsOpen(!isOpen);
                         }}
-                        className="text-xl font-medium tracking-[0.4em] text-white hover:text-[var(--vermilion)] transition-colors uppercase flex items-center justify-center pl-[0.4em]"
+                        className="text-xl font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors flex items-center justify-center"
                     >
                         {t('profile', { defaultMessage: 'Profile' })}
                         <svg className={`w-5 h-5 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -50,19 +50,19 @@ export default function AuthButton({ mobile }: { mobile?: boolean }) {
                         <div className="flex flex-col items-center gap-6 mt-2 mb-2 animate-fade-in w-full">
                             <Link
                                 href="/profile"
-                                className="text-lg font-medium tracking-[0.3em] text-[var(--text-secondary)] hover:text-white transition-colors uppercase"
+                                className="text-lg font-medium tracking-[0.2em] text-[var(--text-secondary)] hover:text-white transition-colors"
                             >
                                 {t('profile_settings', { defaultMessage: 'My Profile' })}
                             </Link>
                             <Link
                                 href="/favorites"
-                                className="text-lg font-medium tracking-[0.3em] text-[var(--text-secondary)] hover:text-[var(--vermilion)] transition-colors uppercase"
+                                className="text-lg font-medium tracking-[0.2em] text-[var(--text-secondary)] hover:text-[var(--vermilion)] transition-colors"
                             >
                                 {tFav('title', { defaultMessage: 'My Favorites' })}
                             </Link>
                             <button
                                 onClick={() => signOut({ callbackUrl: '/' })}
-                                className="text-lg font-medium tracking-[0.3em] text-red-500 hover:text-red-400 transition-colors uppercase"
+                                className="text-lg font-medium tracking-[0.2em] text-red-500 hover:text-red-400 transition-colors"
                             >
                                 {t('logout', { defaultMessage: 'Sign Out' })}
                             </button>

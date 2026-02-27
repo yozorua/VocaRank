@@ -23,7 +23,13 @@
   --font-serif: 'Noto Serif JP', serif;
 
   --max-width: 1200px;
-  --header-height: 80px;
+  --header-height: 56px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --header-height: 80px;
+  }
 }
 
 /* Niconico Embed Responsive Fix */

@@ -40,16 +40,16 @@ export default function Navbar() {
                 </svg>
             </button>
 
-            <Link href="/ranking" className="text-xl font-medium tracking-[0.4em] text-white hover:text-[var(--vermilion)] transition-colors uppercase" onClick={() => setIsOpen(false)}>
+            <Link href="/ranking" className="text-xl font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors" onClick={() => setIsOpen(false)}>
                 {t('ranking')}
             </Link>
-            <Link href="/search" className="text-xl font-medium tracking-[0.4em] text-white hover:text-[var(--vermilion)] transition-colors uppercase" onClick={() => setIsOpen(false)}>
+            <Link href="/search" className="text-xl font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors" onClick={() => setIsOpen(false)}>
                 {t('search', { defaultMessage: 'Search' })}
             </Link>
             <div className="flex flex-col items-center gap-6 w-full mt-2">
                 <button
                     onClick={() => setIsStatsOpen(!isStatsOpen)}
-                    className="text-xl font-medium tracking-[0.4em] text-white hover:text-[var(--vermilion)] transition-colors uppercase flex items-center justify-center pl-[0.4em]"
+                    className="text-xl font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors flex items-center justify-center"
                 >
                     {t('statistics', { defaultMessage: 'Statistics' })}
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`ml-2 transition-transform duration-300 ${isStatsOpen ? 'rotate-180' : ''}`}>
@@ -59,13 +59,13 @@ export default function Navbar() {
 
                 {/* Expandable Folder */}
                 <div className={`flex flex-col items-center gap-6 overflow-hidden transition-all duration-300 ${isStatsOpen ? 'max-h-40 opacity-100 mt-2 mb-2' : 'max-h-0 opacity-0'}`}>
-                    <Link href="/statistic/producer-network" className="text-lg font-medium tracking-[0.3em] text-[var(--text-secondary)] hover:text-white transition-colors uppercase" onClick={() => setIsOpen(false)}>
+                    <Link href="/statistic/producer-network" className="text-lg font-medium tracking-[0.2em] text-[var(--text-secondary)] hover:text-white transition-colors" onClick={() => setIsOpen(false)}>
                         {t('statistics_producer_network', { defaultMessage: 'Producers Network' })}
                     </Link>
-                    <Link href="/statistic/vocalist-network" className="text-lg font-medium tracking-[0.3em] text-[var(--text-secondary)] hover:text-white transition-colors uppercase" onClick={() => setIsOpen(false)}>
+                    <Link href="/statistic/vocalist-network" className="text-lg font-medium tracking-[0.2em] text-[var(--text-secondary)] hover:text-white transition-colors" onClick={() => setIsOpen(false)}>
                         {t('statistics_vocalist_network', { defaultMessage: 'Voicebank Network' })}
                     </Link>
-                    <Link href="/statistic/vocaloid" className="text-lg font-medium tracking-[0.3em] text-[var(--text-secondary)] hover:text-white transition-colors uppercase" onClick={() => setIsOpen(false)}>
+                    <Link href="/statistic/vocaloid" className="text-lg font-medium tracking-[0.2em] text-[var(--text-secondary)] hover:text-white transition-colors" onClick={() => setIsOpen(false)}>
                         {t('statistics_vocaloid', { defaultMessage: 'Stats for Vocaloid' })}
                     </Link>
                 </div>
@@ -107,12 +107,12 @@ export default function Navbar() {
 
                     {/* Desktop Links */}
                     <div className="hidden md:flex items-center gap-10">
-                        <Link href="/ranking" className="relative font-bold text-[var(--text-secondary)] hover:text-white transition-colors py-2 text-xs tracking-[0.3em] uppercase group">
+                        <Link href="/ranking" className="relative font-bold text-[var(--text-secondary)] hover:text-white transition-colors py-2 text-sm tracking-[0.1em] group">
                             {t('ranking', { defaultMessage: 'Ranking' })}
                             <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--vermilion)] scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></span>
                         </Link>
                         <div className="relative group py-2">
-                            <span className="cursor-pointer font-bold text-[var(--text-secondary)] hover:text-white transition-colors text-xs tracking-[0.3em] uppercase flex items-center gap-1 group-hover:text-white">
+                            <span className="cursor-pointer font-bold text-[var(--text-secondary)] hover:text-white transition-colors text-sm tracking-[0.1em] flex items-center gap-1 group-hover:text-white">
                                 {t('statistics', { defaultMessage: 'Statistics' })}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:rotate-180">
                                     <polyline points="6 9 12 15 18 9"></polyline>

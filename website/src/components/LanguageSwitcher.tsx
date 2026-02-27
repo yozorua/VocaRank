@@ -4,6 +4,12 @@ import { useLocale } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { useTransition, useState, useEffect, useRef } from 'react';
 
+const languages = [
+    { code: 'en', label: 'EN', full: 'English' },
+    { code: 'zh-TW', label: '繁中', full: '繁體中文' },
+    { code: 'ja', label: '日本語', full: '日本語' },
+];
+
 export default function LanguageSwitcher() {
     const locale = useLocale();
     const router = useRouter();
@@ -12,81 +18,83 @@ export default function LanguageSwitcher() {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    const languages = [
-        { code: 'en', label: 'English' },
-        { code: 'zh-TW', label: '繁體中文' },
-        { code: 'ja', label: '日本語' }
-    ];
-
     const currentLang = languages.find(l => l.code === locale) || languages[0];
 
-    const onSelectChange = (nextLocale: string) => {
+    const onSelect = (nextLocale: string) => {
         setIsOpen(false);
         startTransition(() => {
             router.replace(pathname, { locale: nextLocale });
         });
     };
 
-    // Close dropdown when clicking outside
     useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
                 setIsOpen(false);
             }
         };
-
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
     return (
         <div className="relative" ref={dropdownRef}>
+            {/* Trigger — clean border, no corner brackets */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 disabled={isPending}
                 className={`
-                    flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300
-                    ${isOpen
-                        ? 'bg-[var(--miku-teal)]/10 border-[var(--miku-teal)] text-[var(--miku-teal)] shadow-[0_0_15px_rgba(57,197,187,0.3)]'
-                        : 'border-white/20 text-gray-300 hover:border-white/50 hover:text-white'
+          flex items-center gap-2 px-4 py-2
+          border transition-all duration-300
+          ${isOpen
+                        ? 'border-[var(--vermilion)]/60 text-[var(--vermilion)]'
+                        : 'border-[var(--hairline)] text-[var(--text-secondary)] hover:border-[var(--hairline-strong)] hover:text-white'
                     }
-                `}
+          ${isPending ? 'opacity-40' : ''}
+        `}
             >
-                <span className="text-sm font-medium">{currentLang.label}</span>
+                {/* Globe icon */}
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-70">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="2" y1="12" x2="22" y2="12" />
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                </svg>
+                <span className="text-[10px] font-bold tracking-[0.25em] uppercase">{currentLang.label}</span>
                 <svg
-                    className={`w-4 h-4 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                    className={`w-3 h-3 transition-transform duration-300 opacity-60 ${isOpen ? 'rotate-180' : ''}`}
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
                 >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
             </button>
 
-            {/* Dropdown Menu */}
+            {/* Dropdown */}
             <div
                 className={`
-                    absolute top-full right-0 mt-2 w-48 bg-[#1a1a1a] border border-gray-800 rounded-xl shadow-2xl overflow-hidden z-50
-                    transition-all duration-200 origin-top-right
-                    ${isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'}
-                `}
+          absolute top-full right-0 mt-2 w-36
+          bg-[var(--bg-dark)] border border-[var(--hairline-strong)]
+          shadow-2xl z-50
+          transition-all duration-200 origin-top-right
+          ${isOpen ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' : 'opacity-0 scale-95 -translate-y-1 pointer-events-none'}
+        `}
             >
-                <div className="p-1">
-                    {languages.map((lang) => (
+                <div className="w-full h-0.5 bg-[var(--vermilion)] opacity-60" />
+                <div className="flex flex-col py-1">
+                    {languages.map(lang => (
                         <button
                             key={lang.code}
-                            onClick={() => onSelectChange(lang.code)}
+                            onClick={() => onSelect(lang.code)}
                             className={`
-                                w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
-                                ${locale === lang.code
-                                    ? 'bg-[var(--miku-teal)]/10 text-[var(--miku-teal)] font-bold'
-                                    : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                flex items-center justify-between px-4 py-2.5 text-left transition-colors
+                ${locale === lang.code
+                                    ? 'text-[var(--vermilion)] bg-[var(--vermilion)]/5'
+                                    : 'text-[var(--text-secondary)] hover:text-white hover:bg-white/[0.03]'
                                 }
-                            `}
+              `}
                         >
-                            {lang.label}
+                            <span className="text-[11px] tracking-[0.2em] uppercase font-medium">{lang.full}</span>
                             {locale === lang.code && (
-                                <span className="ml-auto text-[var(--miku-teal)]">✓</span>
+                                <span className="text-[8px] text-[var(--vermilion)]">◆</span>
                             )}
                         </button>
                     ))}
