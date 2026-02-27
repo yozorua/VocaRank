@@ -48,7 +48,19 @@ def search_songs(
         )
     """
     
-    params = {"keyword": f"%{query}%", "limit": limit}
+    # Build base params
+    params: dict = {"keyword": f"%{query}%", "limit": limit}
+
+    # If query is purely numeric, also match by song ID
+    try:
+        song_id_val = int(query)
+        sql_query = sql_query.replace(
+            "WHERE (",
+            "WHERE (s.id = :song_id OR "
+        )
+        params["song_id"] = song_id_val
+    except ValueError:
+        pass
     
     if song_type:
         sql_query += " AND s.song_type = :song_type"

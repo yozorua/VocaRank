@@ -17,6 +17,7 @@ export default function VocaloidStatsClient() {
     const [distribution, setDistribution] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [timeUnit, setTimeUnit] = useState<'year' | 'month'>('year');
+    const [normalizeEngine, setNormalizeEngine] = useState(false);
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -84,6 +85,18 @@ export default function VocaloidStatsClient() {
 
         return Object.values(map).sort((a, b) => a.date.localeCompare(b.date));
     }, [engineTimeline, timeUnit]);
+
+    // Compute normalized (0–100%) version of engine timeline
+    const normalizedEngineTimeline = useMemo(() => {
+        return aggregatedEngineTimeline.map((row: any) => {
+            const engines = Object.keys(ENGINE_COLORS);
+            const total = engines.reduce((s, e) => s + (row[e] || 0), 0);
+            if (total === 0) return row;
+            const result: any = { date: row.date };
+            engines.forEach(e => { result[e] = total > 0 ? +((row[e] || 0) / total * 100).toFixed(2) : 0; });
+            return result;
+        });
+    }, [aggregatedEngineTimeline]);
 
     if (loading) {
         return (
@@ -165,11 +178,25 @@ export default function VocaloidStatsClient() {
                     <h2 className="text-xl font-bold text-white border-l-2 border-[#5680E9] pl-3">
                         {t('engine_over_time')}
                     </h2>
+                    <div className="flex gap-2 bg-black/40 p-1 rounded-lg border border-[var(--hairline)]">
+                        <button
+                            onClick={() => setNormalizeEngine(false)}
+                            className={`px-3 py-1.5 text-sm font-bold rounded-md transition-colors ${!normalizeEngine ? 'bg-[#5680E9] text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-white'}`}
+                        >
+                            Count
+                        </button>
+                        <button
+                            onClick={() => setNormalizeEngine(true)}
+                            className={`px-3 py-1.5 text-sm font-bold rounded-md transition-colors ${normalizeEngine ? 'bg-[#5680E9] text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-white'}`}
+                        >
+                            %
+                        </button>
+                    </div>
                 </div>
                 <div className="h-[450px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <AreaChart
-                            data={aggregatedEngineTimeline}
+                            data={normalizeEngine ? normalizedEngineTimeline : aggregatedEngineTimeline}
                             margin={{ top: 10, right: 30, left: 0, bottom: 20 }}
                         >
                             <CartesianGrid strokeDasharray="3 3" stroke="var(--hairline)" vertical={false} />
@@ -183,6 +210,8 @@ export default function VocaloidStatsClient() {
                             <YAxis
                                 stroke="#888"
                                 tick={{ fill: '#888', fontSize: 12 }}
+                                domain={normalizeEngine ? [0, 100] : ['auto', 'auto']}
+                                tickFormatter={normalizeEngine ? (v: number) => `${v}%` : undefined}
                             />
                             <Tooltip
                                 cursor={{ stroke: 'rgba(255,255,255,0.2)' }}
@@ -194,10 +223,10 @@ export default function VocaloidStatsClient() {
                                 }}
                                 itemStyle={{ fontWeight: 'bold' }}
                                 labelStyle={{ color: 'var(--text-secondary)', marginBottom: '4px' }}
-                                formatter={(value: any, name: any) => [`${value} ${t('songs')}`, formatArtistType(name)]}
+                                formatter={(value: any, name: any) => [normalizeEngine ? `${value}%` : `${value} ${t('songs')}`, formatArtistType(name)]}
                                 labelFormatter={(label) => `${timeUnit === 'year' ? t('year') : t('month')}: ${label}`}
                             />
-                            <Legend verticalAlign="bottom" height={36} wrapperStyle={{ paddingTop: '20px' }} />
+                            <Legend verticalAlign="bottom" wrapperStyle={{ paddingTop: '16px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '4px 12px' }} />
                             {Object.keys(ENGINE_COLORS).map(engine => (
                                 <Area
                                     key={engine}
@@ -248,9 +277,9 @@ export default function VocaloidStatsClient() {
                             />
                             <Legend
                                 verticalAlign="bottom"
-                                height={36}
                                 iconType="circle"
-                                wrapperStyle={{ paddingTop: '20px' }}
+                                iconSize={10}
+                                wrapperStyle={{ paddingTop: '16px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '4px 12px' }}
                                 formatter={(value: any) => <span className="text-white ml-1">{formatArtistType(value)}</span>}
                             />
                         </PieChart>

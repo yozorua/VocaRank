@@ -103,3 +103,41 @@ class SongVote(Base):
     created_at = Column(String, nullable=False)
 
     song = relationship("Song")
+
+class Playlist(Base):
+    __tablename__ = "playlists"
+
+    id          = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id     = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    title       = Column(String, nullable=False)
+    description = Column(Text)
+    cover_url   = Column(String)
+    is_public   = Column(Integer, default=1)  # 1=public, 0=private
+    created_at  = Column(String)
+    updated_at  = Column(String)
+
+    user     = relationship("User")
+    songs    = relationship("PlaylistSong", back_populates="playlist",
+                            order_by="PlaylistSong.position", cascade="all, delete-orphan")
+    favorites = relationship("PlaylistFavorite", back_populates="playlist",
+                             cascade="all, delete-orphan")
+
+class PlaylistSong(Base):
+    __tablename__ = "playlist_songs"
+
+    playlist_id = Column(Integer, ForeignKey("playlists.id"), primary_key=True)
+    song_id     = Column(Integer, ForeignKey("songs.id"), primary_key=True)
+    position    = Column(Integer, default=0, nullable=False)
+    added_at    = Column(String)
+
+    playlist = relationship("Playlist", back_populates="songs")
+    song     = relationship("Song")
+
+class PlaylistFavorite(Base):
+    __tablename__ = "playlist_favorites"
+
+    playlist_id = Column(Integer, ForeignKey("playlists.id"), primary_key=True)
+    user_id     = Column(Integer, ForeignKey("users.id"), primary_key=True)
+
+    playlist = relationship("Playlist", back_populates="favorites")
+    user     = relationship("User")

@@ -41,8 +41,9 @@ export default function PlayerPage() {
 
     useEffect(() => {
         setIsMounted(true);
-        const lp = localStorage.getItem('vocarank_progress');
-        if (lp) setSavedProgress(parseFloat(lp));
+        // Load progress keyed by the current song ID to prevent cross-playlist leaking
+        // (Legacy: clear the old generic key)
+        localStorage.removeItem('vocarank_progress');
     }, []);
 
     // Redirect to home if no song is in the queue, BUT wait until Context is Initialized
@@ -51,6 +52,31 @@ export default function PlayerPage() {
 
         // Check if loading a shared queue
         const searchParams = new URLSearchParams(window.location.search);
+        // Check if loading a playlist by ID (from /playlist/[id] "Play All" button)
+        const playlistId = searchParams.get('playlist');
+        if (playlistId) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+            const loadPlaylist = async () => {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/playlists/${playlistId}`);
+                    if (!res.ok) return;
+                    const pl = await res.json();
+                    if (!pl.songs || pl.songs.length === 0) return;
+                    // Build SongRanking-compatible objects from playlist songs
+                    const songDetails = await Promise.all(
+                        pl.songs.map((s: { song_id: number }) =>
+                            fetch(`${API_BASE_URL}/songs/${s.song_id}`).then(r => r.ok ? r.json() : null)
+                        )
+                    );
+                    const valid = songDetails.filter((s): s is SongRanking => s !== null && !!s.youtube_id);
+                    if (valid.length > 0) playSong(valid[0], valid);
+                } catch { }
+            };
+            loadPlaylist();
+            return;
+        }
+
+        // Check if loading a shared queue
         const listIds = searchParams.get('list');
         if (listIds) {
             window.history.replaceState({}, document.title, window.location.pathname);
@@ -75,17 +101,25 @@ export default function PlayerPage() {
 
     const handleProgress = useCallback((state: { played: number, playedSeconds: number, loaded: number }) => {
         setProgress(state.played);
-        if (state.playedSeconds > 0) {
-            localStorage.setItem('vocarank_progress', state.playedSeconds.toString());
+        if (state.playedSeconds > 0 && currentSong) {
+            localStorage.setItem(`vocarank_progress_${currentSong.id}`, state.playedSeconds.toString());
         }
-    }, []);
+    }, [currentSong]);
 
     const handleReady = useCallback(() => {
-        if (savedProgress !== null && savedProgress > 0 && playerRef.current) {
+        if (!currentSong) return;
+        const savedKey = `vocarank_progress_${currentSong.id}`;
+        const saved = localStorage.getItem(savedKey);
+        if (saved && savedProgress === null) {
+            const seconds = parseFloat(saved);
+            if (seconds > 0 && playerRef.current) {
+                playerRef.current.seekTo(seconds, 'seconds');
+            }
+        } else if (savedProgress !== null && savedProgress > 0 && playerRef.current) {
             playerRef.current.seekTo(savedProgress, 'seconds');
             setSavedProgress(null);
         }
-    }, [savedProgress]);
+    }, [currentSong, savedProgress]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {

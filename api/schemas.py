@@ -150,3 +150,60 @@ class GoogleLogin(BaseModel):
 # --- Input Schemas ---
 class SongVoteCreate(BaseModel):
     vote_type: str
+
+# --- Playlist Schemas ---
+class PlaylistSongOut(BaseModel):
+    song_id: int
+    position: int
+    name_english: Optional[str] = None
+    name_japanese: Optional[str] = None
+    name_romaji: Optional[str] = None
+    youtube_id: Optional[str] = None
+    niconico_id: Optional[str] = None
+    niconico_thumb_url: Optional[str] = None
+    artist_string: Optional[str] = None
+    songwriter_string: Optional[str] = None
+    vocalist_string: Optional[str] = None
+    song_type: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+class PlaylistOwner(BaseModel):
+    id: int
+    name: Optional[str] = None
+    picture_url: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+class PlaylistOut(BaseModel):
+    id: int
+    user_id: int
+    title: str
+    description: Optional[str] = None
+    cover_url: Optional[str] = None
+    is_public: int
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+    song_count: int = 0
+    favorite_count: int = 0
+    is_favorited: bool = False
+    owner: Optional[PlaylistOwner] = None
+    songs: List[PlaylistSongOut] = []
+
+    class Config:
+        orm_mode = True
+
+class PlaylistCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    is_public: int = 1
+
+class PlaylistUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    is_public: Optional[int] = None
+
+class PlaylistAddSong(BaseModel):
+    song_id: int

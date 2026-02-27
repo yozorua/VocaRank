@@ -45,6 +45,7 @@ export const authOptions: AuthOptions = {
                             const profileData = await profileRes.json();
                             if (profileData.name) token.name = profileData.name;
                             if (profileData.picture_url) token.picture = profileData.picture_url;
+                            if (profileData.id) token.userId = profileData.id;
                         }
 
                     } else {
@@ -60,6 +61,9 @@ export const authOptions: AuthOptions = {
             // Make the API token available to the client session
             if (token && token.apiToken) {
                 session.apiToken = token.apiToken as string;
+            }
+            if (token && token.userId) {
+                (session as any).userId = token.userId as number;
             }
             // Bind VocaRank customizations
             if (token.name && session.user) session.user.name = token.name;
