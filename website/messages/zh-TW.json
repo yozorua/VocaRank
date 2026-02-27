@@ -245,7 +245,9 @@
         "up_next": "接下來播放",
         "tracks": "首歌曲",
         "share": "分享",
-        "link_copied": "播放清單連結已複製到剪貼簿！"
+        "link_copied": "播放清單連結已複製到剪貼簿！",
+        "add_to_queue": "新增歌曲至佇列…",
+        "already_in_queue": "已在佇列"
     },
     "Playlist": {
         "title": "播放清單",
@@ -267,7 +269,7 @@
         "play_all": "全部播放",
         "add_song": "新增歌曲",
         "already_added": "已新增",
-    "remove_song": "移除",
+        "remove_song": "移除",
         "add_song_placeholder": "以標題或歌曲ID搜尋...",
         "no_songs": "還沒有歌曲，快來新增吧！",
         "no_playlists": "未找到播放清單。",

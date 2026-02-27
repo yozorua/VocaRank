@@ -130,20 +130,14 @@ export default function PlaylistSongList({ songs: initialSongs, playlistId, apiT
                     >
                         {/* Drag handle indicator (owner only) */}
                         {isOwner && (
-                            <div className="shrink-0 text-[var(--hairline-strong)] group-hover:text-[var(--text-secondary)] transition-colors opacity-0 group-hover:opacity-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <line x1="8" y1="6" x2="16" y2="6" /><line x1="8" y1="12" x2="16" y2="12" /><line x1="8" y1="18" x2="16" y2="18" />
+                            <div className="hidden sm:block shrink-0 text-[var(--hairline-strong)] group-hover:text-[var(--text-secondary)] transition-colors opacity-0 group-hover:opacity-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="18" x2="20" y2="18" />
                                 </svg>
                             </div>
                         )}
 
-                        {/* Rank */}
-                        {!isOwner && (
-                            <span className="font-mono text-xs text-[var(--text-secondary)] w-6 shrink-0 text-right tabular-nums opacity-50">{idx + 1}</span>
-                        )}
-                        {isOwner && (
-                            <span className="font-mono text-xs text-[var(--text-secondary)] w-6 shrink-0 text-right tabular-nums opacity-30 group-hover:opacity-0 transition-opacity">{idx + 1}</span>
-                        )}
+
 
                         {/* Thumbnail */}
                         {(song.youtube_id || song.niconico_thumb_url) ? (

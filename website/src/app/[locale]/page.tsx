@@ -3,6 +3,7 @@ import { Link } from '@/i18n/navigation';
 import StatNumber from '@/components/StatNumber';
 import SignupCta from '@/components/SignupCta';
 import ThumbnailImage from '@/components/ThumbnailImage';
+import PodiumScroll from '@/components/PodiumScroll';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -210,76 +211,9 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             <div className="w-10 md:w-16 h-px bg-[var(--hairline-strong)]" />
           </div>
 
-          {/* ── Big thumbnail card podium — horizontal scroll ───────────────── */}
+          {/* ── Big thumbnail card podium — auto-scroll ───────────────── */}
           <div className="w-full animate-fade-in-up relative" style={{ animationDelay: '60ms' }}>
-            <div
-              className="flex gap-3 overflow-x-auto px-4 md:px-6 pb-2"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              {(dailyTop as SongRow[]).map((song, idx) => {
-                const rank = idx + 1;
-                const title = song.name_japanese || song.name_english || song.name_romaji || '—';
-                const thumb = song.niconico_thumb_url
-                  || (song.youtube_id ? `https://img.youtube.com/vi/${song.youtube_id}/maxresdefault.jpg` : null);
-                const isTop3 = rank <= 3;
-
-                return (
-                  <Link
-                    key={song.id}
-                    href={`/song/${song.id}`}
-                    className={`group flex-none relative overflow-hidden cursor-pointer transition-all duration-300
-                      ${isTop3
-                        ? 'w-[420px] md:w-[560px] h-[340px] md:h-[450px]'
-                        : 'w-[320px] md:w-[420px] h-[260px] md:h-[370px] opacity-80 hover:opacity-100'
-                      }
-                    `}
-                    style={{ border: `1px solid ${isTop3 ? `${rankColor(rank)}50` : 'var(--hairline)'}` }}
-                  >
-                    {/* Thumbnail */}
-                    {song.youtube_id || song.niconico_thumb_url ? (
-                      <ThumbnailImage
-                        youtubeId={song.youtube_id || ''}
-                        niconicoThumb={song.niconico_thumb_url}
-                        alt={title}
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-[var(--bg-panel)]" />
-                    )}
-
-                    {/* Gradient overlay for text readability */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-
-                    {/* Rank badge — top-left */}
-                    <span
-                      className="absolute top-3 left-4 font-black text-2xl select-none drop-shadow-lg"
-                      style={{ color: rankColor(rank) }}
-                    >
-                      {String(rank).padStart(2, '0')}
-                    </span>
-
-                    {/* Song info — bottom overlay */}
-                    <div className="absolute bottom-0 left-0 right-0 p-3">
-                      <p className={`font-bold text-white truncate drop-shadow-md group-hover:text-[var(--vermilion)] transition-colors ${isTop3 ? 'text-base' : 'text-sm'}`}>
-                        {title}
-                      </p>
-                      <p className="text-xs text-white/70 truncate mt-0.5 drop-shadow-md">
-                        {song.artists?.map((a: any) => a.name).join(' · ') || song.artist_string?.replace(/, /g, ' · ')}
-                      </p>
-                    </div>
-
-                    {/* Top-3 medal glow border on hover */}
-                    {isTop3 && (
-                      <div
-                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-                        style={{ boxShadow: `inset 0 0 20px ${rankColor(rank)}30` }}
-                      />
-                    )}
-                  </Link>
-                );
-              })}
-              <div className="flex-none w-4" />
-            </div>
+            <PodiumScroll songs={dailyTop as any} locale={locale} />
           </div>
 
           {/* Stat strip — bigger text */}

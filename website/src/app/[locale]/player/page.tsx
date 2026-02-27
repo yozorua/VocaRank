@@ -8,6 +8,7 @@ import FavoriteButton from '@/components/FavoriteButton';
 import { useTranslations, useLocale } from 'next-intl';
 import { API_BASE_URL } from '@/lib/api';
 import { SongRanking } from '@/types';
+import { useSession } from 'next-auth/react';
 
 export default function PlayerPage() {
     const {
@@ -28,11 +29,13 @@ export default function PlayerPage() {
         isInitialized,
         removeFromQueue,
         addToQueue,
+        reorderQueue,
     } = usePlayer();
 
     const router = useRouter();
     const t = useTranslations();
     const locale = useLocale();
+    const { data: session } = useSession();
     const playerRef = useRef<ReactPlayer>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [progress, setProgress] = useState(0);
@@ -44,7 +47,10 @@ export default function PlayerPage() {
     const [queueSearchResults, setQueueSearchResults] = useState<SongRanking[]>([]);
     const [queueSearchLoading, setQueueSearchLoading] = useState(false);
     const queueSearchTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-    const isLoadingFromUrl = React.useRef(false); // prevent redirect while loading ?playlist= or ?list=
+    const isLoadingFromUrl = React.useRef(false);
+    const queueDragIdx = React.useRef<number | null>(null);
+    const queueDragOverIdx = React.useRef<number | null>(null);
+    const [queueDragOver, setQueueDragOver] = React.useState<number | null>(null);
 
     useEffect(() => {
         setIsMounted(true);
@@ -63,11 +69,16 @@ export default function PlayerPage() {
         const playlistId = searchParams.get('playlist');
         if (playlistId) {
             window.history.replaceState({}, document.title, window.location.pathname);
-            isLoadingFromUrl.current = true; // block redirect while loading
+            isLoadingFromUrl.current = true;
             const loadPlaylist = async () => {
                 try {
-                    const res = await fetch(`${API_BASE_URL}/playlists/${playlistId}`);
-                    if (!res.ok) return;
+                    const apiToken = (session as any)?.apiToken;
+                    const headers: HeadersInit = apiToken ? { Authorization: `Bearer ${apiToken}` } : {};
+                    const res = await fetch(`${API_BASE_URL}/playlists/${playlistId}`, { headers });
+                    if (!res.ok) {
+                        console.warn(`[Player] Could not load playlist ${playlistId}: HTTP ${res.status}`);
+                        return;
+                    }
                     const pl = await res.json();
                     if (!pl.songs || pl.songs.length === 0) return;
                     const songDetails = await Promise.all(
@@ -482,9 +493,28 @@ export default function PlayerPage() {
                             return (
                                 <div
                                     key={`${song.id}-${idx}`}
-                                    className={`flex items-center gap-3 p-2 rounded-lg group transition-colors ${isCurrent ? 'bg-white/10 border border-white/20' : 'hover:bg-white/5 border border-transparent cursor-pointer'}`}
+                                    draggable
+                                    onDragStart={() => { queueDragIdx.current = idx; }}
+                                    onDragEnter={() => { queueDragOverIdx.current = idx; setQueueDragOver(idx); }}
+                                    onDragOver={e => e.preventDefault()}
+                                    onDragEnd={() => {
+                                        const from = queueDragIdx.current;
+                                        const to = queueDragOverIdx.current;
+                                        queueDragIdx.current = null;
+                                        queueDragOverIdx.current = null;
+                                        setQueueDragOver(null);
+                                        if (from !== null && to !== null && from !== to) reorderQueue(from, to);
+                                    }}
+                                    className={`flex items-center gap-3 p-2 rounded-lg group transition-colors cursor-grab active:cursor-grabbing
+                                        ${isCurrent ? 'bg-white/10 border border-white/20' : 'border border-transparent hover:bg-white/5'}
+                                        ${queueDragOver === idx ? 'border-t-2 border-t-[var(--vermilion)]/60' : ''}
+                                    `}
                                     onClick={() => { if (!isCurrent) playSong(song, queue); }}
                                 >
+                                    {/* Drag handle */}
+                                    <div className="hidden sm:flex shrink-0 opacity-0 group-hover:opacity-40 transition-opacity text-white">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="18" x2="20" y2="18" /></svg>
+                                    </div>
                                     <div className="relative w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-black">
                                         <img src={`https://i.ytimg.com/vi/${song.youtube_id}/default.jpg`} alt="" className="w-full h-full object-cover grayscale-[30%]" />
                                         {isCurrent && (
@@ -500,7 +530,7 @@ export default function PlayerPage() {
                                             {queueSongTitle}
                                         </p>
                                         <p className="text-[11px] truncate mt-0.5 text-[var(--text-secondary)]">
-                                            {song.artists?.map((a: any) => a.name).join(' • ')}
+                                            {song.artists?.map((a: any) => a.name).join(' · ')}
                                         </p>
                                     </div>
                                     {/* Remove from queue button */}
@@ -573,8 +603,8 @@ export default function PlayerPage() {
                                             <button
                                                 onClick={() => { if (!inQueue) addToQueue(song); }}
                                                 className={`shrink-0 flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold transition-colors ${inQueue
-                                                        ? 'text-[var(--vermilion)] cursor-default'
-                                                        : 'text-[var(--text-secondary)] hover:text-white hover:bg-white/10'
+                                                    ? 'text-[var(--vermilion)] cursor-default'
+                                                    : 'text-[var(--text-secondary)] hover:text-white hover:bg-white/10'
                                                     }`}
                                             >
                                                 {inQueue
