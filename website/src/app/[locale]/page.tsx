@@ -200,10 +200,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
         <div className="relative z-10 w-full flex flex-col items-center gap-6">
 
-          {/* Eyebrow — flush near navbar */}
-          <div className="flex items-center gap-4 animate-fade-in-up px-6" style={{ animationDelay: '0ms' }}>
+          {/* Eyebrow — hidden on mobile, flush near navbar on desktop */}
+          <div className="hidden md:flex items-center gap-4 animate-fade-in-up px-6" style={{ animationDelay: '0ms' }}>
             <div className="w-10 md:w-16 h-px bg-[var(--hairline-strong)]" />
-            <span className="text-[9px] text-[var(--text-secondary)] tracking-[0.5em] uppercase font-light select-none">
+            <span className="text-xs text-[var(--text-secondary)] tracking-[0.35em] uppercase font-light select-none">
               Vocaloid
             </span>
             <div className="w-10 md:w-16 h-px bg-[var(--hairline-strong)]" />
@@ -283,7 +283,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
           {/* Stat strip — bigger text */}
           {stats && (
-            <p className="text-xs text-[var(--text-secondary)] tracking-[0.35em] uppercase animate-fade-in-up px-6"
+            <p className="text-xs text-[var(--text-secondary)] tracking-[0.35em] animate-fade-in-up px-6"
               style={{ animationDelay: '120ms' }}>
               <StatNumber value={stats.vocaloid_songs} suffix={t('stat_songs')} />
               <span className="mx-3 opacity-30">·</span>
@@ -294,7 +294,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
           {/* CTA Buttons — spaced away from stat strip */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-8 animate-fade-in-up px-6 mt-4" style={{ animationDelay: '160ms' }}>
             <Link href="/ranking"
-              className="group relative px-12 py-5 text-white font-medium text-sm tracking-[0.3em] uppercase transition-all hover:text-[var(--vermilion)]">
+              className="group relative px-12 py-5 text-white font-medium text-sm tracking-[0.15em] transition-all hover:text-[var(--vermilion)]">
               <div className="absolute inset-0 border border-[var(--hairline-strong)] group-hover:border-[var(--vermilion)]/50 transition-colors duration-500" />
               <div className="absolute -top-[1px] -left-[1px] w-3 h-3 border-t border-l border-white group-hover:border-[var(--vermilion)] group-hover:-translate-x-1 group-hover:-translate-y-1 transition-all duration-300" />
               <div className="absolute -top-[1px] -right-[1px] w-3 h-3 border-t border-r border-white group-hover:border-[var(--vermilion)] group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-300" />
@@ -304,7 +304,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             </Link>
 
             <Link href="/search"
-              className="group relative px-6 py-4 text-[var(--text-secondary)] font-light text-sm tracking-[0.3em] uppercase transition-all hover:text-white">
+              className="group relative px-6 py-4 text-[var(--text-secondary)] font-light text-sm tracking-[0.15em] transition-all hover:text-white">
               <span className="inline-block font-serif opacity-50 group-hover:opacity-100 group-hover:text-[var(--vermilion)] group-hover:-translate-x-2 transition-all duration-300 mr-2">〈</span>
               <span>{t('cta_search')}</span>
               <span className="inline-block font-serif opacity-50 group-hover:opacity-100 group-hover:text-[var(--vermilion)] group-hover:translate-x-2 transition-all duration-300 ml-2">〉</span>
@@ -412,7 +412,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             <div className="flex gap-8 md:gap-16 items-start">
               <div className="hidden md:flex vertical-text text-[var(--vermilion)] text-[10px] tracking-[0.5em] opacity-60 select-none shrink-0">VocaRank について</div>
               <div className="flex-1 flex flex-col gap-4">
-                <h2 className="text-lg font-bold tracking-[0.2em] uppercase text-white">{t('about_title')}</h2>
+                <h2 className="text-lg font-bold tracking-[0.05em] text-white">{t('about_title')}</h2>
                 <div className="w-12 h-px bg-[var(--vermilion)] opacity-60" />
                 <p className="text-[var(--text-secondary)] leading-loose font-light text-sm md:text-base">{t('about_body')}</p>
               </div>
