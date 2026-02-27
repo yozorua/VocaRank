@@ -51,7 +51,7 @@ export default async function PlaylistPage() {
                         <h1 className="text-2xl md:text-3xl font-bold mb-1">{t('title')}</h1>
                         <p className="text-[var(--text-secondary)] text-sm md:text-base">{t('description')}</p>
                     </div>
-                    {session && (
+                    {apiToken ? (
                         <Link
                             href="/playlist/new"
                             title={t('create')}
@@ -60,6 +60,15 @@ export default async function PlaylistPage() {
                             <span className="md:hidden text-base leading-none">+</span>
                             <span className="hidden md:inline">+ {t('create')}</span>
                         </Link>
+                    ) : (
+                        <a
+                            href={`/api/auth/signin?callbackUrl=/${locale}/playlist/new`}
+                            title={t('create')}
+                            className="shrink-0 w-9 h-9 md:w-auto md:h-auto md:px-5 md:py-2.5 flex items-center justify-center text-sm tracking-[0.12em] text-white border border-[var(--hairline-strong)] hover:text-[var(--vermilion)] hover:border-[var(--vermilion)]/50 transition-all"
+                        >
+                            <span className="md:hidden text-base leading-none">+</span>
+                            <span className="hidden md:inline">+ {t('create')}</span>
+                        </a>
                     )}
                 </div>
 

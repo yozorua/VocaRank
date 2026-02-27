@@ -6,10 +6,10 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import MosaicCover from '@/components/playlist/MosaicCover';
 import FavoritePlaylistButton from '@/components/playlist/FavoritePlaylistButton';
 import PlaylistForm from '@/components/playlist/PlaylistForm';
-import ThumbnailImage from '@/components/ThumbnailImage';
 import AddSongToPlaylist from '@/components/playlist/AddSongToPlaylist';
 import DeletePlaylistButton from '@/components/playlist/DeletePlaylistButton';
 import SharePlaylistButton from '@/components/playlist/SharePlaylistButton';
+import PlaylistSongList from '@/components/playlist/PlaylistSongList';
 
 const API = process.env.API_URL_INTERNAL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -147,71 +147,23 @@ export default async function PlaylistDetailPage({ params }: { params: Promise<{
                         playlistId={playlist.id}
                         placeholder={t('add_song_placeholder')}
                         addLabel={t('add_song')}
+                        alreadyAddedLabel={t('already_added')}
+                        existingSongIds={playlist.songs.map((s: any) => s.song_id)}
                     />
                 )}
 
                 {/* Song list */}
-                <div className="glass-panel hairline-border">
+                <div className="glass-panel hairline-border overflow-hidden">
                     {playlist.songs.length === 0 ? (
                         <div className="px-8 py-12 text-center text-[var(--text-secondary)] text-sm">{t('no_songs')}</div>
                     ) : (
-                        <div className="divide-y divide-[var(--hairline)]">
-                            {playlist.songs.map((song, idx) => {
-                                const title = song.name_japanese || song.name_english || song.name_romaji || '—';
-                                const songType = song.song_type;
-                                const typeEl = songType === 'Original'
-                                    ? <span className="text-[var(--cyan-subtle)] font-bold uppercase text-[10px] tracking-widest">ORIGINAL</span>
-                                    : songType === 'Cover'
-                                        ? <span className="text-[#E8954A] font-bold uppercase text-[10px] tracking-widest">COVER</span>
-                                        : songType === 'Remix'
-                                            ? <span className="text-[var(--gold)] font-bold uppercase text-[10px] tracking-widest">REMIX</span>
-                                            : songType === 'Remaster'
-                                                ? <span className="text-[#B284BE] font-bold uppercase text-[10px] tracking-widest">REMASTER</span>
-                                                : songType
-                                                    ? <span className="text-[var(--text-secondary)] font-bold uppercase text-[10px] tracking-widest">{songType.toUpperCase()}</span>
-                                                    : null;
-                                return (
-                                    <Link key={song.song_id} href={`/song/${song.song_id}`}
-                                        className="flex items-center gap-4 px-5 py-3.5 hover:bg-[var(--hairline)] transition-colors group">
-                                        {/* Rank number */}
-                                        <span className="font-mono text-xs text-[var(--text-secondary)] w-6 shrink-0 text-right tabular-nums opacity-50">{idx + 1}</span>
-                                        {/* Thumbnail — 96×64 like ranking table */}
-                                        {(song.youtube_id || song.niconico_thumb_url) ? (
-                                            <ThumbnailImage
-                                                youtubeId={song.youtube_id}
-                                                niconicoThumb={song.niconico_thumb_url}
-                                                alt={title}
-                                                className="w-24 h-16 object-cover shrink-0 border border-[var(--hairline)]"
-                                            />
-                                        ) : (
-                                            <div className="w-24 h-16 bg-white/5 border border-[var(--hairline)] shrink-0" />
-                                        )}
-                                        {/* Title + producers + vocals — ranking table layout */}
-                                        <div className="flex-1 min-w-0">
-                                            <p className="font-bold text-white text-base line-clamp-1 group-hover:text-[var(--vermilion)] transition-colors tracking-wide mb-1.5">{title}</p>
-                                            <div className="flex flex-col gap-1">
-                                                {/* Type + producers row */}
-                                                <div className="text-[11px] text-[var(--text-secondary)] flex items-center gap-2 min-w-0">
-                                                    <div className="w-[72px] flex-shrink-0">{typeEl}</div>
-                                                    <div className="truncate min-w-0">{song.songwriter_string || song.artist_string}</div>
-                                                </div>
-                                                {/* Vocals row */}
-                                                {song.vocalist_string && (
-                                                    <div className="text-[11px] text-[var(--text-secondary)] flex items-center gap-2 min-w-0">
-                                                        <div className="w-[72px] flex-shrink-0 text-[9px] uppercase tracking-widest text-white/40">VOCALS</div>
-                                                        <div className="truncate min-w-0">{song.vocalist_string}</div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                        {/* Arrow */}
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-[var(--hairline-strong)] group-hover:text-[var(--vermilion)] transition-colors">
-                                            <polyline points="9 18 15 12 9 6" />
-                                        </svg>
-                                    </Link>
-                                );
-                            })}
-                        </div>
+                        <PlaylistSongList
+                            songs={playlist.songs}
+                            playlistId={playlist.id}
+                            apiToken={(session as any)?.apiToken ?? ''}
+                            locale={locale}
+                            isOwner={isOwner}
+                        />
                     )}
                 </div>
             </div>

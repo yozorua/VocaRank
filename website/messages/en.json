@@ -232,6 +232,8 @@
     "month": "Month",
     "switch_year": "Yearly",
     "switch_month": "Monthly",
+    "switch_count": "Count",
+    "switch_percent": "Ratio %",
     "song_count": "Published Tracks",
     "songs": "songs"
   },
@@ -239,7 +241,9 @@
     "up_next": "Up Next",
     "tracks": "Tracks",
     "share": "Share",
-    "link_copied": "Playlist link copied to clipboard!"
+    "link_copied": "Playlist link copied to clipboard!",
+    "add_to_queue": "Add song to queue…",
+    "already_in_queue": "In queue"
   },
   "Playlist": {
     "title": "Playlists",
@@ -260,6 +264,7 @@
     "song_count": "{count} songs",
     "play_all": "Play All",
     "add_song": "Add Song",
+    "already_added": "Already added",
     "remove_song": "Remove",
     "add_song_placeholder": "Search by title or song ID...",
     "no_songs": "No songs yet. Add some!",

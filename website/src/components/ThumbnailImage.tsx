@@ -11,14 +11,13 @@ type Props = {
 
 /**
  * Priority:
- *  1. YouTube maxresdefault  (if youtube_id present — always prefer for quality)
- *  2. YouTube hqdefault      (fallback when maxres doesn't exist)
- *  3. YouTube mqdefault      (further fallback)
- *  4. Niconico thumbnail     (only if no youtube_id at all)
+ *  1. YouTube hqdefault
+ *  2. YouTube mqdefault
+ *  3. Niconico thumbnail    (final fallback, even when youtube_id is present)
  */
 export default function ThumbnailImage({ youtubeId, niconicoThumb, alt, className }: Props) {
     const buildSrc = () => {
-        if (youtubeId) return `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
+        if (youtubeId) return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
         if (niconicoThumb) return niconicoThumb;
         return null;
     };
@@ -28,14 +27,12 @@ export default function ThumbnailImage({ youtubeId, niconicoThumb, alt, classNam
     if (!src) return null;
 
     const handleError = () => {
-        if (!youtubeId) return; // niconico already — nothing to fall back to
+        if (!youtubeId) return;
         const hq = `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
         const mq = `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`;
-        const max = `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
 
-        if (src === max) setSrc(hq);
-        else if (src === hq) setSrc(mq);
-        // mqdefault always exists — stop here
+        if (src === hq) setSrc(mq);
+        else if (src === mq && niconicoThumb) setSrc(niconicoThumb);
     };
 
     return (

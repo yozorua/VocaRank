@@ -95,11 +95,20 @@ export default function LiveSearchInput({ defaultValue, placeholder }: LiveSearc
                 onFocus={() => { if (query.trim() && (artists.length > 0 || songs.length > 0)) setIsOpen(true); }}
                 placeholder={placeholder}
                 autoComplete="off"
-                className="w-full bg-[var(--bg-dark)] border-b-2 border-[var(--hairline-strong)] text-white text-lg px-2 py-4 focus:outline-none focus:border-[var(--vermilion)] transition-colors placeholder:text-[var(--text-secondary)] placeholder:text-sm placeholder:tracking-wider placeholder:font-sans font-bold"
+                className="w-full bg-[var(--bg-dark)] border-b-2 border-[var(--hairline-strong)] text-white text-lg px-2 py-4 pr-10 focus:outline-none focus:border-[var(--vermilion)] transition-colors placeholder:text-[var(--text-secondary)] placeholder:text-sm placeholder:tracking-wider placeholder:font-sans font-bold"
             />
-            {loading && (
+            {loading ? (
                 <div className="absolute right-3 top-5 w-5 h-5 rounded-full border-t-2 border-[var(--vermilion)] animate-spin"></div>
-            )}
+            ) : query ? (
+                <button
+                    type="button"
+                    onClick={() => { setQuery(''); setArtists([]); setSongs([]); setIsOpen(false); }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-white transition-colors p-1"
+                    aria-label="Clear"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                </button>
+            ) : null}
 
             {isOpen && (artists.length > 0 || songs.length > 0) && (
                 <div className="absolute z-50 w-full mt-1 bg-black/95 border border-[var(--hairline-strong)] backdrop-blur-md shadow-2xl max-h-[60vh] overflow-y-auto">

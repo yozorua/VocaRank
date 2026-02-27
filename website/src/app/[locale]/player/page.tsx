@@ -25,7 +25,9 @@ export default function PlayerPage() {
         isShuffled,
         toggleShuffle,
         playSong,
-        isInitialized
+        isInitialized,
+        removeFromQueue,
+        addToQueue,
     } = usePlayer();
 
     const router = useRouter();
@@ -38,6 +40,11 @@ export default function PlayerPage() {
     const [isMounted, setIsMounted] = useState(false);
     const [savedProgress, setSavedProgress] = useState<number | null>(null);
     const [showCopied, setShowCopied] = useState(false);
+    const [queueSearch, setQueueSearch] = useState('');
+    const [queueSearchResults, setQueueSearchResults] = useState<SongRanking[]>([]);
+    const [queueSearchLoading, setQueueSearchLoading] = useState(false);
+    const queueSearchTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+    const isLoadingFromUrl = React.useRef(false); // prevent redirect while loading ?playlist= or ?list=
 
     useEffect(() => {
         setIsMounted(true);
@@ -56,13 +63,13 @@ export default function PlayerPage() {
         const playlistId = searchParams.get('playlist');
         if (playlistId) {
             window.history.replaceState({}, document.title, window.location.pathname);
+            isLoadingFromUrl.current = true; // block redirect while loading
             const loadPlaylist = async () => {
                 try {
                     const res = await fetch(`${API_BASE_URL}/playlists/${playlistId}`);
                     if (!res.ok) return;
                     const pl = await res.json();
                     if (!pl.songs || pl.songs.length === 0) return;
-                    // Build SongRanking-compatible objects from playlist songs
                     const songDetails = await Promise.all(
                         pl.songs.map((s: { song_id: number }) =>
                             fetch(`${API_BASE_URL}/songs/${s.song_id}`).then(r => r.ok ? r.json() : null)
@@ -71,6 +78,7 @@ export default function PlayerPage() {
                     const valid = songDetails.filter((s): s is SongRanking => s !== null && !!s.youtube_id);
                     if (valid.length > 0) playSong(valid[0], valid);
                 } catch { }
+                finally { isLoadingFromUrl.current = false; }
             };
             loadPlaylist();
             return;
@@ -80,21 +88,21 @@ export default function PlayerPage() {
         const listIds = searchParams.get('list');
         if (listIds) {
             window.history.replaceState({}, document.title, window.location.pathname);
+            isLoadingFromUrl.current = true;
             const fetchQueue = async () => {
                 try {
-                    const ids = listIds.split(',').slice(0, 50); // Hard limit 50 songs
+                    const ids = listIds.split(',').slice(0, 50);
                     const songsRaw = await Promise.all(ids.map(id => fetch(`${API_BASE_URL}/songs/${id}`).then(res => res.ok ? res.json() : null)));
                     const validSongs = songsRaw.filter(s => s && s.youtube_id);
-                    if (validSongs.length > 0) {
-                        playSong(validSongs[0], validSongs);
-                    }
-                } catch (e) { }
+                    if (validSongs.length > 0) playSong(validSongs[0], validSongs);
+                } catch { }
+                finally { isLoadingFromUrl.current = false; }
             };
             fetchQueue();
             return;
         }
 
-        if (!currentSong) {
+        if (!currentSong && !isLoadingFromUrl.current) {
             router.push('/');
         }
     }, [currentSong, isMounted, isInitialized, router, playSong]);
@@ -475,11 +483,7 @@ export default function PlayerPage() {
                                 <div
                                     key={`${song.id}-${idx}`}
                                     className={`flex items-center gap-3 p-2 rounded-lg group transition-colors ${isCurrent ? 'bg-white/10 border border-white/20' : 'hover:bg-white/5 border border-transparent cursor-pointer'}`}
-                                    onClick={() => {
-                                        if (!isCurrent) {
-                                            playSong(song, queue);
-                                        }
-                                    }}
+                                    onClick={() => { if (!isCurrent) playSong(song, queue); }}
                                 >
                                     <div className="relative w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-black">
                                         <img src={`https://i.ytimg.com/vi/${song.youtube_id}/default.jpg`} alt="" className="w-full h-full object-cover grayscale-[30%]" />
@@ -495,13 +499,94 @@ export default function PlayerPage() {
                                         <p className={`text-sm font-bold truncate ${isCurrent ? 'text-white' : 'text-[var(--text-secondary)] group-hover:text-white'}`}>
                                             {queueSongTitle}
                                         </p>
-                                        <p className={`text-[11px] truncate mt-0.5 text-[var(--text-secondary)]`}>
+                                        <p className="text-[11px] truncate mt-0.5 text-[var(--text-secondary)]">
                                             {song.artists?.map((a: any) => a.name).join(' • ')}
                                         </p>
                                     </div>
+                                    {/* Remove from queue button */}
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); removeFromQueue(idx); }}
+                                        title="Remove from queue"
+                                        className="shrink-0 opacity-0 group-hover:opacity-100 text-[var(--text-secondary)] hover:text-red-400 transition-all p-1 rounded"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                                    </button>
                                 </div>
                             );
                         })}
+                    </div>
+
+                    {/* Add to Queue search */}
+                    <div className="border-t border-[var(--hairline-strong)] pt-3 flex flex-col gap-2">
+                        <div className="relative">
+                            <input
+                                type="text"
+                                placeholder={t('Player.add_to_queue')}
+                                value={queueSearch}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    setQueueSearch(val);
+                                    if (queueSearchTimeout.current) clearTimeout(queueSearchTimeout.current);
+                                    if (!val.trim()) { setQueueSearchResults([]); return; }
+                                    setQueueSearchLoading(true);
+                                    queueSearchTimeout.current = setTimeout(async () => {
+                                        try {
+                                            const res = await fetch(`${API_BASE_URL}/songs/search?query=${encodeURIComponent(val)}&limit=5`);
+                                            if (res.ok) setQueueSearchResults(await res.json());
+                                        } catch { }
+                                        setQueueSearchLoading(false);
+                                    }, 350);
+                                }}
+                                className="w-full bg-white/5 border border-[var(--hairline)] rounded-lg px-3 py-2 pr-8 text-sm text-white placeholder-[var(--text-secondary)] focus:outline-none focus:border-[var(--vermilion)]/50 transition-colors"
+                            />
+                            {queueSearch ? (
+                                <button
+                                    onClick={() => { setQueueSearch(''); setQueueSearchResults([]); }}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-white transition-colors p-0.5"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                                </button>
+                            ) : queueSearchLoading && (
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                    <div className="w-3.5 h-3.5 border-2 border-white/20 border-t-white/70 rounded-full animate-spin" />
+                                </div>
+                            )}
+                        </div>
+                        {queueSearchResults.length > 0 && (
+                            <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
+                                {queueSearchResults.map((song) => {
+                                    const title = locale === 'ja' || locale === 'zh-TW'
+                                        ? (song.name_japanese || song.name_romaji || song.name_english)
+                                        : (song.name_english || song.name_romaji || song.name_japanese);
+                                    const inQueue = queue.some(s => s.id === song.id);
+                                    const producers = song.artists
+                                        ?.filter((a: any) => !['Vocaloid', 'UTAU', 'OtherVoiceSynthesizer'].includes(a.artist_type))
+                                        .map((a: any) => a.name).join(' · ')
+                                        || song.artist_string?.replace(/, /g, ' · ');
+                                    return (
+                                        <div key={song.id} className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white/5 transition-colors">
+                                            <img src={`https://i.ytimg.com/vi/${song.youtube_id}/default.jpg`} alt="" className="w-10 h-10 object-cover rounded shrink-0" />
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs text-white font-semibold truncate">{title}</p>
+                                                {producers && <p className="text-[10px] text-[var(--text-secondary)] truncate mt-0.5">{producers}</p>}
+                                            </div>
+                                            <button
+                                                onClick={() => { if (!inQueue) addToQueue(song); }}
+                                                className={`shrink-0 flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold transition-colors ${inQueue
+                                                        ? 'text-[var(--vermilion)] cursor-default'
+                                                        : 'text-[var(--text-secondary)] hover:text-white hover:bg-white/10'
+                                                    }`}
+                                            >
+                                                {inQueue
+                                                    ? <><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg><span>{t('Player.already_in_queue')}</span></>
+                                                    : <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                                                }
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

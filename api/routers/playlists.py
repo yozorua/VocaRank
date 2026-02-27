@@ -67,6 +67,17 @@ def _niconico_id(song: models.Song) -> Optional[str]:
         pass
     return None
 
+def _niconico_thumb(song: models.Song) -> Optional[str]:
+    """Extracts NicoNico thumbnail URL from pv_data (same source as extract_pvs uses)."""
+    try:
+        pvs = json.loads(song.pv_data or "[]")
+        for pv in pvs:
+            if pv.get("service") == "NicoNicoDouga":
+                return pv.get("thumbUrl")
+    except Exception:
+        pass
+    return None
+
 def _artist_string(song: models.Song) -> str:
     return " · ".join(
         a.name_default or a.name_english or ""
@@ -103,7 +114,7 @@ def _build_song_out(ps: models.PlaylistSong) -> schemas.PlaylistSongOut:
         name_romaji=song.name_romaji,
         youtube_id=_youtube_id(song),
         niconico_id=_niconico_id(song),
-        niconico_thumb_url=getattr(song, 'niconico_thumb_url', None),
+        niconico_thumb_url=_niconico_thumb(song),
         artist_string=_artist_string(song),
         songwriter_string=_songwriter_string(song),
         vocalist_string=_vocalist_string(song),
@@ -325,6 +336,36 @@ def remove_song(
         pl.updated_at = datetime.utcnow().isoformat()
         db.commit()
         db.refresh(pl)
+    return _build_playlist_out(pl, db, current_user.id, include_songs=True)
+
+
+# ── PATCH /playlists/{id}/songs/reorder — reorder songs ──────────────────────
+
+from pydantic import BaseModel as PydanticBase
+
+class ReorderBody(PydanticBase):
+    song_ids: list[int]  # ordered list of song_ids
+
+@router.patch("/{playlist_id}/songs/reorder", response_model=schemas.PlaylistOut)
+def reorder_songs(
+    playlist_id: int,
+    body: ReorderBody,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user_from_token),
+):
+    pl = db.query(models.Playlist).filter(models.Playlist.id == playlist_id).first()
+    if not pl:
+        raise HTTPException(status_code=404)
+    if pl.user_id != current_user.id:
+        raise HTTPException(status_code=403)
+    for pos, sid in enumerate(body.song_ids):
+        ps = db.query(models.PlaylistSong).filter_by(
+            playlist_id=playlist_id, song_id=sid).first()
+        if ps:
+            ps.position = pos
+    pl.updated_at = datetime.utcnow().isoformat()
+    db.commit()
+    db.refresh(pl)
     return _build_playlist_out(pl, db, current_user.id, include_songs=True)
 
 

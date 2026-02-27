@@ -183,13 +183,13 @@ export default function VocaloidStatsClient() {
                             onClick={() => setNormalizeEngine(false)}
                             className={`px-3 py-1.5 text-sm font-bold rounded-md transition-colors ${!normalizeEngine ? 'bg-[#5680E9] text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-white'}`}
                         >
-                            Count
+                            {t('switch_count')}
                         </button>
                         <button
                             onClick={() => setNormalizeEngine(true)}
                             className={`px-3 py-1.5 text-sm font-bold rounded-md transition-colors ${normalizeEngine ? 'bg-[#5680E9] text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-white'}`}
                         >
-                            %
+                            {t('switch_percent')}
                         </button>
                     </div>
                 </div>
@@ -211,7 +211,7 @@ export default function VocaloidStatsClient() {
                                 stroke="#888"
                                 tick={{ fill: '#888', fontSize: 12 }}
                                 domain={normalizeEngine ? [0, 100] : ['auto', 'auto']}
-                                tickFormatter={normalizeEngine ? (v: number) => `${v}%` : undefined}
+                                tickFormatter={normalizeEngine ? (v: number) => `${Math.round(v)}%` : undefined}
                             />
                             <Tooltip
                                 cursor={{ stroke: 'rgba(255,255,255,0.2)' }}

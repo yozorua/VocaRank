@@ -22,6 +22,9 @@ interface PlayerContextType {
     prevSong: () => void;
     setVolume: (level: number) => void;
     clearPlayer: () => void;
+    removeFromQueue: (index: number) => void;
+    addToQueue: (song: SongRanking) => void;
+    reorderQueue: (fromIdx: number, toIdx: number) => void;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -165,10 +168,48 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         setIsPlaying(false);
     };
 
+    const removeFromQueue = (index: number) => {
+        setQueue(prev => {
+            const next = prev.filter((_, i) => i !== index);
+            // Adjust currentIndex if needed
+            if (index < currentIndex) setCurrentIndex(ci => ci - 1);
+            else if (index === currentIndex) {
+                // Stay on same index (now points to next song), or go back one
+                if (index >= next.length) setCurrentIndex(Math.max(0, next.length - 1));
+            }
+            return next;
+        });
+    };
+
+    const addToQueue = (song: SongRanking) => {
+        setQueue(prev => {
+            if (prev.some(s => s.id === song.id)) return prev;
+            return [...prev, song];
+        });
+    };
+
+    const reorderQueue = (fromIdx: number, toIdx: number) => {
+        if (fromIdx === toIdx) return;
+        setQueue(prev => {
+            const next = [...prev];
+            const [moved] = next.splice(fromIdx, 1);
+            next.splice(toIdx, 0, moved);
+            return next;
+        });
+        // Keep currentIndex tracking the same playing song
+        setCurrentIndex(ci => {
+            if (ci === fromIdx) return toIdx;
+            if (fromIdx < ci && toIdx >= ci) return ci - 1;
+            if (fromIdx > ci && toIdx <= ci) return ci + 1;
+            return ci;
+        });
+    };
+
     return (
         <PlayerContext.Provider value={{
             queue, currentIndex, currentSong, isPlaying, loopMode, isShuffled, volume, isInitialized,
-            playSong, togglePlay, toggleLoop, toggleShuffle, setLoopMode, nextSong, prevSong, setVolume, clearPlayer
+            playSong, togglePlay, toggleLoop, toggleShuffle, setLoopMode, nextSong, prevSong, setVolume, clearPlayer,
+            removeFromQueue, addToQueue, reorderQueue
         }}>
             {children}
         </PlayerContext.Provider>

@@ -10,7 +10,7 @@
         "cta_search": "探索する",
         "cta_signup": "無料登録でお気に入り・ランキングを活用しよう",
         "stat_songs": "曲",
-        "stat_producers": "クリエイター",
+        "stat_producers": "プロデューサー",
         "preview_notice": "このサイトは現在開発中です — 一部の機能は未完成の場合があります",
         "section_top_movers": "本日のおすすめ",
         "top_movers_today": "デイリーハイライト",
@@ -236,6 +236,8 @@
         "month": "月",
         "switch_year": "年別",
         "switch_month": "月別",
+        "switch_count": "件数",
+        "switch_percent": "割合 %",
         "song_count": "公開トラック数",
         "songs": "曲"
     },
@@ -243,11 +245,13 @@
         "up_next": "次に再生",
         "tracks": "曲",
         "share": "シェア",
-        "link_copied": "プレイリストのリンクをコピーしました！"
+        "link_copied": "プレイリストのリンクをコピーしました！",
+        "add_to_queue": "キューに曲を追加…",
+        "already_in_queue": "追加済み"
     },
     "Playlist": {
         "title": "プレイリスト",
-        "description": "ボカロイドのプレイリストを探索・作成しましょう。",
+        "description": "ボカロ曲のプレイリストを探索・作成しましょう。",
         "browse": "プレイリスト一覧",
         "mine": "マイプレイリスト",
         "create": "プレイリストを作る",
@@ -264,7 +268,8 @@
         "song_count": "{count}曲",
         "play_all": "全曲再生",
         "add_song": "曲を追加",
-        "remove_song": "削除",
+        "already_added": "追加済み",
+    "remove_song": "削除",
         "add_song_placeholder": "曲名またはソングIDで検索...",
         "no_songs": "まだ曲がありません。追加してみてください！",
         "no_playlists": "プレイリストが見つかりません。",

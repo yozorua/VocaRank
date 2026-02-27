@@ -236,6 +236,8 @@
         "month": "月份",
         "switch_year": "按年顯示",
         "switch_month": "按月顯示",
+        "switch_count": "數量",
+        "switch_percent": "比例 %",
         "song_count": "發布軌道數量",
         "songs": "首"
     },
@@ -264,7 +266,8 @@
         "song_count": "{count} 首",
         "play_all": "全部播放",
         "add_song": "新增歌曲",
-        "remove_song": "移除",
+        "already_added": "已新增",
+    "remove_song": "移除",
         "add_song_placeholder": "以標題或歌曲ID搜尋...",
         "no_songs": "還沒有歌曲，快來新增吧！",
         "no_playlists": "未找到播放清單。",

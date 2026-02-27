@@ -63,6 +63,7 @@ type SongRow = {
   increment_niconico?: number;
   niconico_thumb_url?: string | null;
   youtube_id?: string | null;
+  artists?: { name: string; artist_type?: string }[] | null;
 };
 
 // ─── Medal colors ──────────────────────────────────────────────────────────────
@@ -263,7 +264,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                         {title}
                       </p>
                       <p className="text-xs text-white/70 truncate mt-0.5 drop-shadow-md">
-                        {song.artist_string}
+                        {song.artists?.map((a: any) => a.name).join(' · ') || song.artist_string?.replace(/, /g, ' · ')}
                       </p>
                     </div>
 
