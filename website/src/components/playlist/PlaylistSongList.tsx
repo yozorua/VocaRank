@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import ThumbnailImage from '@/components/ThumbnailImage';
 import { API_BASE_URL } from '@/lib/api';
@@ -39,6 +39,11 @@ export default function PlaylistSongList({ songs: initialSongs, playlistId, apiT
     const [songs, setSongs] = useState<Song[]>(initialSongs);
     const [removing, setRemoving] = useState<number | null>(null);
     const router = useRouter();
+
+    // Sync when parent re-fetches (e.g. after AddSongToPlaylist calls router.refresh())
+    useEffect(() => {
+        setSongs(initialSongs);
+    }, [initialSongs]);
 
     // ── Drag state ──
     const dragIdx = useRef<number | null>(null);
