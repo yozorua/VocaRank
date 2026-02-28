@@ -362,7 +362,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
               <div className="flex-1 flex flex-col gap-4">
                 <h2 className="text-lg font-bold tracking-[0.05em] text-white">{t('about_title')}</h2>
                 <div className="w-12 h-px bg-[var(--vermilion)] opacity-60" />
-                <p className="text-[var(--text-secondary)] leading-loose font-light text-sm md:text-base">{t('about_body')}</p>
+                <p className="text-[var(--text-secondary)] leading-loose font-light text-sm md:text-base whitespace-pre-line">{t('about_body')}</p>
               </div>
             </div>
           </div>

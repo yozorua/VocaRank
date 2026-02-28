@@ -1,7 +1,7 @@
 {
     "Metadata": {
-        "title": "VocaRank - The Definitive Vocaloid Ranking",
-        "description": "Discover the most popular Vocaloid songs across YouTube and Niconico. Real-time rankings, detailed stats, and more."
+        "title": "VocaRank - The Definitive Vocaloid Ranking & Platform",
+        "description": "Discover the most popular Vocaloid songs. Explore real-time song rankings, deep analysis of voicebank stats, and build your own playlists."
     },
     "Home": {
         "badge": "VOCALOID ANALYTICS",
@@ -34,7 +34,7 @@
         "feature_explore": "Explore",
         "section_about": "About VocaRank",
         "about_title": "What is VocaRank?",
-        "about_body": "VocaRank is a community-driven platform dedicated to tracking and ranking Vocaloid music across YouTube and Niconico. Our database is updated daily using data from VocaDB, providing accurate, up-to-date statistics on songs, artists, and voicebanks.",
+        "about_body": "VocaRank is a real-time Vocaloid song ranking and database platform. By updating view data from YouTube and Niconico on an hourly basis, we not only help you explore the latest trending Vocaloid music, but also comprehensively record its evolution and trends from the past to the present.\n\nVocaRank is far more than just a simple ranking site. Leveraging the community-driven VocaDB database—featuring over 850,000 songs and 140,000 creators—we allow users to deeply explore Vocaloid music and its history. Alongside recent trending charts, the platform provides long-term data analysis, including changes in voicebank market share and cross-era interactive network graphs that visualize collaborations between creators.\n\nWith our thoughtfully designed built-in player, you can instantly listen to everything from historic masterpieces to the newest hits, as well as create and share your own exclusive playlists. It is a dedicated space for all Vocaloid fans to trace the culture's history, discover new trending music, and deeply explore the true charm of Vocaloid songs.",
         "about_placeholder_note": "Preview stage"
     },
     "LanguageSwitcher": {
@@ -119,7 +119,7 @@
     "SearchPage": {
         "title": "Search",
         "description": "Find your favorite songs and artists.",
-        "placeholder": "Search by title or song ID...",
+        "placeholder": "Search by song title, artist name, or song ID...",
         "search": "Search",
         "results_for": "Results for \"{query}\"",
         "artists": "Artists",
@@ -282,7 +282,8 @@
     },
     "Footer": {
         "footer_source": "Song data powered by VocaDB. View counts collected from YouTube & Niconico.",
-        "footer_contact": "Contact", "homepage_views": "Views",
+        "footer_contact": "Contact",
+        "homepage_views": "Views",
         "footer_dev": "This site is currently under active development — some features may be incomplete."
     },
     "Song": {

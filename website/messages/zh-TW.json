@@ -1,7 +1,7 @@
 {
     "Metadata": {
-        "title": "VocaRank - Vocaloid 排行榜",
-        "description": "YouTube 和 Niconico 上最受歡迎的 Vocaloid 歌曲排行。即時更新、詳細統計數據。"
+        "title": "VocaRank - 現代 Vocaloid 熱門歌曲排行榜及社群平台",
+        "description": "掌握最新 V 家熱門音樂趨勢！提供即時的 Vocaloid 歌曲排行、聲庫統計分析與自定義的音樂播放器，快來探索 V 家的世界吧！"
     },
     "Home": {
         "badge": "VOCALOID ANALYTICS",
@@ -22,7 +22,7 @@
         "feature_ranking_title": "排行榜",
         "feature_ranking_desc": "依 YouTube 和 Niconico 觀看增長排序的每日、每週、每月排行榜。",
         "feature_search_title": "搜尋",
-        "feature_search_desc": "以英文、日文或羅馬拼音搜尋資料庫中的任何歌曲或藝術家。",
+        "feature_search_desc": "以英文、日文或羅馬拼音搜尋資料庫中的任何歌曲、創作者。",
         "feature_statistics_title": "統計資料",
         "feature_statistics_desc": "探索引擎市場份額、聲庫使用比例與歷年製作趨勢。",
         "feature_network_title": "關係圖",
@@ -30,11 +30,11 @@
         "feature_player_title": "播放器",
         "feature_player_desc": "直接在瀏覽器中收聽歌曲，建立播放清單並與朋友分享。",
         "feature_favorites_title": "我的最愛",
-        "feature_favorites_desc": "將喜愛的歌曲和藝術家儲存到個人收藏。登入即可開始使用。",
+        "feature_favorites_desc": "將喜愛的歌曲和創作者儲存到個人收藏。登入即可開始使用。",
         "feature_explore": "探索",
         "section_about": "關於 VocaRank",
         "about_title": "VocaRank 是什麼？",
-        "about_body": "VocaRank 是一個社群驅動的平台，專門追蹤和排名 YouTube 及 Niconico 上的 Vocaloid 音樂。我們的資料庫透過 VocaDB 的資料每日更新，提供歌曲、藝術家與聲庫的精準即時統計。",
+        "about_body": "VocaRank 是一個即時更新的 Vocaloid 歌曲排行榜與數據庫平台。我們每小時彙整來自 YouTube 和 Niconico 的觀看數據，不僅能探索 Vocaloid 音樂的最新熱門趨勢，更完整記錄了從過去到現在的歷史變遷。\n\nVocaRank 遠不只是一個單純的排行榜網站。我們結合由社群驅動的 VocaDB 資料庫（收錄超過 85 萬首歌曲與 14 萬名創作者），讓使用者能深入探索 V 家的龐大音樂社群。除了近期的熱門榜單，網站更提供長期的數據分析，包含聲庫市占率的變化，以及將創作者間的合作關係跨越時代視覺化的互動式網路關係圖。\n\n透過精心設計的內建播放器，你可以隨時聆聽從歷史神曲到最新熱銷的各種曲目，並建立與分享專屬的播放清單。這是一個讓所有 Vocaloid 粉絲都能追溯歷史軌跡、發掘最新好聲音，並深度感受 V 家音樂魅力的平台。",
         "about_placeholder_note": "Preview stage"
     },
     "HomePage": {
@@ -122,13 +122,13 @@
     },
     "SearchPage": {
         "title": "搜尋",
-        "description": "尋找您最愛的歌曲和藝人。",
-        "placeholder": "以標題或歌曲ID搜尋...",
+        "description": "尋找您最愛的歌曲和創作者。",
+        "placeholder": "以歌曲標題、作曲者名稱、歌曲ID搜尋...",
         "search": "搜尋",
         "results_for": "搜尋結果：\"{query}\"",
-        "artists": "藝人",
+        "artists": "創作者",
         "songs": "歌曲",
-        "no_query": "搜尋歌曲或藝人...",
+        "no_query": "搜尋歌曲或創作者...",
         "no_results": "找不到歌曲。",
         "loading": "載入中...",
         "show_more": "顯示更多",
@@ -286,7 +286,8 @@
     },
     "Footer": {
         "footer_source": "歌曲資料由 VocaDB 提供支持。播放數據收集自 YouTube 及 Niconico。",
-        "footer_contact": "聯絡我們", "homepage_views": "瀏覽次數",
+        "footer_contact": "聯絡我們",
+        "homepage_views": "瀏覽次數",
         "footer_dev": "本站目前仍在積極開發中——部分功能可能尚未完成。"
     },
     "Song": {
