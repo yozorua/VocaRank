@@ -119,6 +119,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
             localStorage.setItem('vocarank_queue', JSON.stringify(newQueue));
             localStorage.setItem('vocarank_currentIndex', newIndex.toString());
             localStorage.setItem('vocarank_isPlaying', 'true');
+            localStorage.removeItem(`vocarank_progress_${song.id}`); // Start from the beginning on active manual play
         }
 
         // Navigate to the dedicated player page (new tab) ONLY if not already there

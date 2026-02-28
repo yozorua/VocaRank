@@ -28,11 +28,9 @@ def increment_page_views(page_name: str, request: Request, db: Session = Depends
     ip = request.headers.get("X-Forwarded-For", request.client.host if request.client else "127.0.0.1")
     ip = ip.split(",")[0].strip()
     
-    existing = db.query(SiteView).filter(SiteView.page_name == page_name, SiteView.ip_address == ip).first()
-    if not existing:
-        view = SiteView(page_name=page_name, ip_address=ip, created_at=datetime.now(pytz.utc).isoformat())
-        db.add(view)
-        db.commit()
+    view = SiteView(page_name=page_name, ip_address=ip, created_at=datetime.now(pytz.utc).isoformat())
+    db.add(view)
+    db.commit()
     
     count = db.query(SiteView).filter(SiteView.page_name == page_name).count()
     return {"page_name": page_name, "view_count": count}

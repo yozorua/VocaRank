@@ -35,24 +35,37 @@ app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 import threading
 
+import threading
+import time
+
 def prewarm_rankings():
-    try:
-        from .database import SessionLocal
-        from .routers.rankings import get_daily_ranking, get_weekly_ranking, get_monthly_ranking, get_total_ranking
-        
-        db = SessionLocal()
-        params = {"limit": 100, "song_type": "Original,Remaster,Remix", "vocaloid_only": True, "sort_by": "increment_total"}
-        get_daily_ranking(params, db)
-        get_weekly_ranking(params, db)
-        get_monthly_ranking(params, db)
-        
-        t_params = {"limit": 100, "song_type": "Original,Remaster,Remix", "vocaloid_only": True, "sort_by": "total"}
-        get_total_ranking(**t_params, db=db)
-        
-        db.close()
-        print("Rankings TTLCache pre-warmed successfully upon startup!")
-    except Exception as e:
-        print(f"Failed to pre-warm rankings: {e}")
+    # Wait a few seconds to ensure DB is fully up before hammering it
+    time.sleep(3)
+    
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            from .database import SessionLocal
+            from .routers.rankings import get_daily_ranking, get_weekly_ranking, get_monthly_ranking, get_total_ranking
+            
+            db = SessionLocal()
+            params = {"limit": 100, "song_type": "Original,Remaster,Remix", "vocaloid_only": True, "sort_by": "increment_total"}
+            get_daily_ranking(params, db)
+            get_weekly_ranking(params, db)
+            get_monthly_ranking(params, db)
+            
+            t_params = {"limit": 100, "song_type": "Original,Remaster,Remix", "vocaloid_only": True, "sort_by": "total"}
+            get_total_ranking(**t_params, db=db)
+            
+            db.close()
+            print("Rankings TTLCache pre-warmed successfully upon startup!")
+            break
+        except Exception as e:
+            if attempt < max_retries - 1:
+                print(f"Failed to pre-warm rankings (attempt {attempt+1}/{max_retries}). Retrying in 5 seconds... {e}")
+                time.sleep(5)
+            else:
+                print(f"Failed to pre-warm rankings after {max_retries} attempts: {e}")
 
 @app.on_event("startup")
 def startup_event():
