@@ -73,14 +73,14 @@ def get_gain_ranking(
         WHERE today.date = :current_date
         AND (
             past.song_id IS NOT NULL 
-            OR DATE(s.publish_date) >= DATE(:current_date, '-' || :days_ago || ' days')
+            OR DATE(s.publish_date) >= DATE(:target_date)
         )
         AND NOT (
             -- Exclude first-time-fetch spikes for old songs that somehow got a 0 recorded yesterday
             past.song_id IS NOT NULL 
             AND (past.youtube_views + past.niconico_views) = 0
             AND (today.youtube_views + today.niconico_views) > 0
-            AND DATE(s.publish_date) < DATE(:current_date, '-' || :days_ago || ' days')
+            AND DATE(s.publish_date) < DATE(:target_date)
         )
     """
     

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, Table
+from sqlalchemy import Column, Integer, BigInteger, String, Text, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -16,14 +16,14 @@ class Song(Base):
     name_japanese = Column(String)
     name_romaji = Column(String)
     song_type = Column(String)
-    length_seconds = Column(Integer)
+    length_seconds = Column(BigInteger)
     # artist_ids stored as JSON string in legacy column, but we have song_artists table now
     publish_date = Column(String)
-    original_song_id = Column(Integer)
+    original_song_id = Column(BigInteger)
     pv_data = Column(Text) # JSON
     tag_ids = Column(Text) # JSON
-    niconico_views = Column(Integer)
-    youtube_views = Column(Integer)
+    niconico_views = Column(BigInteger)
+    youtube_views = Column(BigInteger)
     niconico_history = Column(Text) # JSON
     youtube_history = Column(Text) # JSON
     last_update_time = Column(String)

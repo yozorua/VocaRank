@@ -2,18 +2,17 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
+from dotenv import load_dotenv
 
-# Connect to the existing VocaRank database
-DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../database/vocarank.db'))
-SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
+load_dotenv()
 
-# check_same_thread=False is needed for SQLite in multi-threaded environments (like FastAPI)
+# Connect to the PostgreSQL VocaRank database
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://vocarank:password@localhost/vocarank")
+
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, 
-    connect_args={
-        "check_same_thread": False,
-        "timeout": 30 # Wait up to 30s for lock to clear
-    }
+    SQLALCHEMY_DATABASE_URL,
+    pool_size=20,
+    max_overflow=0
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

@@ -1,4 +1,4 @@
-import sqlite3
+import psycopg2
 import concurrent.futures
 import requests
 from core import get_db_connection, log_message
@@ -16,10 +16,10 @@ def check_and_delete_song(song_id: int):
         
         if resp.status_code == 404:
             # Hard deleted from VocaDB entirely
-            cursor.execute("DELETE FROM song_artists WHERE song_id=?", (song_id,))
-            cursor.execute("DELETE FROM song_tags WHERE song_id=?", (song_id,))
-            cursor.execute("DELETE FROM daily_snapshots WHERE song_id=?", (song_id,))
-            cursor.execute("DELETE FROM songs WHERE id=?", (song_id,))
+            cursor.execute("DELETE FROM song_artists WHERE song_id=%s", (song_id,))
+            cursor.execute("DELETE FROM song_tags WHERE song_id=%s", (song_id,))
+            cursor.execute("DELETE FROM daily_snapshots WHERE song_id=%s", (song_id,))
+            cursor.execute("DELETE FROM songs WHERE id=%s", (song_id,))
             conn.commit()
             log_message("INFO", f"Deleted 404 Not Found song ID {song_id}")
             return True
@@ -27,10 +27,10 @@ def check_and_delete_song(song_id: int):
         if resp.status_code == 200:
             data = resp.json()
             if data.get('deleted') or data.get('mergedTo'):
-                cursor.execute("DELETE FROM song_artists WHERE song_id=?", (song_id,))
-                cursor.execute("DELETE FROM song_tags WHERE song_id=?", (song_id,))
-                cursor.execute("DELETE FROM daily_snapshots WHERE song_id=?", (song_id,))
-                cursor.execute("DELETE FROM songs WHERE id=?", (song_id,))
+                cursor.execute("DELETE FROM song_artists WHERE song_id=%s", (song_id,))
+                cursor.execute("DELETE FROM song_tags WHERE song_id=%s", (song_id,))
+                cursor.execute("DELETE FROM daily_snapshots WHERE song_id=%s", (song_id,))
+                cursor.execute("DELETE FROM songs WHERE id=%s", (song_id,))
                 conn.commit()
                 log_message("INFO", f"Deleted merged/deleted song ID {song_id}")
                 return True

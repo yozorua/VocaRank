@@ -1,4 +1,4 @@
-import sqlite3
+import psycopg2
 import json
 import datetime
 
@@ -57,7 +57,7 @@ def clean_history():
                 
             if changed:
                 cursor.execute(
-                    "UPDATE songs SET youtube_history=?, niconico_history=? WHERE id=?", 
+                    "UPDATE songs SET youtube_history=%s, niconico_history=%s WHERE id=%s", 
                     (json.dumps(new_yt_hist), json.dumps(new_nico_hist), song_id)
                 )
                 updated_songs += 1

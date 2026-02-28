@@ -1,5 +1,5 @@
 import json
-import sqlite3
+import psycopg2
 import datetime
 import networkx as nx
 import os
@@ -121,8 +121,11 @@ def calculate_network_graph():
     last_updated = datetime.datetime.now(datetime.timezone.utc).isoformat()
     
     cursor.execute('''
-        INSERT OR REPLACE INTO system_cache (key_name, json_data, last_updated)
-        VALUES (?, ?, ?)
+        INSERT INTO system_cache (key_name, json_data, last_updated)
+        VALUES (%s, %s, %s)
+        ON CONFLICT (key_name) DO UPDATE SET
+            json_data = EXCLUDED.json_data,
+            last_updated = EXCLUDED.last_updated
     ''', ("network_graph", json_data, last_updated))
     
     conn.commit()
@@ -241,8 +244,11 @@ def calculate_vocalist_network_graph(producer_links_rows):
     
     last_updated = datetime.datetime.now(datetime.timezone.utc).isoformat()
     cursor.execute('''
-        INSERT OR REPLACE INTO system_cache (key_name, json_data, last_updated)
-        VALUES (?, ?, ?)
+        INSERT INTO system_cache (key_name, json_data, last_updated)
+        VALUES (%s, %s, %s)
+        ON CONFLICT (key_name) DO UPDATE SET
+            json_data = EXCLUDED.json_data,
+            last_updated = EXCLUDED.last_updated
     ''', ("vocalist_network_graph", json_data, last_updated))
     
     conn.commit()

@@ -1,4 +1,4 @@
-import sqlite3
+import psycopg2
 import argparse
 import concurrent.futures
 import json
@@ -7,11 +7,11 @@ from .core import (
     transform_song_api, ensure_artists_exist_with_conn, log_message
 )
 
-def update_song_by_id(conn: sqlite3.Connection, song_id: int):
+def update_song_by_id(conn: psycopg2.extensions.connection, song_id: int):
     """Fetches and updates a specific song by ID, preserving existing view counts."""
     cursor = conn.cursor()
     
-    cursor.execute("SELECT niconico_views, youtube_views, niconico_history, youtube_history FROM songs WHERE id=?", (song_id,))
+    cursor.execute("SELECT niconico_views, youtube_views, niconico_history, youtube_history FROM songs WHERE id=%s", (song_id,))
     existing = cursor.fetchone()
     
     nico_views = 0
@@ -32,10 +32,10 @@ def update_song_by_id(conn: sqlite3.Connection, song_id: int):
 
     # Check if song is deleted or merged
     if data.get('deleted') or data.get('mergedTo'):
-        cursor.execute("DELETE FROM song_artists WHERE song_id=?", (song_id,))
-        cursor.execute("DELETE FROM song_tags WHERE song_id=?", (song_id,))
-        cursor.execute("DELETE FROM daily_snapshots WHERE song_id=?", (song_id,))
-        cursor.execute("DELETE FROM songs WHERE id=?", (song_id,))
+        cursor.execute("DELETE FROM song_artists WHERE song_id=%s", (song_id,))
+        cursor.execute("DELETE FROM song_tags WHERE song_id=%s", (song_id,))
+        cursor.execute("DELETE FROM daily_snapshots WHERE song_id=%s", (song_id,))
+        cursor.execute("DELETE FROM songs WHERE id=%s", (song_id,))
         conn.commit()
         log_message("INFO", f"Deleted merged/deleted song ID {song_id}")
         return
@@ -53,24 +53,40 @@ def update_song_by_id(conn: sqlite3.Connection, song_id: int):
         record[14] = yt_hist
         
         song_sql = '''
-            INSERT OR REPLACE INTO songs (
+            INSERT INTO songs (
                 id, name_english, name_japanese, name_romaji, song_type, length_seconds,
                 artist_ids, publish_date, original_song_id, pv_data, tag_ids,
                 niconico_views, youtube_views, niconico_history, youtube_history, last_update_time
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (id) DO UPDATE SET
+                name_english = EXCLUDED.name_english,
+                name_japanese = EXCLUDED.name_japanese,
+                name_romaji = EXCLUDED.name_romaji,
+                song_type = EXCLUDED.song_type,
+                length_seconds = EXCLUDED.length_seconds,
+                artist_ids = EXCLUDED.artist_ids,
+                publish_date = EXCLUDED.publish_date,
+                original_song_id = EXCLUDED.original_song_id,
+                pv_data = EXCLUDED.pv_data,
+                tag_ids = EXCLUDED.tag_ids,
+                niconico_views = EXCLUDED.niconico_views,
+                youtube_views = EXCLUDED.youtube_views,
+                niconico_history = EXCLUDED.niconico_history,
+                youtube_history = EXCLUDED.youtube_history,
+                last_update_time = EXCLUDED.last_update_time
         '''
         cursor.execute(song_sql, tuple(record))
         
         artist_ids = json.loads(record[6])
         tag_ids = json.loads(record[10])
         
-        cursor.execute("DELETE FROM song_artists WHERE song_id=?", (song_id,))
+        cursor.execute("DELETE FROM song_artists WHERE song_id=%s", (song_id,))
         for aid in artist_ids:
-            cursor.execute("INSERT OR IGNORE INTO song_artists (song_id, artist_id) VALUES (?, ?)", (song_id, aid))
+            cursor.execute("INSERT INTO song_artists (song_id, artist_id) VALUES (%s, %s) ON CONFLICT DO NOTHING", (song_id, aid))
             
-        cursor.execute("DELETE FROM song_tags WHERE song_id=?", (song_id,))
+        cursor.execute("DELETE FROM song_tags WHERE song_id=%s", (song_id,))
         for tid in tag_ids:
-            cursor.execute("INSERT OR IGNORE INTO song_tags (song_id, tag_id) VALUES (?, ?)", (song_id, tid))
+            cursor.execute("INSERT INTO song_tags (song_id, tag_id) VALUES (%s, %s) ON CONFLICT DO NOTHING", (song_id, tid))
             
         conn.commit()
     except Exception as e:
@@ -88,7 +104,7 @@ def update_song_worker(song_id: int):
     finally:
         conn.close()
 
-def update_artist_by_id(conn: sqlite3.Connection, artist_id: int) -> bool:
+def update_artist_by_id(conn: psycopg2.extensions.connection, artist_id: int) -> bool:
     """Fetches and updates a specific artist by ID. Returns True if materially changed."""
     from .core import fetch_artist, transform_artist_api
     cursor = conn.cursor()
@@ -102,18 +118,30 @@ def update_artist_by_id(conn: sqlite3.Connection, artist_id: int) -> bool:
     try:
         record = transform_artist_api(data)
         
-        cursor.execute("SELECT name_english, picture_url_thumb FROM artists WHERE id=?", (artist_id,))
+        cursor.execute("SELECT name_english, picture_url_thumb FROM artists WHERE id=%s", (artist_id,))
         existing = cursor.fetchone()
         
         if not existing or record[4] != existing[0] or record[9] != existing[1]:
             changed = True
             
         artist_sql = '''
-            INSERT OR REPLACE INTO artists (
+            INSERT INTO artists (
                 id, artist_type, name_default, name_default_lang,
                 name_english, name_japanese, name_romaji,
                 picture_mime, picture_url_original, picture_url_thumb, external_links, last_update_time
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (id) DO UPDATE SET
+                artist_type = EXCLUDED.artist_type,
+                name_default = EXCLUDED.name_default,
+                name_default_lang = EXCLUDED.name_default_lang,
+                name_english = EXCLUDED.name_english,
+                name_japanese = EXCLUDED.name_japanese,
+                name_romaji = EXCLUDED.name_romaji,
+                picture_mime = EXCLUDED.picture_mime,
+                picture_url_original = EXCLUDED.picture_url_original,
+                picture_url_thumb = EXCLUDED.picture_url_thumb,
+                external_links = EXCLUDED.external_links,
+                last_update_time = EXCLUDED.last_update_time
         '''
         cursor.execute(artist_sql, record)
         conn.commit()
@@ -144,7 +172,7 @@ def refresh_artists(limit: int = 10000):
     cursor.execute("""
         SELECT id FROM artists 
         ORDER BY last_update_time ASC 
-        LIMIT ?
+        LIMIT %s
     """, (limit,))
     target_ids = [row[0] for row in cursor.fetchall()]
     conn.close()
@@ -186,7 +214,7 @@ def refresh_songs(mode: str, limit: int = 10000):
         cursor.execute("""
             SELECT id FROM songs 
             ORDER BY last_update_time ASC 
-            LIMIT ?
+            LIMIT %s
         """, (limit,))
         target_ids = [row[0] for row in cursor.fetchall()]
         
@@ -199,7 +227,7 @@ def refresh_songs(mode: str, limit: int = 10000):
         start_id = max_id
         end_id = max(1, max_id - limit)
         
-        cursor.execute("SELECT id FROM songs WHERE id <= ? AND id > ? ORDER BY id DESC", (start_id, end_id))
+        cursor.execute("SELECT id FROM songs WHERE id <= %s AND id > %s ORDER BY id DESC", (start_id, end_id))
         target_ids = [row[0] for row in cursor.fetchall()]
     
     if not target_ids:

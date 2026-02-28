@@ -8,4 +8,5 @@ __pycache__/
 .env
 *.db*
 *.log
+*.old
 api/static

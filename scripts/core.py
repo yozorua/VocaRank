@@ -1,4 +1,4 @@
-import sqlite3
+import psycopg2
 import json
 import os
 import datetime
@@ -19,25 +19,22 @@ SYNTH_TYPES = (
 )
 
 
-def get_db_connection() -> sqlite3.Connection:
-    """Gets a SQLite connection safely configured for concurrency."""
-    # Ensure DB directory exists
-    if not os.path.exists(DB_DIR):
-        os.makedirs(DB_DIR)
-
-    conn = sqlite3.connect(DB_PATH, timeout=30.0) # Long timeout to avoid "database is locked"
-    # Enable WAL mode for strict concurrent Read-Write capabilities
-    conn.execute("PRAGMA journal_mode=WAL;")
-    # Ensure foreign keys are enabled (if needed by schemas)
-    conn.execute("PRAGMA foreign_keys=ON;") 
+def get_db_connection() -> psycopg2.extensions.connection:
+    """Gets a PostgreSQL connection safely configured."""
+    # Read the same environment variable as api/database.py
+    from dotenv import load_dotenv
+    load_dotenv()
+    # Fallback to local vocarank db if not present
+    db_url = os.getenv("DATABASE_URL", "postgresql://vocarank:password@localhost/vocarank")
+    conn = psycopg2.connect(db_url)
     return conn
 
-def setup_database_schema(conn: sqlite3.Connection):
+def setup_database_schema(conn: psycopg2.extensions.connection):
     """Initializes the database schema if tables don't exist."""
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS artists (
-            id INTEGER PRIMARY KEY,
+            id SERIAL PRIMARY KEY,
             artist_type TEXT,
             name_default TEXT,
             name_default_lang TEXT,
@@ -54,19 +51,19 @@ def setup_database_schema(conn: sqlite3.Connection):
     
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS songs (
-            id INTEGER PRIMARY KEY,
+            id SERIAL PRIMARY KEY,
             name_english TEXT,
             name_japanese TEXT,
             name_romaji TEXT,
             song_type TEXT,
-            length_seconds INTEGER,
+            length_seconds BIGINT,
             artist_ids TEXT, 
             publish_date TEXT,
-            original_song_id INTEGER,
+            original_song_id BIGINT,
             pv_data TEXT,
             tag_ids TEXT,
-            niconico_views INTEGER DEFAULT 0,
-            youtube_views INTEGER DEFAULT 0,
+            niconico_views BIGINT DEFAULT 0,
+            youtube_views BIGINT DEFAULT 0,
             niconico_history TEXT DEFAULT '[]',
             youtube_history TEXT DEFAULT '[]',
             last_update_time TEXT
@@ -78,8 +75,8 @@ def setup_database_schema(conn: sqlite3.Connection):
             song_id INTEGER,
             artist_id INTEGER,
             PRIMARY KEY (song_id, artist_id),
-            FOREIGN KEY(song_id) REFERENCES songs(id),
-            FOREIGN KEY(artist_id) REFERENCES artists(id)
+            FOREIGN KEY(song_id) REFERENCES songs(id) ON DELETE CASCADE,
+            FOREIGN KEY(artist_id) REFERENCES artists(id) ON DELETE CASCADE
         )
     ''')
 
@@ -88,7 +85,7 @@ def setup_database_schema(conn: sqlite3.Connection):
             song_id INTEGER,
             tag_id INTEGER,
             PRIMARY KEY (song_id, tag_id),
-            FOREIGN KEY(song_id) REFERENCES songs(id)
+            FOREIGN KEY(song_id) REFERENCES songs(id) ON DELETE CASCADE
         )
     ''')
 
@@ -96,10 +93,10 @@ def setup_database_schema(conn: sqlite3.Connection):
         CREATE TABLE IF NOT EXISTS daily_snapshots (
             date TEXT,
             song_id INTEGER,
-            niconico_views INTEGER,
-            youtube_views INTEGER,
+            niconico_views BIGINT,
+            youtube_views BIGINT,
             PRIMARY KEY (date, song_id),
-            FOREIGN KEY(song_id) REFERENCES songs(id)
+            FOREIGN KEY(song_id) REFERENCES songs(id) ON DELETE CASCADE
         )
     ''')
 
@@ -134,7 +131,7 @@ def get_utc_now_iso() -> str:
     """Returns current UTC time in ISO 8601 format."""
     return datetime.datetime.now(datetime.timezone.utc).isoformat()
 
-def get_max_id(conn: sqlite3.Connection, table: str) -> int:
+def get_max_id(conn: psycopg2.extensions.connection, table: str) -> int:
     """Gets the maximum ID from the specified table."""
     cursor = conn.cursor()
     try:
@@ -142,6 +139,7 @@ def get_max_id(conn: sqlite3.Connection, table: str) -> int:
         result = cursor.fetchone()
         return result[0] if result and result[0] is not None else 0
     except Exception as e:
+        conn.rollback()
         log_message("ERROR", f"Error checking max ID for {table}: {e}")
         return 0
 
@@ -281,14 +279,14 @@ def transform_artist_api(data: Dict[str, Any]) -> Tuple:
         get_utc_now_iso()
     )
 
-def ensure_artists_exist_with_conn(conn: sqlite3.Connection, artist_ids: List[int], sleep_time: float = 0.1) -> int:
+def ensure_artists_exist_with_conn(conn: psycopg2.extensions.connection, artist_ids: List[int], sleep_time: float = 0.1) -> int:
     """Checks missing artist IDs and fetches them from VocaDB. Returns count of new artists inserted."""
     if not artist_ids:
         return 0
 
     cursor = conn.cursor()
-    placeholders = ','.join('?' for _ in artist_ids)
-    cursor.execute(f"SELECT id FROM artists WHERE id IN ({placeholders})", artist_ids)
+    placeholders = ','.join('%s' for _ in artist_ids)
+    cursor.execute(f"SELECT id FROM artists WHERE id IN ({placeholders})", tuple(artist_ids))
     existing_ids = set(row[0] for row in cursor.fetchall())
     
     missing_ids = [aid for aid in artist_ids if aid not in existing_ids]
@@ -298,11 +296,23 @@ def ensure_artists_exist_with_conn(conn: sqlite3.Connection, artist_ids: List[in
     log_message("INFO", f"[artists] Found {len(missing_ids)} missing artists. Auto-fetching...")
     
     artist_sql = '''
-        INSERT OR REPLACE INTO artists (
+        INSERT INTO artists (
             id, artist_type, name_default, name_default_lang,
             name_english, name_japanese, name_romaji,
             picture_mime, picture_url_original, picture_url_thumb, external_links, last_update_time
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ON CONFLICT (id) DO UPDATE SET
+            artist_type = EXCLUDED.artist_type,
+            name_default = EXCLUDED.name_default,
+            name_default_lang = EXCLUDED.name_default_lang,
+            name_english = EXCLUDED.name_english,
+            name_japanese = EXCLUDED.name_japanese,
+            name_romaji = EXCLUDED.name_romaji,
+            picture_mime = EXCLUDED.picture_mime,
+            picture_url_original = EXCLUDED.picture_url_original,
+            picture_url_thumb = EXCLUDED.picture_url_thumb,
+            external_links = EXCLUDED.external_links,
+            last_update_time = EXCLUDED.last_update_time
     '''
     
     inserted_count = 0

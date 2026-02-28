@@ -262,7 +262,8 @@ def main():
                     total_nico_updates += 1
                     batch_nico_updates += 1
                 new_hist = update_history(up['nico_hist'], new_val)
-                updates_sql.append("niconico_views=?, niconico_history=?")
+                updates_sql.append("niconico_views=%s")
+                updates_sql.append("niconico_history=%s")
                 params.extend([new_val, new_hist])
                 
             if up['yt_changed'] and up['yt_id'] in up['temp_yt_views']:
@@ -271,18 +272,19 @@ def main():
                     total_yt_updates += 1
                     batch_yt_updates += 1
                 new_hist = update_history(up['yt_hist'], new_val)
-                updates_sql.append("youtube_views=?, youtube_history=?")
+                updates_sql.append("youtube_views=%s")
+                updates_sql.append("youtube_history=%s")
                 params.extend([new_val, new_hist])
                 
             if pv_changed:
-                updates_sql.append("pv_data=?")
+                updates_sql.append("pv_data=%s")
                 params.append(json.dumps(pvs))
                 
             if updates_sql:
-                updates_sql.append("last_update_time=?")
+                updates_sql.append("last_update_time=%s")
                 params.extend([get_utc_now_iso(), sid])
-                sql = f"UPDATE songs SET {', '.join(updates_sql)} WHERE id=?"
-                try: cursor.execute(sql, params)
+                sql = f"UPDATE songs SET {', '.join(updates_sql)} WHERE id=%s"
+                try: cursor.execute(sql, tuple(params))
                 except Exception as e: log_message("ERROR", f"Error updating song {sid}: {e}")
 
         conn.commit()
@@ -298,8 +300,11 @@ def main():
         log_message("INFO", f"Saving daily snapshots for {today_date}...")
         try:
             cursor.execute(f"""
-                INSERT OR REPLACE INTO daily_snapshots (date, song_id, niconico_views, youtube_views)
+                INSERT INTO daily_snapshots (date, song_id, niconico_views, youtube_views)
                 SELECT '{today_date}', id, niconico_views, youtube_views FROM songs
+                ON CONFLICT (date, song_id) DO UPDATE SET
+                    niconico_views = EXCLUDED.niconico_views,
+                    youtube_views = EXCLUDED.youtube_views
             """)
             conn.commit()
             log_message("SUCCESS", f"Daily snapshots saved for {today_date}.")

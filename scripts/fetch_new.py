@@ -22,11 +22,23 @@ def fetch_new_artists():
     max_pages = 50 # Safety brake (up to 5k artists backward)
     
     artist_sql = '''
-        INSERT OR REPLACE INTO artists (
+        INSERT INTO artists (
             id, artist_type, name_default, name_default_lang,
             name_english, name_japanese, name_romaji,
             picture_mime, picture_url_original, picture_url_thumb, external_links, last_update_time
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ON CONFLICT (id) DO UPDATE SET
+            artist_type = EXCLUDED.artist_type,
+            name_default = EXCLUDED.name_default,
+            name_default_lang = EXCLUDED.name_default_lang,
+            name_english = EXCLUDED.name_english,
+            name_japanese = EXCLUDED.name_japanese,
+            name_romaji = EXCLUDED.name_romaji,
+            picture_mime = EXCLUDED.picture_mime,
+            picture_url_original = EXCLUDED.picture_url_original,
+            picture_url_thumb = EXCLUDED.picture_url_thumb,
+            external_links = EXCLUDED.external_links,
+            last_update_time = EXCLUDED.last_update_time
     '''
 
     for page in range(max_pages):
@@ -49,7 +61,7 @@ def fetch_new_artists():
         for artist_data in items:
             artist_id = artist_data.get('id')
             
-            cursor.execute("SELECT id FROM artists WHERE id=?", (artist_id,))
+            cursor.execute("SELECT id FROM artists WHERE id=%s", (artist_id,))
             if cursor.fetchone():
                 existing_count_in_batch += 1
                 continue
@@ -93,11 +105,27 @@ def fetch_new_songs():
     
     # Pre-compile statements
     song_sql = '''
-        INSERT OR REPLACE INTO songs (
+        INSERT INTO songs (
             id, name_english, name_japanese, name_romaji, song_type, length_seconds,
             artist_ids, publish_date, original_song_id, pv_data, tag_ids,
             niconico_views, youtube_views, niconico_history, youtube_history, last_update_time
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ON CONFLICT (id) DO UPDATE SET
+            name_english = EXCLUDED.name_english,
+            name_japanese = EXCLUDED.name_japanese,
+            name_romaji = EXCLUDED.name_romaji,
+            song_type = EXCLUDED.song_type,
+            length_seconds = EXCLUDED.length_seconds,
+            artist_ids = EXCLUDED.artist_ids,
+            publish_date = EXCLUDED.publish_date,
+            original_song_id = EXCLUDED.original_song_id,
+            pv_data = EXCLUDED.pv_data,
+            tag_ids = EXCLUDED.tag_ids,
+            niconico_views = EXCLUDED.niconico_views,
+            youtube_views = EXCLUDED.youtube_views,
+            niconico_history = EXCLUDED.niconico_history,
+            youtube_history = EXCLUDED.youtube_history,
+            last_update_time = EXCLUDED.last_update_time
     '''
 
     for page in range(max_pages):
@@ -122,14 +150,14 @@ def fetch_new_songs():
             
             # Check if song is deleted or merged, if so scrub it from the database instead of inserting
             if song_data.get('deleted') or song_data.get('mergedTo'):
-                cursor.execute("DELETE FROM song_artists WHERE song_id=?", (song_id,))
-                cursor.execute("DELETE FROM song_tags WHERE song_id=?", (song_id,))
-                cursor.execute("DELETE FROM daily_snapshots WHERE song_id=?", (song_id,))
-                cursor.execute("DELETE FROM songs WHERE id=?", (song_id,))
+                cursor.execute("DELETE FROM song_artists WHERE song_id=%s", (song_id,))
+                cursor.execute("DELETE FROM song_tags WHERE song_id=%s", (song_id,))
+                cursor.execute("DELETE FROM daily_snapshots WHERE song_id=%s", (song_id,))
+                cursor.execute("DELETE FROM songs WHERE id=%s", (song_id,))
                 continue
             
             # Check if exists and retrieve views
-            cursor.execute("SELECT niconico_views, youtube_views, niconico_history, youtube_history FROM songs WHERE id=?", (song_id,))
+            cursor.execute("SELECT niconico_views, youtube_views, niconico_history, youtube_history FROM songs WHERE id=%s", (song_id,))
             existing = cursor.fetchone()
             
             nico_views = 0
@@ -166,17 +194,17 @@ def fetch_new_songs():
                 tag_ids = json.loads(record[10])
                 
                 if is_update:
-                    cursor.execute("DELETE FROM song_artists WHERE song_id=?", (song_id,))
-                    cursor.execute("DELETE FROM song_tags WHERE song_id=?", (song_id,))
+                    cursor.execute("DELETE FROM song_artists WHERE song_id=%s", (song_id,))
+                    cursor.execute("DELETE FROM song_tags WHERE song_id=%s", (song_id,))
                     total_songs_updated += 1
                 else:
                     total_songs_inserted += 1
 
                 for aid in artist_ids:
-                    cursor.execute("INSERT OR IGNORE INTO song_artists (song_id, artist_id) VALUES (?, ?)", (song_id, aid))
+                    cursor.execute("INSERT INTO song_artists (song_id, artist_id) VALUES (%s, %s) ON CONFLICT DO NOTHING", (song_id, aid))
                     
                 for tid in tag_ids:
-                    cursor.execute("INSERT OR IGNORE INTO song_tags (song_id, tag_id) VALUES (?, ?)", (song_id, tid))
+                    cursor.execute("INSERT INTO song_tags (song_id, tag_id) VALUES (%s, %s) ON CONFLICT DO NOTHING", (song_id, tid))
                 
             except Exception as e:
                 log_message("ERROR", f"Error inserting/updating ID {song_id}: {e}")
