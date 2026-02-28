@@ -154,3 +154,11 @@ class SongComment(Base):
 
     user = relationship("User")
     song = relationship("Song")
+
+class SiteView(Base):
+    __tablename__ = "site_views"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    page_name = Column(String, index=True, nullable=False)
+    ip_address = Column(String, nullable=False)
+    created_at = Column(String, nullable=False)

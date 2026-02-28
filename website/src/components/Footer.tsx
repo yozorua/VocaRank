@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import LanguageSwitcher from './LanguageSwitcher';
+import FooterPageViews from './FooterPageViews';
 
 export default async function Footer() {
     const t = await getTranslations('Footer');
@@ -26,6 +27,8 @@ export default async function Footer() {
                             vocaloid.rankings@gmail.com
                         </a>
                     </p>
+
+                    <FooterPageViews page="home" label={t('homepage_views')} />
                 </div>
 
                 <p>&copy; {new Date().getFullYear()} VocaRank. All rights reserved.</p>

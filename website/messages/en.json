@@ -282,7 +282,7 @@
     },
     "Footer": {
         "footer_source": "Song data powered by VocaDB. View counts collected from YouTube & Niconico.",
-        "footer_contact": "Contact",
+        "footer_contact": "Contact", "homepage_views": "Views",
         "footer_dev": "This site is currently under active development — some features may be incomplete."
     },
     "Song": {

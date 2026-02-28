@@ -286,7 +286,7 @@
     },
     "Footer": {
         "footer_source": "楽曲データは VocaDB の提供によるものです。再生数は YouTube と Niconico から収集しています。",
-        "footer_contact": "お問い合わせ",
+        "footer_contact": "お問い合わせ", "homepage_views": "ビュー",
         "footer_dev": "このサイトは現在開発中です。一部の機能が不完全な場合があります。"
     },
     "Song": {

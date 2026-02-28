@@ -4,6 +4,7 @@ import StatNumber from '@/components/StatNumber';
 import SignupCta from '@/components/SignupCta';
 import ThumbnailImage from '@/components/ThumbnailImage';
 import PodiumScroll from '@/components/PodiumScroll';
+import PageViewTracker from '@/components/PageViewTracker';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -192,6 +193,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
   return (
     <div className="flex flex-col">
+      <PageViewTracker page="home" />
 
       {/* ═══════════════════════════════════════════════════════════════ HERO */}
       <section className="relative min-h-[calc(100vh-var(--header-height))] flex flex-col items-center justify-start pt-6 md:pt-6 overflow-hidden">

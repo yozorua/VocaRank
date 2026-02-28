@@ -114,16 +114,16 @@ export default function VocaloidStatsClient() {
                     <h2 className="text-xl font-bold text-white border-l-2 border-[var(--vermilion)] pl-3">
                         {t('songs_over_time')}
                     </h2>
-                    <div className="flex gap-2 bg-black/40 p-1 rounded-lg border border-[var(--hairline)]">
+                    <div className="flex gap-1 bg-black/40 p-1 rounded-lg border border-[var(--hairline)]">
                         <button
                             onClick={() => setTimeUnit('year')}
-                            className={`px-4 py-1.5 text-sm font-bold rounded-md transition-colors ${timeUnit === 'year' ? 'bg-[var(--vermilion)] text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-white'}`}
+                            className={`px-2 py-1 md:px-4 md:py-1.5 text-xs md:text-sm font-bold rounded-md transition-colors ${timeUnit === 'year' ? 'bg-[var(--vermilion)] text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-white'}`}
                         >
                             {t('switch_year')}
                         </button>
                         <button
                             onClick={() => setTimeUnit('month')}
-                            className={`px-4 py-1.5 text-sm font-bold rounded-md transition-colors ${timeUnit === 'month' ? 'bg-[var(--vermilion)] text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-white'}`}
+                            className={`px-2 py-1 md:px-4 md:py-1.5 text-xs md:text-sm font-bold rounded-md transition-colors ${timeUnit === 'month' ? 'bg-[var(--vermilion)] text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-white'}`}
                         >
                             {t('switch_month')}
                         </button>
@@ -178,16 +178,16 @@ export default function VocaloidStatsClient() {
                     <h2 className="text-xl font-bold text-white border-l-2 border-[#5680E9] pl-3">
                         {t('engine_over_time')}
                     </h2>
-                    <div className="flex gap-2 bg-black/40 p-1 rounded-lg border border-[var(--hairline)]">
+                    <div className="flex gap-1 bg-black/40 p-1 rounded-lg border border-[var(--hairline)]">
                         <button
                             onClick={() => setNormalizeEngine(false)}
-                            className={`px-3 py-1.5 text-sm font-bold rounded-md transition-colors ${!normalizeEngine ? 'bg-[#5680E9] text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-white'}`}
+                            className={`px-2 py-1 md:px-3 md:py-1.5 text-xs md:text-sm font-bold rounded-md transition-colors ${!normalizeEngine ? 'bg-[#5680E9] text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-white'}`}
                         >
                             {t('switch_count')}
                         </button>
                         <button
                             onClick={() => setNormalizeEngine(true)}
-                            className={`px-3 py-1.5 text-sm font-bold rounded-md transition-colors ${normalizeEngine ? 'bg-[#5680E9] text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-white'}`}
+                            className={`px-2 py-1 md:px-3 md:py-1.5 text-xs md:text-sm font-bold rounded-md transition-colors ${normalizeEngine ? 'bg-[#5680E9] text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-white'}`}
                         >
                             {t('switch_percent')}
                         </button>

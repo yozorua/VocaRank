@@ -66,8 +66,10 @@ export default function PlayerPage() {
 
         // Check if loading a shared queue
         const searchParams = new URLSearchParams(window.location.search);
-        // Check if loading a playlist by ID (from /playlist/[id] "Play All" button)
+        // Check if loading a playlist by ID (from /playlist/[id] "Play All" button or specific song click)
         const playlistId = searchParams.get('playlist');
+        const songIndexStr = searchParams.get('index');
+
         if (playlistId) {
             window.history.replaceState({}, document.title, window.location.pathname);
             isLoadingFromUrl.current = true;
@@ -88,7 +90,16 @@ export default function PlayerPage() {
                         )
                     );
                     const valid = songDetails.filter((s): s is SongRanking => s !== null && !!s.youtube_id);
-                    if (valid.length > 0) playSong(valid[0], valid);
+
+                    let targetSong = valid[0];
+                    if (songIndexStr) {
+                        const targetIdx = parseInt(songIndexStr, 10);
+                        if (!isNaN(targetIdx) && targetIdx >= 0 && targetIdx < valid.length) {
+                            targetSong = valid[targetIdx];
+                        }
+                    }
+
+                    if (valid.length > 0) playSong(targetSong, valid);
                 } catch { }
                 finally { isLoadingFromUrl.current = false; }
             };

@@ -12,6 +12,31 @@ router = APIRouter(
 # In-memory application cache specifically for these heavy analytical queries
 STATS_CACHE = {}
 
+from fastapi import APIRouter, Depends, Request
+from ..models import SiteView
+from datetime import datetime
+import pytz
+
+@router.get("/page-views/{page_name}")
+def get_page_views(page_name: str, db: Session = Depends(get_db)):
+    count = db.query(SiteView).filter(SiteView.page_name == page_name).count()
+    return {"page_name": page_name, "view_count": count}
+
+@router.post("/page-views/{page_name}")
+def increment_page_views(page_name: str, request: Request, db: Session = Depends(get_db)):
+    # Proxy forwarded IP or direct client IP
+    ip = request.headers.get("X-Forwarded-For", request.client.host if request.client else "127.0.0.1")
+    ip = ip.split(",")[0].strip()
+    
+    existing = db.query(SiteView).filter(SiteView.page_name == page_name, SiteView.ip_address == ip).first()
+    if not existing:
+        view = SiteView(page_name=page_name, ip_address=ip, created_at=datetime.now(pytz.utc).isoformat())
+        db.add(view)
+        db.commit()
+    
+    count = db.query(SiteView).filter(SiteView.page_name == page_name).count()
+    return {"page_name": page_name, "view_count": count}
+
 @router.get("/site-stats")
 def get_site_stats(db: Session = Depends(get_db)):
     """
