@@ -38,12 +38,14 @@ export default function AuthButton({ mobile }: { mobile?: boolean }) {
                             e.stopPropagation();
                             setIsOpen(!isOpen);
                         }}
-                        className="text-xl font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors flex items-center justify-center"
+                        className="text-xl font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors relative flex items-center justify-center"
                     >
                         {t('profile', { defaultMessage: 'Profile' })}
-                        <svg className={`w-5 h-5 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
+                        <div className="absolute -right-8 flex items-center justify-center">
+                            <svg className={`w-5 h-5 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
                     </button>
 
                     {isOpen && (

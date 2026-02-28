@@ -49,7 +49,7 @@ export default function Navbar() {
             <Link href="/search" className="text-xl font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors" onClick={() => setIsOpen(false)}>
                 {t('search', { defaultMessage: 'Search' })}
             </Link>
-            <div className="flex flex-col items-center gap-6 w-full mt-2">
+            <div className="flex flex-col items-center gap-10 w-full mt-2">
                 <button
                     onClick={() => setIsStatsOpen(!isStatsOpen)}
                     className="text-xl font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors relative flex items-center justify-center"

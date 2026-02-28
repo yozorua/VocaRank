@@ -144,14 +144,16 @@ export default function PlaylistSongList({ songs: initialSongs, playlistId, apiT
 
 
 
-                        {/* Thumbnail */}
+                        {/* Thumbnail - wrapper with overflow-hidden */}
                         {(song.youtube_id || song.niconico_thumb_url) ? (
-                            <ThumbnailImage
-                                youtubeId={song.youtube_id}
-                                niconicoThumb={song.niconico_thumb_url}
-                                alt={title}
-                                className="w-24 h-16 object-cover shrink-0 border border-[var(--hairline)]"
-                            />
+                            <div className="w-24 h-16 shrink-0 border border-[var(--hairline)] overflow-hidden bg-black relative">
+                                <ThumbnailImage
+                                    youtubeId={song.youtube_id}
+                                    niconicoThumb={song.niconico_thumb_url}
+                                    alt={title}
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
                         ) : (
                             <div className="w-24 h-16 bg-white/5 border border-[var(--hairline)] shrink-0" />
                         )}

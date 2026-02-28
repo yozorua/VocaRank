@@ -275,18 +275,22 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                         <div className="absolute left-0 top-0 bottom-0 w-0.5" style={{ backgroundColor: rankColor(rank) }} />
                       )}
                       <span className={`font-black shrink-0 font-serif ${rank <= 3 ? 'text-xl w-7' : 'text-lg w-6'}`} style={{ color: rankColor(rank) }}>{rank}</span>
+
                       {(song.youtube_id || song.niconico_thumb_url) ? (
-                        <ThumbnailImage
-                          youtubeId={song.youtube_id || ''}
-                          niconicoThumb={song.niconico_thumb_url}
-                          alt={title}
-                          className="w-10 h-10 object-cover shrink-0 border border-[var(--hairline)]"
-                        />
+                        <div className="w-10 h-10 shrink-0 border border-[var(--hairline)] overflow-hidden bg-black relative">
+                          <ThumbnailImage
+                            youtubeId={song.youtube_id || ''}
+                            niconicoThumb={song.niconico_thumb_url}
+                            alt={title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
                       ) : (
                         <div className="w-10 h-10 bg-white/5 border border-[var(--hairline)] shrink-0 flex items-center justify-center">
                           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[var(--text-secondary)]"><circle cx="12" cy="12" r="10" /><polygon points="10 8 16 12 10 16 10 8" /></svg>
                         </div>
                       )}
+
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-white truncate group-hover:text-[var(--vermilion)] transition-colors">{title}</p>
                         <p className="text-xs text-[var(--text-secondary)] truncate">{song.artist_string}</p>
@@ -328,7 +332,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                 </div>
                 <div className={`w-full border border-[var(--hairline)] p-3 bg-black/20 ${PREVIEW_H}`}>{card.preview}</div>
                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{t(card.descKey as Parameters<typeof t>[0])}</p>
-                <div className="flex items-center gap-1 text-[10px] tracking-[0.3em] uppercase text-[var(--text-secondary)] group-hover:text-[var(--vermilion)] transition-colors mt-auto">
+                <div className="flex items-center gap-1 text-[12px] tracking-[0.3em] uppercase text-[var(--text-secondary)] group-hover:text-[var(--vermilion)] transition-colors mt-auto">
                   <span className="inline-block font-serif opacity-60 group-hover:opacity-100 group-hover:-translate-x-0.5 transition-all duration-300">〈</span>
                   <span>{t('feature_explore')}</span>
                   <span className="inline-block font-serif opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-300">〉</span>

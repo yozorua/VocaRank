@@ -43,29 +43,33 @@ export default function MosaicCover({ songs, coverUrl, size = 80 }: Props) {
 
     if (tiles.length === 1) {
         return (
-            <ThumbnailImage
-                youtubeId={tiles[0].youtube_id}
-                niconicoThumb={tiles[0].niconico_thumb_url}
-                alt={tiles[0].name_english || tiles[0].name_japanese || ''}
-                className="w-full h-full object-cover"
-            />
+            /* ADDED: Wrapper with overflow-hidden for 1-song playlists */
+            <div className="w-full h-full overflow-hidden bg-black">
+                <ThumbnailImage
+                    youtubeId={tiles[0].youtube_id}
+                    niconicoThumb={tiles[0].niconico_thumb_url}
+                    alt={tiles[0].name_english || tiles[0].name_japanese || ''}
+                    className="w-full h-full object-cover"
+                />
+            </div>
         );
     }
 
     return (
-        <div className="w-full h-full grid grid-cols-2 grid-rows-2">
+        <div className="w-full h-full grid grid-cols-2 grid-rows-2 overflow-hidden bg-black">
             {Array.from({ length: 4 }).map((_, i) => {
                 const song = tiles[i];
                 return song ? (
-                    <ThumbnailImage
-                        key={song.song_id}
-                        youtubeId={song.youtube_id}
-                        niconicoThumb={song.niconico_thumb_url}
-                        alt={song.name_english || song.name_japanese || ''}
-                        className="w-full h-full object-cover"
-                    />
+                    <div key={song.song_id} className="w-full h-full overflow-hidden relative">
+                        <ThumbnailImage
+                            youtubeId={song.youtube_id}
+                            niconicoThumb={song.niconico_thumb_url}
+                            alt={song.name_english || song.name_japanese || ''}
+                            className="w-full h-full object-cover"
+                        />
+                    </div>
                 ) : (
-                    <div key={i} className="bg-white/5" />
+                    <div key={i} className="bg-white/5 w-full h-full" />
                 );
             })}
         </div>
