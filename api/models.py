@@ -141,3 +141,16 @@ class PlaylistFavorite(Base):
 
     playlist = relationship("Playlist", back_populates="favorites")
     user     = relationship("User")
+
+class SongComment(Base):
+    __tablename__ = "song_comments"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    song_id = Column(Integer, ForeignKey("songs.id"), index=True, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+    content = Column(Text, nullable=False)
+    created_at = Column(String, nullable=False)
+    updated_at = Column(String)
+
+    user = relationship("User")
+    song = relationship("Song")

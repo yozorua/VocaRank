@@ -146,14 +146,17 @@ export default function PlaylistSongList({ songs: initialSongs, playlistId, apiT
 
                         {/* Thumbnail - wrapper with overflow-hidden */}
                         {(song.youtube_id || song.niconico_thumb_url) ? (
-                            <div className="w-24 h-16 shrink-0 border border-[var(--hairline)] overflow-hidden bg-black relative">
+                            <Link href={`/player?playlist=${playlistId}&index=${idx}`} className="w-24 h-16 shrink-0 border border-[var(--hairline)] overflow-hidden bg-black relative block group/thumb cursor-pointer">
+                                <div className="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/30 transition-all z-10 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" className="opacity-0 group-hover/thumb:opacity-100 transition-opacity drop-shadow-md"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                </div>
                                 <ThumbnailImage
                                     youtubeId={song.youtube_id}
                                     niconicoThumb={song.niconico_thumb_url}
                                     alt={title}
                                     className="w-full h-full object-cover"
                                 />
-                            </div>
+                            </Link>
                         ) : (
                             <div className="w-24 h-16 bg-white/5 border border-[var(--hairline)] shrink-0" />
                         )}
@@ -165,7 +168,7 @@ export default function PlaylistSongList({ songs: initialSongs, playlistId, apiT
                             onClick={e => e.stopPropagation()}
                             draggable={false}
                         >
-                            <p className="font-bold text-white text-base line-clamp-1 group-hover/title:text-[var(--vermilion)] transition-colors tracking-wide mb-1.5">{title}</p>
+                            <p className="font-bold text-white text-base line-clamp-1 group-hover/title:text-[var(--gold)] transition-colors tracking-wide mb-1.5">{title}</p>
                             <div className="flex flex-col gap-1">
                                 <div className="text-[11px] text-[var(--text-secondary)] flex items-center gap-2 min-w-0">
                                     <div className="w-[72px] flex-shrink-0">{typeEl(song.song_type)}</div>

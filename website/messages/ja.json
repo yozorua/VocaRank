@@ -285,8 +285,20 @@
         "at_least_one": "(少なくとも1曲)"
     },
     "Footer": {
-        "footer_source": "楽曲データは VocaDB を活用しています。再生数は YouTube および Niconico から収集しています。",
+        "footer_source": "楽曲データは VocaDB の提供によるものです。再生数は YouTube と Niconico から収集しています。",
         "footer_contact": "お問い合わせ",
-        "footer_dev": "本サイトは現在開発中のため、一部機能が未完成の場合があります。"
+        "footer_dev": "このサイトは現在開発中です。一部の機能が不完全な場合があります。"
+    },
+    "Song": {
+        "comments": "コメント",
+        "write_comment": "コメントを追加...",
+        "markdown_supported": "マナーを守って投稿しましょう",
+        "post_comment": "投稿",
+        "posting": "投稿中...",
+        "login_to_comment": "コメントを残すにはログインしてください。",
+        "loading_comments": "コメントを読み込んでいます...",
+        "no_comments": "まだコメントはありません。最初のコメントを投稿しましょう！",
+        "delete": "コメントを削除",
+        "confirm_delete_comment": "本当にこのコメントを削除しますか？"
     }
 }

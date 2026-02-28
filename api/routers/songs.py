@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import text
 from ..database import get_db
 from .. import models, schemas
@@ -42,9 +42,9 @@ def search_songs(
             s.publish_date
         FROM songs s
         WHERE (
-            s.name_english LIKE :keyword OR 
-            s.name_japanese LIKE :keyword OR 
-            s.name_romaji LIKE :keyword
+            s.name_english ILIKE :keyword OR 
+            s.name_japanese ILIKE :keyword OR 
+            s.name_romaji ILIKE :keyword
         )
     """
     
@@ -195,3 +195,93 @@ def get_song(song_id: int, db: Session = Depends(get_db)):
         niconico_history=song.niconico_history,
         mood_votes=mood_votes
     )
+
+# --- Comments ---
+
+from .auth import get_current_user
+from datetime import datetime
+import pytz
+
+@router.get("/{song_id}/comments", response_model=List[schemas.SongCommentOut])
+def get_song_comments(song_id: int, db: Session = Depends(get_db)):
+    """Fetch all comments for a specific song."""
+    comments = db.query(models.SongComment).options(
+        joinedload(models.SongComment.user)
+    ).filter(models.SongComment.song_id == song_id).order_by(models.SongComment.created_at.desc()).all()
+    
+    return [schemas.SongCommentOut(
+        id=c.id,
+        song_id=c.song_id,
+        user_id=c.user_id,
+        content=c.content,
+        created_at=c.created_at,
+        updated_at=c.updated_at,
+        user=schemas.CommentUser(
+            id=c.user.id,
+            name=c.user.name,
+            picture_url=c.user.picture_url
+        )
+    ) for c in comments]
+
+@router.post("/{song_id}/comments", response_model=schemas.SongCommentOut)
+def create_song_comment(
+    song_id: int, 
+    comment: schemas.SongCommentCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Post a new comment on a song."""
+    # Verify song exists
+    song = db.query(models.Song).filter(models.Song.id == song_id).first()
+    if not song:
+        raise HTTPException(status_code=404, detail="Song not found")
+
+    new_comment = models.SongComment(
+        song_id=song_id,
+        user_id=current_user.id,
+        content=comment.content,
+        created_at=datetime.now(pytz.utc).isoformat()
+    )
+    db.add(new_comment)
+    db.commit()
+    db.refresh(new_comment)
+    
+    # Reload with user relationship
+    db.refresh(current_user)
+
+    return schemas.SongCommentOut(
+        id=new_comment.id,
+        song_id=new_comment.song_id,
+        user_id=new_comment.user_id,
+        content=new_comment.content,
+        created_at=new_comment.created_at,
+        updated_at=new_comment.updated_at,
+        user=schemas.CommentUser(
+            id=current_user.id,
+            name=current_user.name,
+            picture_url=current_user.picture_url
+        )
+    )
+
+@router.delete("/{song_id}/comments/{comment_id}", status_code=204)
+def delete_song_comment(
+    song_id: int,
+    comment_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Delete a user's own comment."""
+    comment = db.query(models.SongComment).filter(
+        models.SongComment.id == comment_id,
+        models.SongComment.song_id == song_id
+    ).first()
+    
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+        
+    if comment.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this comment")
+        
+    db.delete(comment)
+    db.commit()
+    return None

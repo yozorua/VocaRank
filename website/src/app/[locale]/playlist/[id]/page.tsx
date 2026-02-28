@@ -87,10 +87,13 @@ export default async function PlaylistDetailPage({ params }: { params: Promise<{
                 {/* Hero row */}
                 <div className="flex flex-col md:flex-row gap-8 items-start">
                     {/* Cover */}
-                    <div className="w-44 h-44 shrink-0 overflow-hidden border border-[var(--hairline)] relative">
+                    <div className="w-44 h-44 shrink-0 overflow-hidden border border-[var(--hairline)] relative group">
+                        <Link href={`/player?playlist=${playlist.id}`} className="absolute inset-0 z-20 cursor-pointer flex items-center justify-center bg-black/0 group-hover:bg-black/30 transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="white" className="opacity-0 group-hover:opacity-100 transition-opacity translate-y-4 group-hover:translate-y-0 duration-300 drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        </Link>
                         <MosaicCover songs={playlist.songs} coverUrl={playlist.cover_url} />
                         {!playlist.is_public && (
-                            <div className="absolute top-2 right-2 bg-black/70 px-2 py-0.5 text-[9px] tracking-widest uppercase text-[var(--text-secondary)]">
+                            <div className="absolute top-2 right-2 bg-black/70 px-2 py-0.5 text-[9px] tracking-widest uppercase text-[var(--text-secondary)] z-30">
                                 Private
                             </div>
                         )}

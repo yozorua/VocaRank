@@ -296,7 +296,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
 
                                 {/* Info */}
                                 <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                    <div className="font-bold text-sm text-white line-clamp-1 leading-relaxed mb-1 group-hover:text-[var(--vermilion)] transition-colors tracking-wide">
+                                    <div className="font-bold text-sm text-white line-clamp-1 leading-relaxed mb-1 group-hover:text-[var(--gold)] transition-colors tracking-wide">
                                         {getSongName(song)}
                                     </div>
                                     <div className="text-[11px] text-[var(--text-secondary)] flex flex-wrap items-center gap-2 min-w-0">
@@ -399,7 +399,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                         </div>
                                     </td>
                                     <td className="py-4 pl-2 pr-4 text-ellipsis overflow-hidden">
-                                        <div className="font-bold text-white text-base mb-1.5 line-clamp-1 group-hover:text-[var(--vermilion)] transition-colors tracking-wide w-full" title={getSongName(song) ?? ""}>
+                                        <div className="font-bold text-white text-base mb-1.5 line-clamp-1 group-hover:text-[var(--gold)] transition-colors tracking-wide w-full" title={getSongName(song) ?? ""}>
                                             {getSongName(song)}
                                         </div>
                                         <div className="flex flex-col gap-1.5 w-full">

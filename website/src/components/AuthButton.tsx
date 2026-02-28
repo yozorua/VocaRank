@@ -58,7 +58,7 @@ export default function AuthButton({ mobile }: { mobile?: boolean }) {
                             </Link>
                             <Link
                                 href="/favorites"
-                                className="text-lg font-medium tracking-[0.2em] text-[var(--text-secondary)] hover:text-[var(--vermilion)] transition-colors"
+                                className="text-lg font-medium tracking-[0.2em] text-[var(--text-secondary)] hover:text-white transition-colors"
                             >
                                 {tFav('title', { defaultMessage: 'My Favorites' })}
                             </Link>
@@ -96,31 +96,54 @@ export default function AuthButton({ mobile }: { mobile?: boolean }) {
 
                 {/* Dropdown Menu */}
                 {isOpen && (
-                    <div className="absolute right-0 mt-3 w-56 bg-black/95 backdrop-blur-xl border border-[var(--hairline-strong)] shadow-2xl z-50 animate-fade-in flex flex-col">
-                        <div className="p-4 border-b border-[var(--hairline-strong)] bg-black/40">
-                            <p className="text-sm font-bold text-white truncate">{session.user.name}</p>
-                            <p className="text-xs text-[var(--text-secondary)] truncate">{session.user.email}</p>
+                    <div className="absolute right-0 top-full mt-2 w-64 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-[var(--hairline-strong)] shadow-[0_16px_48px_rgba(0,0,0,0.8)] z-50 animate-fade-in flex flex-col">
+                        {/* Decorative Corner Bracket Top-Left */}
+                        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[var(--text-secondary)] pointer-events-none z-20"></div>
+                        {/* Decorative Corner Bracket Top-Right */}
+                        <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-[var(--text-secondary)] pointer-events-none z-20"></div>
+                        {/* Decorative Corner Bracket Bottom-Left */}
+                        <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-[var(--text-secondary)] pointer-events-none z-20"></div>
+                        {/* Decorative Corner Bracket Bottom-Right */}
+                        <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[var(--text-secondary)] pointer-events-none z-20"></div>
+
+                        <div className="p-5 border-b border-[var(--hairline-strong)] bg-gradient-to-b from-white/10 to-transparent relative overflow-hidden">
+                            <div className="absolute -top-12 -right-12 w-24 h-24 bg-[var(--vermilion)]/20 blur-2xl pointer-events-none"></div>
+                            <div className="relative z-10 flex items-center gap-3">
+                                {session.user.image ? (
+                                    <Image src={session.user.image} alt="Profile" width={40} height={40} unoptimized className="rounded-full border border-white/20 object-cover w-10 h-10 shrink-0 shadow-lg" />
+                                ) : (
+                                    <div className="w-10 h-10 rounded-full bg-[var(--hairline-strong)] border border-transparent shrink-0"></div>
+                                )}
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-sm font-bold text-white truncate leading-tight">{session.user.name}</p>
+                                    <p className="text-xs text-[var(--text-secondary)] truncate mt-0.5">{session.user.email}</p>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="flex flex-col py-2">
+                        <div className="flex flex-col p-2 gap-1 relative z-10">
                             <Link
                                 href="/profile"
                                 onClick={() => setIsOpen(false)}
-                                className="px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-white hover:bg-[var(--surface)] transition-colors text-left"
+                                className="group flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[var(--text-secondary)] hover:text-white hover:bg-white/10 transition-all text-left"
                             >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                                 {t('profile', { defaultMessage: 'Profile Settings' })}
                             </Link>
                             <Link
                                 href="/favorites"
                                 onClick={() => setIsOpen(false)}
-                                className="px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--vermilion)] hover:bg-[var(--surface)] transition-colors text-left"
+                                className="group flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[var(--text-secondary)] hover:text-white hover:bg-white/10 transition-all text-left"
                             >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-70 group-hover:opacity-100 group-hover:text-[var(--vermilion)] transition-colors"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                                 {tFav('title', { defaultMessage: 'My Favorites' })}
                             </Link>
+                            <div className="h-px bg-[var(--hairline-strong)] my-1 mx-1"></div>
                             <button
                                 onClick={() => signOut({ callbackUrl: '/' })}
-                                className="px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-[var(--surface)] transition-colors text-left border-t border-[var(--hairline-strong)] mt-2 pt-2"
+                                className="group flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-red-400 hover:text-red-300 hover:bg-white/10 transition-all text-left"
                             >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-70 group-hover:opacity-100 transition-opacity"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                                 {t('logout', { defaultMessage: 'Sign Out' })}
                             </button>
                         </div>

@@ -194,7 +194,7 @@ export default function PodiumScroll({ songs }: Props) {
                             {String(rank).padStart(2, '0')}
                         </span>
                         <div className="absolute bottom-0 left-0 right-0 p-4">
-                            <p className="font-bold text-white truncate drop-shadow-md group-hover:text-[var(--vermilion)] transition-colors text-sm md:text-base">
+                            <p className="font-bold text-white truncate drop-shadow-md group-hover:text-[var(--gold)] transition-colors text-sm md:text-base">
                                 {title}
                             </p>
                             <p className="text-xs text-white/70 truncate mt-0.5 drop-shadow-md">

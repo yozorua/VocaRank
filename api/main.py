@@ -33,6 +33,32 @@ app.include_router(playlists.router)
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
+import threading
+
+def prewarm_rankings():
+    try:
+        from .database import SessionLocal
+        from .routers.rankings import get_daily_ranking, get_weekly_ranking, get_monthly_ranking, get_total_ranking
+        
+        db = SessionLocal()
+        params = {"limit": 100, "song_type": "Original,Remaster,Remix", "vocaloid_only": True, "sort_by": "increment_total"}
+        get_daily_ranking(params, db)
+        get_weekly_ranking(params, db)
+        get_monthly_ranking(params, db)
+        
+        t_params = {"limit": 100, "song_type": "Original,Remaster,Remix", "vocaloid_only": True, "sort_by": "total"}
+        get_total_ranking(**t_params, db=db)
+        
+        db.close()
+        print("Rankings TTLCache pre-warmed successfully upon startup!")
+    except Exception as e:
+        print(f"Failed to pre-warm rankings: {e}")
+
+@app.on_event("startup")
+def startup_event():
+    thread = threading.Thread(target=prewarm_rankings, daemon=True)
+    thread.start()
+
 @app.get("/health")
 def health_check():
     return {"status": "ok", "message": "VocaRank API is running"}

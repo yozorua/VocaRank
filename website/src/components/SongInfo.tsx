@@ -74,7 +74,9 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                                     <span>{song.artist_string}</span>
                                 )}
                             </p>
-                            <FavoriteButton id={song.id} type="song" variant="small" />
+                            <div className="flex-shrink-0 pt-1">
+                                <FavoriteButton id={song.id} type="song" variant="small" />
+                            </div>
                         </div>
                     </div>
 

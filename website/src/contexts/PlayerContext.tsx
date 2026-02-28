@@ -15,6 +15,7 @@ interface PlayerContextType {
     isInitialized: boolean;
     playSong: (song: SongRanking, list?: SongRanking[]) => void;
     togglePlay: () => void;
+    setIsPlaying: (playing: boolean) => void;
     toggleLoop: () => void;
     toggleShuffle: () => void;
     setLoopMode: (mode: 'off' | 'list' | 'song') => void;
@@ -217,7 +218,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     return (
         <PlayerContext.Provider value={{
             queue, currentIndex, currentSong, isPlaying, loopMode, isShuffled, volume, isInitialized,
-            playSong, togglePlay, toggleLoop, toggleShuffle, setLoopMode, nextSong, prevSong, setVolume, clearPlayer,
+            playSong, togglePlay, setIsPlaying, toggleLoop, toggleShuffle, setLoopMode, nextSong, prevSong, setVolume, clearPlayer,
             removeFromQueue, addToQueue, reorderQueue
         }}>
             {children}

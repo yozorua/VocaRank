@@ -45,7 +45,7 @@ export default function PlaylistCard({ playlist, locale }: Props) {
             {/* Info — fixed height so all cards align */}
             <div className="p-3 flex flex-col justify-between gap-2 h-[100px]">
                 <div className="flex flex-col gap-1 min-h-0">
-                    <p className="text-sm font-semibold text-white truncate group-hover:text-[var(--vermilion)] transition-colors leading-snug">
+                    <p className="text-sm font-semibold text-white truncate group-hover:text-[var(--gold)] transition-colors leading-snug">
                         {playlist.title}
                     </p>
                     {/* Always reserve space for description — show 2-line clamped text or empty line */}

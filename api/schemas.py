@@ -207,3 +207,32 @@ class PlaylistUpdate(BaseModel):
 
 class PlaylistAddSong(BaseModel):
     song_id: int
+
+# --- Comment Schemas ---
+class SongCommentBase(BaseModel):
+    content: str
+
+class SongCommentCreate(SongCommentBase):
+    pass
+
+class SongCommentUpdate(SongCommentBase):
+    pass
+
+class CommentUser(BaseModel):
+    id: int
+    name: Optional[str] = None
+    picture_url: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+class SongCommentOut(SongCommentBase):
+    id: int
+    song_id: int
+    user_id: int
+    created_at: str
+    updated_at: Optional[str] = None
+    user: CommentUser
+
+    class Config:
+        orm_mode = True

@@ -249,6 +249,13 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
           {/* Signup CTA — only shown when not logged in */}
           <SignupCta />
 
+          {/* Mobile Scroll Indicator */}
+          <div className="md:hidden flex flex-col items-center justify-center mt-12 mb-4 animate-[bounce_2s_infinite]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--text-secondary)] opacity-60">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+
         </div>
       </section>
 
@@ -292,7 +299,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                       )}
 
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white truncate group-hover:text-[var(--vermilion)] transition-colors">{title}</p>
+                        <p className="text-sm font-medium text-white truncate group-hover:text-[var(--gold)] transition-colors">{title}</p>
                         <p className="text-xs text-[var(--text-secondary)] truncate">{song.artist_string}</p>
                       </div>
                       <div className="shrink-0 flex items-center gap-1.5">

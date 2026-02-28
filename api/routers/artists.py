@@ -32,9 +32,10 @@ def search_artists(
         LEFT JOIN song_artists sa ON a.id = sa.artist_id
         LEFT JOIN songs s ON sa.song_id = s.id
         WHERE (
-            a.name_default LIKE :keyword OR 
-            a.name_english LIKE :keyword OR 
-            a.name_japanese LIKE :keyword
+            a.name_default ILIKE :keyword OR 
+            a.name_english ILIKE :keyword OR 
+            a.name_japanese ILIKE :keyword OR
+            a.name_romaji ILIKE :keyword
         )
     """
     

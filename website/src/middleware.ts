@@ -8,7 +8,7 @@ const VALID_LOCALES = new Set(['en', 'ja', 'zh-TW']);
 
 // Paths with file extensions that are real Next.js concerns (let pass through)
 // Everything else with a dot is a scanner/bot probe — return 404 immediately
-const REAL_ASSET_RE = /^\/(_next|api|favicon\.ico)/;
+const REAL_ASSET_RE = /^\/(_next|api|favicon\.ico|sitemap\.xml)/;
 
 export default function middleware(req: NextRequest): NextResponse {
     const { pathname } = req.nextUrl;
@@ -33,6 +33,10 @@ export default function middleware(req: NextRequest): NextResponse {
     if (firstSegment && !VALID_LOCALES.has(firstSegment) && firstSegment !== '') {
         // Let next-intl handle it — it will redirect to default locale
         // (which is correct behaviour for a real path like /ranking → /en/ranking)
+    }
+
+    if (REAL_ASSET_RE.test(pathname)) {
+        return NextResponse.next();
     }
 
     return intlMiddleware(req) as NextResponse;

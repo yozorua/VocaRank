@@ -97,7 +97,7 @@ export default function SearchResultsClient({ query, initialSongs, initialArtist
                                     </div>
                                     <div className="min-w-0 w-full flex flex-col items-center">
                                         <div
-                                            className="font-bold text-white group-hover:text-[var(--vermilion)] w-full tracking-widest transition-colors break-words line-clamp-2"
+                                            className="font-bold text-white group-hover:text-[var(--gold)] w-full tracking-widest transition-colors break-words line-clamp-2"
                                             title={getArtistName(artist)}
                                         >
                                             {getArtistName(artist)}

@@ -284,5 +284,17 @@
         "footer_source": "Song data powered by VocaDB. View counts collected from YouTube & Niconico.",
         "footer_contact": "Contact",
         "footer_dev": "This site is currently under active development — some features may be incomplete."
+    },
+    "Song": {
+        "comments": "Comments",
+        "write_comment": "Add a comment...",
+        "markdown_supported": "Be respectful",
+        "post_comment": "Post",
+        "posting": "Posting...",
+        "login_to_comment": "Please log in to leave a comment.",
+        "loading_comments": "Loading comments...",
+        "no_comments": "No comments yet. Be the first to share your thoughts!",
+        "delete": "Delete comment",
+        "confirm_delete_comment": "Are you sure you want to delete this comment?"
     }
 }

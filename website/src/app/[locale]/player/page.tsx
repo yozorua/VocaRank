@@ -15,6 +15,7 @@ export default function PlayerPage() {
         currentSong,
         isPlaying,
         togglePlay,
+        setIsPlaying,
         volume,
         setVolume,
         nextSong,
@@ -209,9 +210,9 @@ export default function PlayerPage() {
                 <div className="w-full max-w-screen-2xl mx-auto flex flex-col lg:flex-row gap-4 lg:gap-8 items-center lg:items-start justify-center">
 
                     {/* Left Side: The Video Player (TOS Compliant) */}
-                    <div className="w-full lg:flex-1 max-w-4xl flex flex-col gap-6">
+                    <div className="w-full lg:flex-1 max-w-4xl flex flex-col gap-6 min-w-0">
                         {/* Video Container with Overlaid Protection Shield */}
-                        <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-[var(--hairline-strong)] bg-black group">
+                        <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-[var(--hairline-strong)] bg-black group shrink-0">
 
                             <ReactPlayer
                                 ref={playerRef}
@@ -222,6 +223,8 @@ export default function PlayerPage() {
                                 onProgress={handleProgress as any}
                                 onDuration={handleDuration}
                                 onReady={handleReady}
+                                onPlay={() => setIsPlaying(true)}
+                                onPause={() => setIsPlaying(false)}
                                 onEnded={loopMode === 'song' ? undefined : nextSong}
                                 width="100%"
                                 height="100%"
@@ -457,7 +460,7 @@ export default function PlayerPage() {
                     </div>
 
                     {/* Right Side: Up Next Sidebar */}
-                    <div className="w-full lg:w-96 flex flex-col gap-4 bg-[var(--bg-dark)]/50 backdrop-blur-md rounded-2xl border border-[var(--hairline)] p-4 max-h-[60vh] lg:max-h-[800px] overflow-hidden">
+                    <div className="w-full shrink-0 lg:w-96 flex flex-col gap-4 bg-[var(--bg-dark)]/50 backdrop-blur-md rounded-2xl border border-[var(--hairline)] p-4 max-h-[60vh] lg:max-h-[800px] overflow-hidden">
                         <div className="flex items-center justify-between pb-2 border-b border-[var(--hairline-strong)]">
                             <h2 className="text-lg font-bold text-white">{t('Player.up_next')}</h2>
                             <div className="flex items-center gap-2">
