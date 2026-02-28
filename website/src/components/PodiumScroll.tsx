@@ -24,9 +24,8 @@ type Props = {
 const MEDAL: Record<number, string> = { 1: '#D4AF37', 2: '#A8A9AD', 3: '#CD7F32' };
 const rankColor = (rank: number) => MEDAL[rank] ?? 'rgba(255,255,255,0.35)';
 
-// Card dimensions (desktop). On mobile we use viewport width.
-const CARD_W_PX = 480;
-const CARD_H_PX = 380;
+const CARD_W_PX = 640;  // desktop landscape width (4:3 with 480px height)
+const CARD_H_PX = 480;   // taller cards
 const GAP_PX = 12;
 const INTERVAL_MS = 8000;
 
@@ -105,19 +104,19 @@ export default function PodiumScroll({ songs }: Props) {
             logicalIdx.current = (logicalIdx.current + 1) % n;
             const nextIdx = logicalIdx.current;
 
-            // Smoothly scroll to next card in middle copy
-            scrollToSlot(1, nextIdx, true);
-
-            // After animation settles (~600ms), if we just wrapped around (nextIdx===0),
-            // silently jump to middle copy card 0 (which is where we already are)
             if (nextIdx === 0) {
-                // We scrolled from middle copy last card → we need to jump from RIGHT copy card 0
-                // to MIDDLE copy card 0 silently (they look identical)
+                // We just crossed from last card (copy 1, slot n-1) into first card.
+                // Scroll RIGHTWARD to the RIGHT copy's card 0 (copy 2, slot 0) — always moves right.
+                scrollToSlot(2, 0, true);
+                // After animation finishes, invisibly jump to middle copy card 0 (identical visual)
                 setTimeout(() => {
                     isJumping.current = true;
                     scrollToSlot(1, 0, false);
                     setTimeout(() => { isJumping.current = false; }, 100);
-                }, 650);
+                }, 700);
+            } else {
+                // Normal advance: scroll to next card in middle copy (always rightward)
+                scrollToSlot(1, nextIdx, true);
             }
         }, INTERVAL_MS);
 
@@ -139,13 +138,16 @@ export default function PodiumScroll({ songs }: Props) {
         if (timer.current) return;
         timer.current = setInterval(() => {
             logicalIdx.current = (logicalIdx.current + 1) % n;
-            scrollToSlot(1, logicalIdx.current, true);
-            if (logicalIdx.current === 0) {
+            const nextIdx = logicalIdx.current;
+            if (nextIdx === 0) {
+                scrollToSlot(2, 0, true);
                 setTimeout(() => {
                     isJumping.current = true;
                     scrollToSlot(1, 0, false);
                     setTimeout(() => { isJumping.current = false; }, 100);
-                }, 650);
+                }, 700);
+            } else {
+                scrollToSlot(1, nextIdx, true);
             }
         }, INTERVAL_MS);
     };
@@ -178,7 +180,7 @@ export default function PodiumScroll({ songs }: Props) {
                         className="group flex-none relative overflow-hidden cursor-pointer"
                         style={{
                             width: `min(${CARD_W_PX}px, 88vw)`,
-                            height: `min(${CARD_H_PX}px, 58vw)`,
+                            height: `min(${CARD_H_PX}px, 62vw)`,
                             minWidth: `min(${CARD_W_PX}px, 88vw)`,
                             border: `1px solid ${rank <= 3 ? `${rankColor(rank)}50` : 'var(--hairline)'}`,
                         }}

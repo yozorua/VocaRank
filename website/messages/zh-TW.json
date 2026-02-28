@@ -10,7 +10,7 @@
         "cta_search": "探索",
         "cta_signup": "免費建立帳號，儲存最愛、追蹤排行",
         "stat_songs": "首歌曲",
-        "stat_producers": "位創作者",
+        "stat_producers": "位作曲家",
         "preview_notice": "本站目前正在積極開發中 — 部分功能可能尚未完成",
         "section_top_movers": "今日精選",
         "top_movers_today": "每日精選",
@@ -283,5 +283,10 @@
         "cancel": "取消",
         "share": "分享",
         "at_least_one": "(至少1首)"
+    },
+    "Footer": {
+        "footer_source": "歌曲資料由 VocaDB 提供支持。播放數據收集自 YouTube 及 Niconico。",
+        "footer_contact": "聯絡我們",
+        "footer_dev": "本站目前仍在積極開發中——部分功能可能尚未完成。"
     }
 }

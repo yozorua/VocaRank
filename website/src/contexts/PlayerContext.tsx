@@ -142,12 +142,18 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
             do {
                 nextIdx = Math.floor(Math.random() * queue.length);
             } while (nextIdx === currentIndex);
+            // Clear saved progress so the song starts from the beginning
+            if (queue[nextIdx]) localStorage.removeItem(`vocarank_progress_${queue[nextIdx].id}`);
             setCurrentIndex(nextIdx);
             setIsPlaying(true);
         } else if (currentIndex < queue.length - 1) {
-            setCurrentIndex(currentIndex + 1);
+            const nxt = currentIndex + 1;
+            if (queue[nxt]) localStorage.removeItem(`vocarank_progress_${queue[nxt].id}`);
+            setCurrentIndex(nxt);
             setIsPlaying(true);
         } else if (loopMode === 'list') {
+            // Looping back to first song — clear its progress so it starts from 0
+            if (queue[0]) localStorage.removeItem(`vocarank_progress_${queue[0].id}`);
             setCurrentIndex(0);
             setIsPlaying(true);
         }
@@ -155,7 +161,10 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
     const prevSong = () => {
         if (currentIndex > 0) {
-            setCurrentIndex(currentIndex - 1);
+            const prev = currentIndex - 1;
+            // Clear saved progress so the song starts from the beginning
+            if (queue[prev]) localStorage.removeItem(`vocarank_progress_${queue[prev].id}`);
+            setCurrentIndex(prev);
             setIsPlaying(true);
         }
     };

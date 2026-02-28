@@ -15,7 +15,7 @@ export default function SignupCta() {
             <div className="w-8 h-px bg-[var(--hairline)]" />
             <Link
                 href="/api/auth/signin/google"
-                className="group flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-[var(--text-secondary)] hover:text-white transition-colors duration-200"
+                className="group flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase text-[var(--text-secondary)] hover:text-white transition-colors duration-200"
             >
                 <span className="text-[var(--vermilion)] group-hover:scale-110 transition-transform duration-200 inline-block">✦</span>
                 {t('cta_signup')}

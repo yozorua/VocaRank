@@ -44,7 +44,7 @@ export default function LanguageSwitcher() {
                 onClick={() => setIsOpen(!isOpen)}
                 disabled={isPending}
                 className={`
-          flex items-center gap-2 px-4 py-2
+          flex items-center gap-2 px-5 py-2.5
           border transition-all duration-300
           ${isOpen
                         ? 'border-[var(--vermilion)]/60 text-[var(--vermilion)]'
@@ -54,14 +54,14 @@ export default function LanguageSwitcher() {
         `}
             >
                 {/* Globe icon */}
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-70">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-70">
                     <circle cx="12" cy="12" r="10" />
                     <line x1="2" y1="12" x2="22" y2="12" />
                     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
                 </svg>
-                <span className="text-[10px] font-bold tracking-[0.25em] uppercase">{currentLang.label}</span>
+                <span className="text-xs font-bold tracking-[0.25em] uppercase">{currentLang.label}</span>
                 <svg
-                    className={`w-3 h-3 transition-transform duration-300 opacity-60 ${isOpen ? 'rotate-180' : ''}`}
+                    className={`w-4 h-4 transition-transform duration-300 opacity-60 ${isOpen ? 'rotate-180' : ''}`}
                     fill="none" stroke="currentColor" viewBox="0 0 24 24"
                 >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />

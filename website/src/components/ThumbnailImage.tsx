@@ -37,6 +37,6 @@ export default function ThumbnailImage({ youtubeId, niconicoThumb, alt, classNam
 
     return (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt={alt} className={className} onError={handleError} />
+        <img src={src} alt={alt} className={className} style={{ objectFit: 'cover' }} onError={handleError} />
     );
 }

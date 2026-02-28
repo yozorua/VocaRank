@@ -6,12 +6,15 @@
 
 :root {
   /* VocaRank Neo-Traditional Theme */
-  --bg-dark: #131417; /* Deep Charcoal */
+  --bg-dark: #131417;
+  /* Deep Charcoal */
   --bg-panel: rgba(255, 255, 255, 0.02);
-  
-  --vermilion: #E84A5F; /* Traditional Japanese Red */
-  --gold: #D4AF37; /* Faded Gold Accent */
-  --cyan-subtle: #4A90E2; 
+
+  --vermilion: #E84A5F;
+  /* Traditional Japanese Red */
+  --gold: #D4AF37;
+  /* Faded Gold Accent */
+  --cyan-subtle: #4A90E2;
 
   --text-primary: #FFFFFF;
   --text-secondary: #8E8E93;
@@ -23,7 +26,7 @@
   --font-serif: 'Noto Serif JP', serif;
 
   --max-width: 1200px;
-  --header-height: 56px;
+  --header-height: 64px;
 }
 
 @media (min-width: 768px) {
@@ -117,7 +120,7 @@ a {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 0;
 }
 

@@ -52,10 +52,10 @@ export default function Navbar() {
             <div className="flex flex-col items-center gap-6 w-full mt-2">
                 <button
                     onClick={() => setIsStatsOpen(!isStatsOpen)}
-                    className="text-xl font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors flex items-center justify-center"
+                    className="text-xl font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors relative flex items-center justify-center"
                 >
                     {t('statistics', { defaultMessage: 'Statistics' })}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`ml-2 transition-transform duration-300 ${isStatsOpen ? 'rotate-180' : ''}`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`absolute -right-8 transition-transform duration-300 ${isStatsOpen ? 'rotate-180' : ''}`}>
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
                 </button>

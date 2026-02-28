@@ -283,5 +283,10 @@
         "cancel": "キャンセル",
         "share": "シェア",
         "at_least_one": "(少なくとも1曲)"
+    },
+    "Footer": {
+        "footer_source": "楽曲データは VocaDB を活用しています。再生数は YouTube および Niconico から収集しています。",
+        "footer_contact": "お問い合わせ",
+        "footer_dev": "本サイトは現在開発中のため、一部機能が未完成の場合があります。"
     }
 }

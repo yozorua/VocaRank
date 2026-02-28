@@ -204,7 +204,6 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory, publ
 
                     {/* X-axis tick labels — full ISO date, rotated -30° */}
                     {tickDates.map((date, i) => {
-                        if (i === 0) return null;
                         const x = toX(date);
                         const labelY = H - 20;
                         return (

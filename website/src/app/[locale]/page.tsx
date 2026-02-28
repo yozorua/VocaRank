@@ -194,7 +194,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     <div className="flex flex-col">
 
       {/* ═══════════════════════════════════════════════════════════════ HERO */}
-      <section className="relative min-h-[calc(100vh-var(--header-height))] flex flex-col items-center justify-center overflow-hidden">
+      <section className="relative min-h-[calc(100vh-var(--header-height))] flex flex-col items-center justify-start pt-6 md:pt-6 overflow-hidden">
 
         {/* Radial ambient glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[60%] pointer-events-none z-0"
@@ -203,7 +203,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <div className="relative z-10 w-full flex flex-col items-center gap-6">
 
           {/* Eyebrow — hidden on mobile, flush near navbar on desktop */}
-          <div className="hidden md:flex items-center gap-4 animate-fade-in-up px-6" style={{ animationDelay: '0ms' }}>
+          <div className="flex items-center gap-4 animate-fade-in-up px-6" style={{ animationDelay: '0ms' }}>
             <div className="w-10 md:w-16 h-px bg-[var(--hairline-strong)]" />
             <span className="text-xs text-[var(--text-secondary)] tracking-[0.35em] uppercase font-light select-none">
               Vocaloid
