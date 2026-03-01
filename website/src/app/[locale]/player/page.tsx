@@ -84,12 +84,29 @@ export default function PlayerPage() {
                     }
                     const pl = await res.json();
                     if (!pl.songs || pl.songs.length === 0) return;
-                    const songDetails = await Promise.all(
-                        pl.songs.map((s: { song_id: number }) =>
-                            fetch(`${API_BASE_URL}/songs/${s.song_id}`).then(r => r.ok ? r.json() : null)
-                        )
-                    );
-                    const valid = songDetails.filter((s): s is SongRanking => s !== null && !!s.youtube_id);
+                    // Map playlist songs directly — the playlist endpoint already returns all needed fields.
+                    // Avoids N individual /songs/{id} fetches which caused random timeouts and dropped songs.
+                    const valid: SongRanking[] = (pl.songs as any[])
+                        .filter((s) => !!s.youtube_id)
+                        .map((s): SongRanking => ({
+                            id: s.song_id,
+                            name_english: s.name_english ?? null,
+                            name_japanese: s.name_japanese ?? null,
+                            name_romaji: s.name_romaji ?? null,
+                            youtube_id: s.youtube_id,
+                            niconico_id: s.niconico_id ?? null,
+                            niconico_thumb_url: s.niconico_thumb_url ?? null,
+                            artist_string: s.artist_string ?? 'Unknown',
+                            vocaloid_string: s.vocalist_string ?? '',
+                            total_views: 0,
+                            views_youtube: 0,
+                            views_niconico: 0,
+                            external_links: null,
+                            song_type: s.song_type ?? null,
+                            publish_date: null,
+                            artists: [],
+                            vocalists: [],
+                        }));
 
                     let targetSong = valid[0];
                     if (songIndexStr) {
