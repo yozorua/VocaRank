@@ -118,9 +118,9 @@ export default async function PlaylistDetailPage({ params }: { params: Promise<{
                             <p className="text-[var(--text-secondary)] text-sm leading-relaxed line-clamp-3 overflow-hidden break-words">{playlist.description}</p>
                         )}
                         {playlist.owner?.name && (
-                            <p className="text-xs text-[var(--text-secondary)] opacity-60">by {playlist.owner.name}</p>
+                            <p className="text-xs text-[var(--text-secondary)] opacity-60">{playlist.owner.name}</p>
                         )}
-                        <p className="text-xs text-[var(--text-secondary)]">{playlist.song_count} songs</p>
+                        <p className="text-xs text-[var(--text-secondary)]">{t('song_count', { count: playlist.song_count })}</p>
 
                         {/* Row 1: Play All + Favorite + Share */}
                         <div className="flex items-center gap-2 flex-wrap">

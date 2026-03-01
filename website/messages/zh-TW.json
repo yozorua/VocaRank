@@ -204,6 +204,7 @@
         "description": "管理您儲存的內容",
         "songs": "歌曲",
         "artists": "歌手",
+        "playlists": "播放清單",
         "no_favorites": "沒有找到最愛"
     },
     "Graph": {
@@ -302,6 +303,9 @@
         "save": "儲存",
         "cancel": "取消",
         "share": "分享",
+        "copied": "已複製！",
+        "favorited": "收藏的播放清單",
+        "no_favorited": "還沒有收藏任何播放清單。",
         "at_least_one": "(至少1首)",
         "loading_queue": "正在從播放器佇列載入歌曲..."
     },

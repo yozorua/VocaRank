@@ -165,6 +165,8 @@ class PlaylistSongOut(BaseModel):
     songwriter_string: Optional[str] = None
     vocalist_string: Optional[str] = None
     song_type: Optional[str] = None
+    artists: List[ArtistTiny] = []
+    vocalists: List[ArtistTiny] = []
 
     class Config:
         orm_mode = True

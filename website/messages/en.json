@@ -200,6 +200,7 @@
         "description": "Manage your saved content",
         "songs": "Songs",
         "artists": "Artists",
+        "playlists": "Playlists",
         "no_favorites": "No favorites found"
     },
     "Graph": {
@@ -298,6 +299,9 @@
         "save": "Save",
         "cancel": "Cancel",
         "share": "Share",
+        "copied": "Copied!",
+        "favorited": "Favorited Playlists",
+        "no_favorited": "No favorited playlists yet.",
         "at_least_one": "(at least 1)",
         "loading_queue": "Loading songs from player queue..."
     },

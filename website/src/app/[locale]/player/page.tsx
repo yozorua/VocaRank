@@ -104,8 +104,8 @@ export default function PlayerPage() {
                             external_links: null,
                             song_type: s.song_type ?? null,
                             publish_date: null,
-                            artists: [],
-                            vocalists: [],
+                            artists: s.artists ?? [],
+                            vocalists: s.vocalists ?? [],
                         }));
 
                     let targetSong = valid[0];

@@ -204,6 +204,7 @@
         "description": "保存したコンテンツを管理する",
         "songs": "楽曲",
         "artists": "アーティスト",
+        "playlists": "プレイリスト",
         "no_favorites": "お気に入りがありません"
     },
     "Graph": {
@@ -302,6 +303,9 @@
         "save": "保存",
         "cancel": "キャンセル",
         "share": "シェア",
+        "copied": "コピーしました！",
+        "favorited": "お気に入りプレイリスト",
+        "no_favorited": "お気に入りのプレイリストはまだありません。",
         "at_least_one": "(少なくとも1曲)",
         "loading_queue": "プレイヤーキューから曲を読み込み中..."
     },

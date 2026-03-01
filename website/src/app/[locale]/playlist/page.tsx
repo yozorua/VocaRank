@@ -1,5 +1,4 @@
-import { getTranslations } from 'next-intl/server';
-import { getLocale } from 'next-intl/server';
+import { getTranslations, getLocale } from 'next-intl/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { Link } from '@/i18n/navigation';
@@ -30,15 +29,29 @@ async function fetchMyPlaylists(token: string) {
     }
 }
 
+async function fetchFavoritePlaylists(token: string) {
+    try {
+        const res = await fetch(`${API}/playlists/favorites`, {
+            cache: 'no-store',
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return [];
+        return res.json();
+    } catch {
+        return [];
+    }
+}
+
 export default async function PlaylistPage() {
     const t = await getTranslations('Playlist');
     const locale = await getLocale();
     const session = await getServerSession(authOptions);
     const apiToken = (session as any)?.apiToken as string | undefined;
 
-    const [publicPlaylists, myPlaylists] = await Promise.all([
+    const [publicPlaylists, myPlaylists, favoritedPlaylists] = await Promise.all([
         fetchPublicPlaylists(),
         apiToken ? fetchMyPlaylists(apiToken) : Promise.resolve([]),
+        apiToken ? fetchFavoritePlaylists(apiToken) : Promise.resolve([]),
     ]);
 
     return (
@@ -80,7 +93,21 @@ export default async function PlaylistPage() {
                         </h2>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                             {myPlaylists.map((pl: Parameters<typeof PlaylistCard>[0]['playlist']) => (
-                                <PlaylistCard key={pl.id} playlist={pl} locale={locale} />
+                                <PlaylistCard key={pl.id} playlist={pl} />
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Favorited Playlists */}
+                {favoritedPlaylists.length > 0 && (
+                    <div className="flex flex-col gap-4">
+                        <h2 className="text-sm font-semibold text-[var(--text-secondary)] tracking-[0.3em] uppercase">
+                            {t('favorited')}
+                        </h2>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                            {favoritedPlaylists.map((pl: Parameters<typeof PlaylistCard>[0]['playlist']) => (
+                                <PlaylistCard key={pl.id} playlist={pl} />
                             ))}
                         </div>
                     </div>
@@ -100,7 +127,7 @@ export default async function PlaylistPage() {
                     ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                             {publicPlaylists.map((pl: Parameters<typeof PlaylistCard>[0]['playlist']) => (
-                                <PlaylistCard key={pl.id} playlist={pl} locale={locale} />
+                                <PlaylistCard key={pl.id} playlist={pl} />
                             ))}
                         </div>
                     )}

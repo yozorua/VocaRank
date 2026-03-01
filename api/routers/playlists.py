@@ -12,6 +12,7 @@ import jwt
 from ..database import get_db
 from .. import models, schemas
 from .auth import get_current_user_from_token, JWT_SECRET, ALGORITHM
+from ..utils import SYNTH_TYPES
 
 router = APIRouter(prefix="/playlists", tags=["playlists"], redirect_slashes=False)
 
@@ -107,6 +108,22 @@ def _vocalist_string(song: models.Song) -> Optional[str]:
 
 def _build_song_out(ps: models.PlaylistSong) -> schemas.PlaylistSongOut:
     song = ps.song
+    producers, vocalists, others = [], [], []
+    for a in song.artists:
+        obj = schemas.ArtistTiny(
+            id=a.id,
+            name=a.name_default or a.name_english or '',
+            artist_type=a.artist_type,
+            picture_url_thumb=getattr(a, 'picture_url_thumb', None),
+        )
+        if a.artist_type in ('Producer', 'Circle', 'OtherGroup'):
+            producers.append(obj)
+        elif a.artist_type in SYNTH_TYPES:
+            vocalists.append(obj)
+        else:
+            others.append(obj)
+    if not producers and others:
+        producers = others
     return schemas.PlaylistSongOut(
         song_id=song.id,
         position=ps.position,
@@ -120,6 +137,8 @@ def _build_song_out(ps: models.PlaylistSong) -> schemas.PlaylistSongOut:
         songwriter_string=_songwriter_string(song),
         vocalist_string=_vocalist_string(song),
         song_type=getattr(song, 'song_type', None),
+        artists=producers,
+        vocalists=vocalists,
     )
 
 def _build_playlist_out(
@@ -191,6 +210,30 @@ def my_playlists(
         db.query(models.Playlist)
         .filter(models.Playlist.user_id == current_user.id)
         .order_by(models.Playlist.created_at.desc())
+        .all()
+    )
+    return [_build_playlist_out(pl, db, current_user.id, include_songs=True, preview_only=True) for pl in playlists]
+
+
+# ── GET /playlists/favorites — current user's favorited playlists ─────────────
+
+@router.get("/favorites", response_model=list[schemas.PlaylistOut])
+def my_favorite_playlists(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user_from_token),
+):
+    favs = (
+        db.query(models.PlaylistFavorite)
+        .filter(models.PlaylistFavorite.user_id == current_user.id)
+        .all()
+    )
+    playlist_ids = [f.playlist_id for f in favs]
+    if not playlist_ids:
+        return []
+    playlists = (
+        db.query(models.Playlist)
+        .filter(models.Playlist.id.in_(playlist_ids))
+        .order_by(models.Playlist.updated_at.desc())
         .all()
     )
     return [_build_playlist_out(pl, db, current_user.id, include_songs=True, preview_only=True) for pl in playlists]

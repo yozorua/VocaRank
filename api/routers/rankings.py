@@ -128,8 +128,8 @@ def get_gain_ranking(
         producers = am.get('producers', [])
         vocalists = am.get('vocalists', [])
         
-        artist_string = ", ".join([p['name'] for p in producers]) if producers else "Unknown"
-        vocaloid_string = ", ".join([v['name'] for v in vocalists]) if vocalists else "Unknown"
+        artist_string = " · ".join([p['name'] for p in producers]) if producers else "Unknown"
+        vocaloid_string = " · ".join([v['name'] for v in vocalists]) if vocalists else "Unknown"
         
         response.append(schemas.SongRanking(
             id=sid, name_english=row[1], name_japanese=row[2], name_romaji=row[3],
@@ -280,8 +280,8 @@ def get_total_ranking(
         producers = am.get('producers', [])
         vocalists = am.get('vocalists', [])
         
-        artist_string = ", ".join([p['name'] for p in producers]) if producers else "Unknown"
-        vocaloid_string = ", ".join([v['name'] for v in vocalists]) if vocalists else "Unknown"
+        artist_string = " · ".join([p['name'] for p in producers]) if producers else "Unknown"
+        vocaloid_string = " · ".join([v['name'] for v in vocalists]) if vocalists else "Unknown"
         
         response.append(schemas.SongRanking(
             id=sid,
@@ -406,8 +406,8 @@ def get_custom_ranking(
         producers = am.get('producers', [])
         vocalists = am.get('vocalists', [])
         
-        artist_string = ", ".join([p['name'] for p in producers]) if producers else "Unknown"
-        vocaloid_string = ", ".join([v['name'] for v in vocalists]) if vocalists else "Unknown"
+        artist_string = " · ".join([p['name'] for p in producers]) if producers else "Unknown"
+        vocaloid_string = " · ".join([v['name'] for v in vocalists]) if vocalists else "Unknown"
         
         response.append(schemas.SongRanking(
             id=sid,

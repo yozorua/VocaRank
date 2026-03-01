@@ -9,15 +9,17 @@ import RankingTable from '@/components/RankingTable';
 import { Link } from '@/i18n/navigation';
 import NoThumbnail from '@/components/NoThumbnail';
 import { formatArtistType } from '@/lib/formatArtistType';
+import PlaylistCard from '@/components/playlist/PlaylistCard';
 
 export default function FavoritesClient() {
     const { data: session, status } = useSession();
     const t = useTranslations('Favorites');
     const tSearch = useTranslations('SearchPage'); // For loading states
 
-    const [activeTab, setActiveTab] = useState<'songs' | 'artists'>('songs');
+    const [activeTab, setActiveTab] = useState<'songs' | 'artists' | 'playlists'>('songs');
     const [songs, setSongs] = useState<SongRanking[]>([]);
     const [artists, setArtists] = useState<Artist[]>([]);
+    const [playlists, setPlaylists] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -34,19 +36,20 @@ export default function FavoritesClient() {
     const fetchFavorites = async () => {
         setLoading(true);
         try {
-            const endpoint = activeTab === 'songs' ? 'songs' : 'artists';
-            const res = await fetch(`${API_BASE_URL}/favorites/${endpoint}`, {
-                headers: {
-                    'Authorization': `Bearer ${session?.apiToken}`
-                }
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                if (activeTab === 'songs') {
-                    setSongs(data);
-                } else {
-                    setArtists(data);
+            if (activeTab === 'playlists') {
+                const res = await fetch(`${API_BASE_URL}/playlists/favorites`, {
+                    headers: { 'Authorization': `Bearer ${session?.apiToken}` }
+                });
+                if (res.ok) setPlaylists(await res.json());
+            } else {
+                const endpoint = activeTab === 'songs' ? 'songs' : 'artists';
+                const res = await fetch(`${API_BASE_URL}/favorites/${endpoint}`, {
+                    headers: { 'Authorization': `Bearer ${session?.apiToken}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (activeTab === 'songs') setSongs(data);
+                    else setArtists(data);
                 }
             }
         } catch (e) {
@@ -89,6 +92,12 @@ export default function FavoritesClient() {
                     >
                         {t('artists', { defaultMessage: 'Artists' })}
                     </button>
+                    <button
+                        onClick={() => setActiveTab('playlists')}
+                        className={`pb-3 border-b-2 transition-all font-bold whitespace-nowrap text-sm tracking-[0.1em] ${activeTab === 'playlists' ? 'text-white border-[var(--vermilion)]' : 'text-[var(--text-secondary)] border-transparent hover:text-white'}`}
+                    >
+                        {t('playlists')}
+                    </button>
                 </div>
             </div>
 
@@ -112,7 +121,7 @@ export default function FavoritesClient() {
                             </p>
                         </div>
                     )
-                ) : (
+                ) : activeTab === 'artists' ? (
                     artists.length > 0 ? (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
                             {artists.map((artist) => (
@@ -152,6 +161,23 @@ export default function FavoritesClient() {
                         <div className="w-full h-64 flex flex-col items-center justify-center text-center gap-4 text-[var(--text-secondary)] border border-[var(--hairline)] bg-[var(--surface)]">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-50">
                                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                            <p className="text-sm tracking-widest uppercase opacity-70">
+                                {t('no_favorites', { defaultMessage: 'No favorites found' })}
+                            </p>
+                        </div>
+                    )
+                ) : (
+                    playlists.length > 0 ? (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                            {playlists.map((pl: any) => (
+                                <PlaylistCard key={pl.id} playlist={pl} />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="w-full h-64 flex flex-col items-center justify-center text-center gap-4 text-[var(--text-secondary)] border border-[var(--hairline)] bg-[var(--surface)]">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-50">
+                                <path d="M9 19V6l12-3v13M9 19c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm12-3c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zM9 10l12-3" />
                             </svg>
                             <p className="text-sm tracking-widest uppercase opacity-70">
                                 {t('no_favorites', { defaultMessage: 'No favorites found' })}

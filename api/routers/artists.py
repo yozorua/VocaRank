@@ -218,8 +218,8 @@ def get_artist_songs(
         producers = am['producers']
         vocalists = am['vocalists']
         
-        artist_string = ", ".join([p['name'] for p in producers]) if producers else "Unknown"
-        vocaloid_string = ", ".join([v['name'] for v in vocalists]) if vocalists else "Unknown"
+        artist_string = " · ".join([p['name'] for p in producers]) if producers else "Unknown"
+        vocaloid_string = " · ".join([v['name'] for v in vocalists]) if vocalists else "Unknown"
         
         response.append(schemas.SongRanking(
             id=sid,

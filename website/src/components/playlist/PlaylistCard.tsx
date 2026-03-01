@@ -1,4 +1,7 @@
-import Link from 'next/link';
+'use client';
+
+import { Link } from '@/i18n/navigation';
+import { useTranslations, useLocale } from 'next-intl';
 import MosaicCover from '@/components/playlist/MosaicCover';
 
 type PlaylistSong = {
@@ -23,13 +26,15 @@ type Playlist = {
 
 type Props = {
     playlist: Playlist;
-    locale: string;
+    locale?: string;
 };
 
-export default function PlaylistCard({ playlist, locale }: Props) {
+export default function PlaylistCard({ playlist }: Props) {
+    const t = useTranslations('Playlist');
+
     return (
         <Link
-            href={`/${locale}/playlist/${playlist.id}`}
+            href={`/playlist/${playlist.id}`}
             className="group flex flex-col glass-panel hairline-border overflow-hidden hover:border-[var(--vermilion)]/30 transition-all duration-300"
         >
             {/* Cover */}
@@ -56,11 +61,11 @@ export default function PlaylistCard({ playlist, locale }: Props) {
                 <div className="flex items-center justify-between">
                     <div className="flex flex-col gap-0.5">
                         <span className="text-xs text-[var(--text-secondary)]">
-                            {playlist.song_count} songs
+                            {t('song_count', { count: playlist.song_count })}
                         </span>
                         {playlist.owner?.name && (
                             <span className="text-[10px] text-[var(--text-secondary)] opacity-50 truncate">
-                                by {playlist.owner.name}
+                                {playlist.owner.name}
                             </span>
                         )}
                     </div>
