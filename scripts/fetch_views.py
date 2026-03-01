@@ -120,6 +120,7 @@ def update_history(current_history_json: str, new_views: int) -> str:
 def main():
     parser = argparse.ArgumentParser(description="Fetch view counts.")
     parser.add_argument("--mode", choices=['all', 'popular'], default='all', help="Mode: 'all' to update everything, 'popular' (>= 100,000 views).")
+    parser.add_argument("--id", type=int, help="Fetch view counts for a specific song ID.")
     args = parser.parse_args()
     
     conn = get_db_connection()
@@ -127,7 +128,11 @@ def main():
     
     query = "SELECT id, pv_data, niconico_history, youtube_history, niconico_views, youtube_views FROM songs WHERE 1=1"
     
-    if args.mode == 'popular':
+    if args.id:
+        log_message("INFO", f"Mode: SPECIFIC ID ({args.id})")
+        query += f" AND id = {args.id}"
+        keys = os.getenv("YOUTUBE_KEYS_GENERAL", "").split(",")
+    elif args.mode == 'popular':
         log_message("INFO", "Mode: POPULAR (>=100K YouTube Views)")
         query += " AND youtube_views >= 100000"
         pop_keys = os.getenv("YOUTUBE_KEYS_POPULAR") or os.getenv("YOUTUBE_KEY_POPULAR")

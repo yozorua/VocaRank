@@ -22,6 +22,24 @@ if [ -z "$DATABASE_URL" ]; then
     exit 1
 fi
 
+log_message() {
+    local level=$1
+    local message=$2
+    local now=$(date "+%Y-%m-%d %H:%M:%S")
+    local color=""
+    local reset="\033[0m"
+    
+    case $level in
+        "INFO") color="\033[94m" ;;
+        "SUCCESS") color="\033[92m" ;;
+        "WARNING") color="\033[93m" ;;
+        "ERROR") color="\033[91m" ;;
+        *) color="" ;;
+    esac
+    
+    echo -e "[$now | ${color}${level}${reset}] $message"
+}
+
 USAGE="Usage: $0 [--daily-dump <path>] [--dump <path>] [--check-total-size]"
 
 if [ $# -eq 0 ]; then
@@ -32,7 +50,7 @@ fi
 case $1 in
     --daily-dump)
         if [ -z "$2" ]; then
-            echo "Error: Path required. Usage: $0 --daily-dump <path>"
+            log_message "ERROR" "Path required. Usage: $0 --daily-dump <path>"
             exit 1
         fi
         BACKUP_DIR="$2"
@@ -42,25 +60,28 @@ case $1 in
         DATE_STR=$(date +%Y%m%d)
         FILE_PATH="$BACKUP_DIR/vocarank_backup_$DATE_STR.dump"
         
-        echo "Creating daily dump at $FILE_PATH..."
+        echo "[$DATE_STR | START] database_backup.sh --daily-dump"
+        log_message "INFO" "Creating daily dump at $FILE_PATH..."
         pg_dump "$DATABASE_URL" -F c -f "$FILE_PATH"
         
         if [ $? -eq 0 ]; then
-            echo "Daily dump completed successfully."
+            log_message "SUCCESS" "Daily dump completed successfully."
             
             # Clean up dumps older than 14 days in that directory
-            echo "Cleaning up dumps older than 14 days in $BACKUP_DIR..."
+            log_message "INFO" "Cleaning up dumps older than 14 days in $BACKUP_DIR..."
             find "$BACKUP_DIR" -maxdepth 1 -name "vocarank_backup_*.dump" -type f -mtime +14 -exec rm -f {} \;
-            echo "Cleanup complete."
+            log_message "SUCCESS" "Cleanup complete."
+            echo "[$DATE_STR | END] database_backup.sh --daily-dump (Exit Code: 0)"
         else
-            echo "Error: pg_dump failed!"
+            log_message "ERROR" "pg_dump failed!"
+            echo "[$DATE_STR | END] database_backup.sh --daily-dump (Exit Code: 1)"
             exit 1
         fi
         ;;
         
     --dump)
         if [ -z "$2" ]; then
-            echo "Error: Path required. Usage: $0 --dump <path>"
+            log_message "ERROR" "Path required. Usage: $0 --dump <path>"
             exit 1
         fi
         BACKUP_DIR="$2"
@@ -70,33 +91,36 @@ case $1 in
         DATETIME_STR=$(date +%Y%m%d%H%M%S)
         FILE_PATH="$BACKUP_DIR/vocarank_backup_$DATETIME_STR.dump"
         
-        echo "Creating manual dump at $FILE_PATH..."
+        echo "[$DATETIME_STR | START] database_backup.sh --dump"
+        log_message "INFO" "Creating manual dump at $FILE_PATH..."
         pg_dump "$DATABASE_URL" -F c -f "$FILE_PATH"
         
         if [ $? -eq 0 ]; then
-            echo "Manual dump completed successfully."
+            log_message "SUCCESS" "Manual dump completed successfully."
+            echo "[$DATETIME_STR | END] database_backup.sh --dump (Exit Code: 0)"
         else
-            echo "Error: pg_dump failed!"
+            log_message "ERROR" "pg_dump failed!"
+            echo "[$DATETIME_STR | END] database_backup.sh --dump (Exit Code: 1)"
             exit 1
         fi
         ;;
         
     --check-total-size)
-        echo "Checking total database size..."
+        log_message "INFO" "Checking total database size..."
         # Query PostgreSQL for the string representation of current database's size
         # Use -t to avoid printing column headers, and xargs to strip whitespace
         SIZE=$(psql "$DATABASE_URL" -t -c "SELECT pg_size_pretty(pg_database_size(current_database()));" | xargs)
         
         if [ $? -eq 0 ]; then
-            echo "Current Database Size: $SIZE"
+            log_message "SUCCESS" "Current Database Size: $SIZE"
         else
-            echo "Error: Failed to query database size."
+            log_message "ERROR" "Failed to query database size."
             exit 1
         fi
         ;;
         
     *)
-        echo "Unknown option: $1"
+        log_message "ERROR" "Unknown option: $1"
         echo "$USAGE"
         exit 1
         ;;

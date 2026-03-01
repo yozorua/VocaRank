@@ -27,10 +27,13 @@ async function getDailyTopTotal(limit = 10) {
   try {
     const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
     const res = await fetch(
-      `${apiBase}/rankings/daily?limit=${limit}&vocaloid_only=true&sort_by=increment_total`,
+      `${apiBase}/rankings/daily?limit=100&vocaloid_only=true&sort_by=increment_total`,
       { next: { revalidate: 3600 } }
     );
-    if (res.ok) return await res.json();
+    if (res.ok) {
+      const data = await res.json();
+      return data.slice(0, limit);
+    }
   } catch { }
   return [];
 }
@@ -40,10 +43,13 @@ async function getDailyTopNico(limit = 5) {
   try {
     const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
     const res = await fetch(
-      `${apiBase}/rankings/daily?limit=${limit}&vocaloid_only=true&sort_by=increment_niconico`,
+      `${apiBase}/rankings/daily?limit=100&vocaloid_only=true&sort_by=increment_niconico`,
       { next: { revalidate: 3600 } }
     );
-    if (res.ok) return await res.json();
+    if (res.ok) {
+      const data = await res.json();
+      return data.slice(0, limit);
+    }
   } catch { }
   return [];
 }

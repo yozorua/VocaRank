@@ -4,7 +4,7 @@ from sqlalchemy import text
 from ..database import get_db
 from .. import schemas
 from ..utils import SYNTH_TYPES, extract_pvs, get_artists_for_songs
-from ..cache import ranking_cache, cache_lock
+from ..models import RankingCache
 from typing import List, Optional, Dict
 import datetime
 import json
@@ -76,7 +76,6 @@ def get_gain_ranking(
             OR DATE(s.publish_date) >= DATE(:target_date)
         )
         AND NOT (
-            -- Exclude first-time-fetch spikes for old songs that somehow got a 0 recorded yesterday
             past.song_id IS NOT NULL 
             AND (past.youtube_views + past.niconico_views) = 0
             AND (today.youtube_views + today.niconico_views) > 0
@@ -116,7 +115,6 @@ def get_gain_ranking(
         
     results = db.execute(sql, params).fetchall()
     
-    # Process
     song_ids = [row[0] for row in results]
     artists_map = get_artists_for_songs(db, song_ids)
     
@@ -134,25 +132,13 @@ def get_gain_ranking(
         vocaloid_string = ", ".join([v['name'] for v in vocalists]) if vocalists else "Unknown"
         
         response.append(schemas.SongRanking(
-            id=sid,
-            name_english=row[1],
-            name_japanese=row[2],
-            name_romaji=row[3],
-            increment_total=row[4],
-            increment_youtube=row[5],
-            increment_niconico=row[6],
-            views_youtube=row[7],
-            views_niconico=row[8],
-            total_views=row[9],
-            youtube_id=yt_id,
-            niconico_id=nico_id,
-            niconico_thumb_url=nico_thumb,
-            song_type=row[11],
-            publish_date=row[12],
-            artist_string=artist_string,
-            vocaloid_string=vocaloid_string,
-            artists=producers,
-            vocalists=vocalists
+            id=sid, name_english=row[1], name_japanese=row[2], name_romaji=row[3],
+            increment_total=row[4], increment_youtube=row[5], increment_niconico=row[6],
+            views_youtube=row[7], views_niconico=row[8], total_views=row[9],
+            youtube_id=yt_id, niconico_id=nico_id, niconico_thumb_url=nico_thumb,
+            song_type=row[11], publish_date=row[12],
+            artist_string=artist_string, vocaloid_string=vocaloid_string,
+            artists=producers, vocalists=vocalists
         ))
         
     return response
@@ -169,36 +155,30 @@ def common_params(
 
 @router.get("/daily", response_model=List[schemas.SongRanking])
 def get_daily_ranking(params: dict = Depends(common_params), db: Session = Depends(get_db)):
-    key = ('daily', params['sort_by'], params['limit'], params['song_type'], params['vocaloid_only'])
-    with cache_lock:
-        if key in ranking_cache:
-            return ranking_cache[key]
-    result = get_gain_ranking(db, 1, **params)
-    with cache_lock:
-        ranking_cache[key] = result
-    return result
+    key_str = json.dumps(('daily', params['sort_by'], 100, params['song_type'], params['vocaloid_only']))
+    cached = db.query(RankingCache).filter(RankingCache.cache_key == key_str).first()
+    if cached:
+        return json.loads(cached.data)[:params['limit']]
+    
+    return get_gain_ranking(db, 1, **params)
 
 @router.get("/weekly", response_model=List[schemas.SongRanking])
 def get_weekly_ranking(params: dict = Depends(common_params), db: Session = Depends(get_db)):
-    key = ('weekly', params['sort_by'], params['limit'], params['song_type'], params['vocaloid_only'])
-    with cache_lock:
-        if key in ranking_cache:
-            return ranking_cache[key]
-    result = get_gain_ranking(db, 7, **params)
-    with cache_lock:
-        ranking_cache[key] = result
-    return result
+    key_str = json.dumps(('weekly', params['sort_by'], 100, params['song_type'], params['vocaloid_only']))
+    cached = db.query(RankingCache).filter(RankingCache.cache_key == key_str).first()
+    if cached:
+        return json.loads(cached.data)[:params['limit']]
+        
+    return get_gain_ranking(db, 7, **params)
 
 @router.get("/monthly", response_model=List[schemas.SongRanking])
 def get_monthly_ranking(params: dict = Depends(common_params), db: Session = Depends(get_db)):
-    key = ('monthly', params['sort_by'], params['limit'], params['song_type'], params['vocaloid_only'])
-    with cache_lock:
-        if key in ranking_cache:
-            return ranking_cache[key]
-    result = get_gain_ranking(db, 30, **params)
-    with cache_lock:
-        ranking_cache[key] = result
-    return result
+    key_str = json.dumps(('monthly', params['sort_by'], 100, params['song_type'], params['vocaloid_only']))
+    cached = db.query(RankingCache).filter(RankingCache.cache_key == key_str).first()
+    if cached:
+        return json.loads(cached.data)[:params['limit']]
+        
+    return get_gain_ranking(db, 30, **params)
 
 @router.get("/total", response_model=List[schemas.SongRanking])
 def get_total_ranking(
@@ -208,12 +188,11 @@ def get_total_ranking(
     sort_by: str = Query('total', enum=['total', 'youtube', 'niconico'], description="Sort by metric"),
     db: Session = Depends(get_db)
 ):
-    # Cache check
-    cache_key = ('total', sort_by, limit, song_type, vocaloid_only)
-    with cache_lock:
-        if cache_key in ranking_cache:
-            return ranking_cache[cache_key]
-
+    key_str = json.dumps(('total', sort_by, 100, song_type, vocaloid_only))
+    cached = db.query(RankingCache).filter(RankingCache.cache_key == key_str).first()
+    if cached:
+        return json.loads(cached.data)[:limit]
+        
     # Sort Logic
     order_clause = "(s.youtube_views + s.niconico_views) DESC"
     if sort_by == 'youtube':
@@ -247,7 +226,7 @@ def get_total_ranking(
         else:
             query_str += " AND s.song_type IN :song_types"
             params["song_types"] = types
-        
+            
     if vocaloid_only:
         query_str += """ AND EXISTS (
             SELECT 1 FROM song_artists sa 
@@ -267,7 +246,6 @@ def get_total_ranking(
         
     result = db.execute(sql, params).fetchall()
 
-    song_ids = [row[0] for row in result]
     song_ids = [row.id for row in result]
     artists_map = get_artists_for_songs(db, song_ids)
     
@@ -305,10 +283,6 @@ def get_total_ranking(
             artists=producers,
             vocalists=vocalists
         ))
-
-    # Store in cache
-    with cache_lock:
-        ranking_cache[cache_key] = response
 
     return response
 
