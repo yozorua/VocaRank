@@ -153,10 +153,11 @@ export default function VocaloidStatsClient() {
                                     backgroundColor: 'var(--bg-dark)',
                                     borderColor: 'var(--hairline-strong)',
                                     borderRadius: '8px',
-                                    padding: '12px'
+                                    padding: '6px 10px',
+                                    fontSize: '12px'
                                 }}
                                 itemStyle={{ color: '#fff', fontWeight: 'bold' }}
-                                labelStyle={{ color: 'var(--text-secondary)', marginBottom: '4px' }}
+                                labelStyle={{ color: 'var(--text-secondary)', marginBottom: '2px' }}
                                 formatter={(value: any) => [value, t('song_count')]}
                                 labelFormatter={(label) => `${timeUnit === 'year' ? t('year') : t('month')}: ${label}`}
                             />
@@ -219,10 +220,11 @@ export default function VocaloidStatsClient() {
                                     backgroundColor: 'var(--bg-dark)',
                                     borderColor: 'var(--hairline-strong)',
                                     borderRadius: '8px',
-                                    padding: '12px'
+                                    padding: '6px 10px',
+                                    fontSize: '12px'
                                 }}
                                 itemStyle={{ fontWeight: 'bold' }}
-                                labelStyle={{ color: 'var(--text-secondary)', marginBottom: '4px' }}
+                                labelStyle={{ color: 'var(--text-secondary)', marginBottom: '2px' }}
                                 formatter={(value: any, name: any) => [normalizeEngine ? `${value}%` : `${value} ${t('songs')}`, formatArtistType(name)]}
                                 labelFormatter={(label) => `${timeUnit === 'year' ? t('year') : t('month')}: ${label}`}
                             />
@@ -270,7 +272,9 @@ export default function VocaloidStatsClient() {
                                     backgroundColor: 'var(--bg-dark)',
                                     borderColor: 'var(--hairline-strong)',
                                     borderRadius: '8px',
-                                    color: '#fff'
+                                    color: '#fff',
+                                    padding: '6px 10px',
+                                    fontSize: '12px'
                                 }}
                                 itemStyle={{ color: '#fff' }}
                                 formatter={(value: any, name: any) => [`${value} ${t('songs')}`, formatArtistType(name)]}

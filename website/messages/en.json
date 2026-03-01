@@ -243,7 +243,16 @@
         "share": "Share",
         "link_copied": "Playlist link copied to clipboard!",
         "add_to_queue": "Add song to queue…",
-        "already_in_queue": "In queue"
+        "already_in_queue": "In queue",
+        "save_to_playlist": "Save to Playlist",
+        "copy_playlist_link": "Copy Playlist Link",
+        "open_youtube_playlist": "Open as YouTube Playlist",
+        "toggle_fullscreen": "Toggle Fullscreen",
+        "loop_off": "Loop Off",
+        "loop_list": "Loop List",
+        "loop_song": "Loop Song",
+        "shuffle_on": "Shuffle On",
+        "shuffle_off": "Shuffle Off"
     },
     "Playlist": {
         "title": "Playlists",
@@ -289,7 +298,8 @@
         "save": "Save",
         "cancel": "Cancel",
         "share": "Share",
-        "at_least_one": "(at least 1)"
+        "at_least_one": "(at least 1)",
+        "loading_queue": "Loading songs from player queue..."
     },
     "Footer": {
         "footer_source": "Song data powered by VocaDB. View counts collected from YouTube & Niconico.",

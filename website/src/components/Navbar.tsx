@@ -128,7 +128,7 @@ export default function Navbar() {
                             </span>
 
                             {/* Dropdown Menu */}
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0 w-48 bg-[var(--bg-dark)] border border-[var(--hairline-strong)] shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-[200]">
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0 w-64 bg-[var(--bg-dark)] border border-[var(--hairline-strong)] shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-[200]">
                                 <div className="p-2 relative z-10 bg-[var(--bg-dark)]">
                                     <Link href="/statistic/producer-network" className="block w-full px-4 py-3 text-sm text-[var(--text-secondary)] hover:text-white hover:bg-white/5 transition-colors text-center font-bold">
                                         {t('statistics_producer_network', { defaultMessage: 'Producers Network' })}

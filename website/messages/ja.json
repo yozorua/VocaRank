@@ -247,7 +247,16 @@
         "share": "シェア",
         "link_copied": "プレイリストのリンクをコピーしました！",
         "add_to_queue": "キューに曲を追加…",
-        "already_in_queue": "追加済み"
+        "already_in_queue": "追加済み",
+        "save_to_playlist": "プレイリストに保存",
+        "copy_playlist_link": "プレイリストリンクをコピー",
+        "open_youtube_playlist": "YouTubeプレイリストで開く",
+        "toggle_fullscreen": "フルスクリーン切り替え",
+        "loop_off": "ループ：オフ",
+        "loop_list": "ループ：リスト",
+        "loop_song": "ループ：シングル",
+        "shuffle_on": "シャッフル：オン",
+        "shuffle_off": "シャッフル：オフ"
     },
     "Playlist": {
         "title": "プレイリスト",
@@ -293,7 +302,8 @@
         "save": "保存",
         "cancel": "キャンセル",
         "share": "シェア",
-        "at_least_one": "(少なくとも1曲)"
+        "at_least_one": "(少なくとも1曲)",
+        "loading_queue": "プレイヤーキューから曲を読み込み中..."
     },
     "Footer": {
         "footer_source": "楽曲データは VocaDB の提供によるものです。再生数は YouTube と Niconico から収集しています。",

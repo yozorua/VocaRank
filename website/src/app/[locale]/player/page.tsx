@@ -8,7 +8,7 @@ import FavoriteButton from '@/components/FavoriteButton';
 import { useTranslations, useLocale } from 'next-intl';
 import { API_BASE_URL } from '@/lib/api';
 import { SongRanking } from '@/types';
-import { useSession } from 'next-auth/react';
+import { useSession, signIn } from 'next-auth/react';
 
 export default function PlayerPage() {
     const {
@@ -402,7 +402,7 @@ export default function PlayerPage() {
                                     <button
                                         onClick={toggleShuffle}
                                         className={`p-2 transition-colors ${isShuffled ? 'text-white' : 'text-[var(--text-secondary)] hover:text-white'}`}
-                                        title={isShuffled ? "Shuffle On" : "Shuffle Off"}
+                                        title={isShuffled ? t('Player.shuffle_on') : t('Player.shuffle_off')}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                             <polyline points="16 3 21 3 21 8"></polyline>
@@ -447,7 +447,7 @@ export default function PlayerPage() {
                                     <button
                                         onClick={toggleLoop}
                                         className={`relative p-2 transition-colors ${loopMode !== 'off' ? 'text-[var(--vermilion)] drop-shadow-[0_0_8px_rgba(255,100,80,0.5)]' : 'text-[var(--text-secondary)] hover:text-white'}`}
-                                        title={loopMode === 'song' ? "Loop Song" : loopMode === 'list' ? "Loop List" : "Loop Off"}
+                                        title={loopMode === 'song' ? t('Player.loop_song') : loopMode === 'list' ? t('Player.loop_list') : t('Player.loop_off')}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
                                         {loopMode === 'song' && (
@@ -461,7 +461,7 @@ export default function PlayerPage() {
                                     <button
                                         onClick={toggleFullscreen}
                                         className="text-[var(--text-secondary)] hover:text-white transition-colors p-2"
-                                        title="Toggle Fullscreen"
+                                        title={t('Player.toggle_fullscreen')}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
                                     </button>
@@ -487,7 +487,7 @@ export default function PlayerPage() {
                                             setShowCopied(true);
                                             setTimeout(() => setShowCopied(false), 3000);
                                         }}
-                                        title="Copy Queue Link"
+                                        title={t('Player.copy_playlist_link')}
                                         className="p-1.5 text-[var(--text-secondary)] hover:text-white transition-colors rounded-full hover:bg-white/5 relative"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M14 9V5l7 7-7 7v-4.1c-5 0-8.5 1.6-11 5.1 1-5 4-10 11-10z" /></svg>
@@ -499,11 +499,38 @@ export default function PlayerPage() {
                                         href={`https://www.youtube.com/watch_videos?video_ids=${queue.filter((s: SongRanking) => s.youtube_id).map((s: SongRanking) => s.youtube_id).slice(0, 50).join(',')}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        title="Open as YouTube Playlist"
+                                        title={t('Player.open_youtube_playlist')}
                                         className="p-1.5 text-[var(--text-secondary)] hover:text-[#FF0000] transition-colors rounded-full hover:bg-white/5"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29.07 29.07 0 0 0 1 11.75a29.07 29.07 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29.07 29.07 0 0 0 .46-5.33 29.07 29.07 0 0 0-.46-5.33zM9.75 15.02l5.75-3.27-5.75-3.27v6.54z" /></svg>
                                     </a>
+                                )}
+
+                                {/* Save Queue to Playlist */}
+                                {queue.length > 0 && (
+                                    <button
+                                        onClick={() => {
+                                            if (session) {
+                                                // Pass full song objects via localStorage to avoid API re-fetching
+                                                localStorage.setItem('vocarank_pending_playlist', JSON.stringify(queue));
+                                                window.open(`/${locale}/playlist/new`, '_blank');
+                                            } else {
+                                                signIn('google');
+                                            }
+                                        }}
+                                        title={t('Player.save_to_playlist')}
+                                        className="p-1.5 text-[var(--text-secondary)] hover:text-[var(--vermilion)] transition-colors rounded-full hover:bg-white/5"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <line x1="8" y1="6" x2="21" y2="6" />
+                                            <line x1="8" y1="12" x2="21" y2="12" />
+                                            <line x1="8" y1="18" x2="16" y2="18" />
+                                            <line x1="3" y1="6" x2="3.01" y2="6" />
+                                            <line x1="3" y1="12" x2="3.01" y2="12" />
+                                            <line x1="19" y1="18" x2="19" y2="24" />
+                                            <line x1="22" y1="21" x2="16" y2="21" />
+                                        </svg>
+                                    </button>
                                 )}
                             </div>
                         </div>
@@ -541,7 +568,7 @@ export default function PlayerPage() {
                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="18" x2="20" y2="18" /></svg>
                                         </div>
                                         <div className="relative w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-black">
-                                            <img src={`https://i.ytimg.com/vi/${song.youtube_id}/default.jpg`} alt="" className="w-full h-full object-cover grayscale-[30%]" />
+                                            <img src={`https://i.ytimg.com/vi/${song.youtube_id}/mqdefault.jpg`} alt="" className="w-full h-full object-cover" />
                                             {isCurrent && (
                                                 <div className="absolute inset-0 bg-[var(--vermilion)]/20 flex items-center justify-center">
                                                     <div className="w-1.5 h-3 bg-white mx-0.5 animate-[bounce_1s_infinite]"></div>
@@ -620,7 +647,7 @@ export default function PlayerPage() {
                                             || song.artist_string?.replace(/, /g, ' · ');
                                         return (
                                             <div key={song.id} className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white/5 transition-colors">
-                                                <img src={`https://i.ytimg.com/vi/${song.youtube_id}/default.jpg`} alt="" className="w-10 h-10 object-cover rounded shrink-0" />
+                                                <img src={`https://i.ytimg.com/vi/${song.youtube_id}/mqdefault.jpg`} alt="" className="w-10 h-10 object-cover rounded shrink-0" />
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-xs text-white font-semibold truncate">{title}</p>
                                                     {producers && <p className="text-[10px] text-[var(--text-secondary)] truncate mt-0.5">{producers}</p>}

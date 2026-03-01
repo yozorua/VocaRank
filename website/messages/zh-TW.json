@@ -247,7 +247,16 @@
         "share": "分享",
         "link_copied": "播放清單連結已複製到剪貼簿！",
         "add_to_queue": "新增歌曲至佇列…",
-        "already_in_queue": "已在佇列"
+        "already_in_queue": "已在佇列",
+        "save_to_playlist": "儲存為播放清單",
+        "copy_playlist_link": "複製播放清單連結",
+        "open_youtube_playlist": "在 YouTube 播放清單中開啟",
+        "toggle_fullscreen": "切換全螢幕",
+        "loop_off": "循環：關",
+        "loop_list": "循環：清單",
+        "loop_song": "循環：單曲",
+        "shuffle_on": "隨機：開",
+        "shuffle_off": "隨機：關"
     },
     "Playlist": {
         "title": "播放清單",
@@ -293,7 +302,8 @@
         "save": "儲存",
         "cancel": "取消",
         "share": "分享",
-        "at_least_one": "(至少1首)"
+        "at_least_one": "(至少1首)",
+        "loading_queue": "正在從播放器佇列載入歌曲..."
     },
     "Footer": {
         "footer_source": "歌曲資料由 VocaDB 提供支持。播放數據收集自 YouTube 及 Niconico。",
