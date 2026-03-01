@@ -1,8 +1,12 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from ..database import get_db
-from ..cache import cache_lock # Will implement discrete manual caching here
+from ..cache import cache_lock
+from ..models import SiteView, StatisticCache
+from datetime import datetime
+import pytz
+import json
 
 router = APIRouter(
     prefix="/statistics",
@@ -12,10 +16,10 @@ router = APIRouter(
 # In-memory application cache specifically for these heavy analytical queries
 STATS_CACHE = {}
 
-from fastapi import APIRouter, Depends, Request
-from ..models import SiteView
-from datetime import datetime
-import pytz
+
+# ─────────────────────────────────────────────
+#  Page-view helpers
+# ─────────────────────────────────────────────
 
 @router.get("/page-views/{page_name}")
 def get_page_views(page_name: str, db: Session = Depends(get_db)):
@@ -34,6 +38,11 @@ def increment_page_views(page_name: str, request: Request, db: Session = Depends
     
     count = db.query(SiteView).filter(SiteView.page_name == page_name).count()
     return {"page_name": page_name, "view_count": count}
+
+
+# ─────────────────────────────────────────────
+#  Site stats (homepage strip)
+# ─────────────────────────────────────────────
 
 @router.get("/site-stats")
 def get_site_stats(db: Session = Depends(get_db)):
@@ -90,16 +99,45 @@ def get_site_stats(db: Session = Depends(get_db)):
     return result
 
 
+# ─────────────────────────────────────────────
+#  Internal helper: read from statistic_cache
+# ─────────────────────────────────────────────
+
+def _load_statistic_cache(db: Session, cache_key: str):
+    """
+    Returns the parsed JSON list from statistic_cache, or None if not present yet.
+    This is the primary fast-path — no heavy SQL needed when cache exists.
+    """
+    row = db.query(StatisticCache).filter(StatisticCache.cache_key == cache_key).first()
+    if row:
+        return json.loads(row.data)
+    return None
+
+
+# ─────────────────────────────────────────────
+#  Vocaloid statistics endpoints
+# ─────────────────────────────────────────────
 
 @router.get("/vocaloids/over-time")
 def get_vocaloids_over_time(db: Session = Depends(get_db)):
     """
     Returns the count of valid vocaloid songs grouped by their publish month (YYYY-MM).
+    Reads from statistic_cache (pre-computed by calculate_vocaloid_stats_cache.py).
+    Falls back to live SQL if no cache entry exists yet.
     """
+    # 1. In-memory cache (fastest)
     with cache_lock:
         if "over-time-monthly" in STATS_CACHE:
             return STATS_CACHE["over-time-monthly"]
 
+    # 2. DB cache (pre-computed, avoids heavy scan)
+    cached = _load_statistic_cache(db, "vocaloid_stats:over-time")
+    if cached is not None:
+        with cache_lock:
+            STATS_CACHE["over-time-monthly"] = cached
+        return cached
+
+    # 3. Fallback: live SQL (first boot before script has run)
     sql = """
         SELECT CASE WHEN LENGTH(s.publish_date) >= 7 THEN SUBSTR(s.publish_date, 1, 7) ELSE SUBSTR(s.publish_date, 1, 4) || '-01' END AS month,
                COUNT(DISTINCT s.id) AS count
@@ -113,7 +151,6 @@ def get_vocaloids_over_time(db: Session = Depends(get_db)):
         GROUP BY month
         ORDER BY month ASC
     """
-    
     rows = db.execute(text(sql)).fetchall()
     result = [{"date": r[0], "count": r[1]} for r in rows if r[0] >= "2000-01"]
 
@@ -122,14 +159,23 @@ def get_vocaloids_over_time(db: Session = Depends(get_db)):
 
     return result
 
+
 @router.get("/vocaloids/engine-over-time")
 def get_vocaloids_engine_over_time(db: Session = Depends(get_db)):
     """
     Returns the distribution of engine usage grouped by publish month (YYYY-MM).
+    Reads from statistic_cache (pre-computed by calculate_vocaloid_stats_cache.py).
+    Falls back to live SQL if no cache entry exists yet.
     """
     with cache_lock:
         if "engine-over-time-monthly" in STATS_CACHE:
             return STATS_CACHE["engine-over-time-monthly"]
+
+    cached = _load_statistic_cache(db, "vocaloid_stats:engine-over-time")
+    if cached is not None:
+        with cache_lock:
+            STATS_CACHE["engine-over-time-monthly"] = cached
+        return cached
 
     sql = """
         SELECT CASE WHEN LENGTH(s.publish_date) >= 7 THEN SUBSTR(s.publish_date, 1, 7) ELSE SUBSTR(s.publish_date, 1, 4) || '-01' END AS month,
@@ -145,7 +191,6 @@ def get_vocaloids_engine_over_time(db: Session = Depends(get_db)):
         GROUP BY month, engine
         ORDER BY month ASC
     """
-    
     rows = db.execute(text(sql)).fetchall()
     
     data_map = {}
@@ -164,15 +209,23 @@ def get_vocaloids_engine_over_time(db: Session = Depends(get_db)):
 
     return result
 
+
 @router.get("/vocaloids/distribution")
 def get_vocaloids_distribution(db: Session = Depends(get_db)):
     """
     Returns the sum distributions of specific voicebank engines.
-    Categorizes the 'artist_type' metrics across valid songs.
+    Reads from statistic_cache (pre-computed by calculate_vocaloid_stats_cache.py).
+    Falls back to live SQL if no cache entry exists yet.
     """
     with cache_lock:
         if "distribution" in STATS_CACHE:
             return STATS_CACHE["distribution"]
+
+    cached = _load_statistic_cache(db, "vocaloid_stats:distribution")
+    if cached is not None:
+        with cache_lock:
+            STATS_CACHE["distribution"] = cached
+        return cached
 
     sql = """
         SELECT a.artist_type AS type,
@@ -185,7 +238,6 @@ def get_vocaloids_distribution(db: Session = Depends(get_db)):
         GROUP BY type
         ORDER BY count DESC
     """
-    
     rows = db.execute(text(sql)).fetchall()
     metrics = [{"name": r[0], "value": r[1]} for r in rows]
 

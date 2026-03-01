@@ -170,3 +170,11 @@ class RankingCache(Base):
     cache_key = Column(String, unique=True, index=True, nullable=False)
     data = Column(Text, nullable=False)
     updated_at = Column(String, nullable=False)
+
+class StatisticCache(Base):
+    __tablename__ = "statistic_cache"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    cache_key = Column(String, unique=True, index=True, nullable=False)
+    data = Column(Text, nullable=False)
+    updated_at = Column(String, nullable=False)

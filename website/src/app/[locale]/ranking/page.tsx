@@ -19,6 +19,7 @@ function RankingContent() {
 
     const [songs, setSongs] = useState<SongRanking[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
 
     // Filters state
     const currentFilters: CustomFilters = {
@@ -39,16 +40,26 @@ function RankingContent() {
     };
 
     const cache = useRef<Map<string, SongRanking[]>>(new Map());
+    // Stale-request guard: only apply results from the most recent fetch
+    const requestIdRef = useRef(0);
 
     useEffect(() => {
         const key = getCacheKey();
+
+        // Cache hit: instant, no network needed
         if (cache.current.has(key)) {
             setSongs(cache.current.get(key)!);
             setLoading(false);
+            setError(false);
             return;
         }
 
         setLoading(true);
+        setSongs([]);
+        setError(false);
+
+        // Invalidate any previous in-flight request so stale responses are ignored
+        const thisRequestId = ++requestIdRef.current;
 
         let fetchPromise: Promise<SongRanking[]>;
         if (mode === 'custom') {
@@ -71,15 +82,21 @@ function RankingContent() {
 
         fetchPromise
             .then(data => {
+                if (thisRequestId !== requestIdRef.current) return;
                 cache.current.set(key, data);
                 setSongs(data);
             })
             .catch(err => {
+                if (thisRequestId !== requestIdRef.current) return;
                 console.error("Failed to fetch rankings:", err);
-                setSongs([]);
+                setError(true);
             })
-            .finally(() => setLoading(false));
+            .finally(() => {
+                if (thisRequestId !== requestIdRef.current) return;
+                setLoading(false);
+            });
     }, [mode, sort, sp]);
+
 
     const handleApplyFilters = (filters: CustomFilters) => {
         const params = new URLSearchParams();
@@ -164,7 +181,31 @@ function RankingContent() {
                 </div>
             )}
 
-            {!loading && <RankingTable songs={songs} mode={mode} sort={mode === 'custom' ? 'total' : sort} />}
+            {/* Error – fetch failed, show a retry option instead of the misleading skeleton */}
+            {!loading && error && (
+                <div className="flex flex-col items-center justify-center py-24 gap-6 border-t border-[var(--hairline)]">
+                    <div className="w-14 h-14 border border-[var(--hairline-strong)] flex items-center justify-center text-[var(--text-secondary)]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <div className="text-center space-y-2 max-w-sm">
+                        <p className="text-white font-bold tracking-[0.15em] uppercase text-sm">Failed to Load Rankings</p>
+                        <p className="text-[var(--text-secondary)] text-sm leading-relaxed">Something went wrong while fetching the ranking data. Please try again.</p>
+                    </div>
+                    <button
+                        onClick={() => { setError(false); setLoading(true); cache.current.delete(getCacheKey()); const thisId = ++requestIdRef.current; getRankings(mode as any, 100, sort).then(d => { if (thisId !== requestIdRef.current) return; cache.current.set(getCacheKey(), d); setSongs(d); }).catch(() => { if (thisId !== requestIdRef.current) return; setError(true); }).finally(() => { if (thisId !== requestIdRef.current) return; setLoading(false); }); }}
+                        className="px-8 py-3 text-[10px] uppercase tracking-widest font-bold border border-[var(--hairline-strong)] text-[var(--text-secondary)] hover:border-[var(--vermilion)] hover:text-[var(--vermilion)] transition-all"
+                    >
+                        Retry
+                    </button>
+                </div>
+            )}
+
+            {!loading && !error && <RankingTable songs={songs} mode={mode} sort={mode === 'custom' ? 'total' : sort} />}
+
         </div>
     );
 }

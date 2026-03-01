@@ -1,17 +1,27 @@
-# 1. Fetch Brand New VocaDB Songs & Artists (Daily at 2:15 AM local / 18:15 UTC, Time: 2 mins)
-7 2 * * * /home/yozorua/VocaRank/run_vocarank.sh fetch-new
+# 1. Fetch Brand New VocaDB Songs & Artists (Daily at 00:00 AM local / 16:00 UTC, Time: 2 mins)
+0 0 * * * /home/yozorua/VocaRank/run_vocarank.sh fetch-new
 
-# 2. Update Old Song Metadata (Daily at 2:20 AM local / 18:20 UTC, Time: 1 hrs 40 mins to 2 hrs)
-12 2 * * * /home/yozorua/VocaRank/run_vocarank.sh update-existing --songs 10000
+# 2. Update Old Song Metadata (Daily at 1:00 AM local / 17:00 UTC, Time: 30 mins)
+0 1 * * * /home/yozorua/VocaRank/run_vocarank.sh update-existing --songs 20000
 
-# 3. Update Newest Song Metadata (Daily at 4:20 AM local / 20:20 UTC, Time: 1 hrs 20 mins)
-20 4 * * * /home/yozorua/VocaRank/run_vocarank.sh update-existing --newest-songs 10000
+# 3. Update Newest Song Metadata (Daily at 2:00 AM local / 18:00 UTC, Time: 30 mins)
+0 2 * * * /home/yozorua/VocaRank/run_vocarank.sh update-existing --newest-songs 20000
 
-# 4. Update Existing Artist Profiles (Daily at 6:00 AM local / 22:00 UTC, Time: 54 mins)
-0 6 * * * /home/yozorua/VocaRank/run_vocarank.sh update-existing --artists 10000
+# 4. Update Existing Artist Profiles (Daily at 3:00 AM local / 19:00 UTC, Time: 54 mins)
+0 3 * * * /home/yozorua/VocaRank/run_vocarank.sh update-existing --artists 10000
 
 # 5. Fetch Views - All Songs & Create Snapshot (08:01 AM local / 00:01 UTC, Time: 1 hrs 50 mins)
 1 8 * * * /home/yozorua/VocaRank/run_vocarank.sh views all
 
 # 6. Fetch Views - Popular Songs (Every hour, Time: 5 mins)
-0 0-2,11-23 * * * /home/yozorua/VocaRank/run_vocarank.sh views popular
+#0 0-2,11-23 * * * /home/yozorua/VocaRank/run_vocarank.sh views popular
+0 0-7,9-23 * * * /home/yozorua/VocaRank/run_vocarank.sh views popular
+
+# 7. Daily PostgreSQL Database Backup (4:30 AM local / 20:30 UTC)
+30 4 * * * /home/yozorua/VocaRank/database_backup.sh --daily-dump /home/yozorua/VocaRank/database/backups >> /home/yozorua/VocaRank/logs/cron.log 2>&1
+
+# 8. Update Ranking Cache (Every hour)
+0 * * * * /home/yozorua/VocaRank/run_vocarank.sh rankings
+
+# 9. Pre-calculate Statistics (00:00)
+0 0 * * * /home/yozorua/VocaRank/run_vocarank.sh vocaloid-stats

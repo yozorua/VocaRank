@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from ..database import get_db
@@ -154,34 +154,54 @@ def common_params(
 
 
 @router.get("/daily", response_model=List[schemas.SongRanking])
-def get_daily_ranking(params: dict = Depends(common_params), db: Session = Depends(get_db)):
-    key_str = json.dumps(('daily', params['sort_by'], 100, params['song_type'], params['vocaloid_only']))
+def get_daily_ranking(response: Response, params: dict = Depends(common_params), db: Session = Depends(get_db)):
+    # Normalize frontend sort aliases to match the keys written by calculate_rankings_cache.py
+    sort_key = params['sort_by']
+    if sort_key == 'youtube':    sort_key = 'increment_youtube'
+    elif sort_key == 'niconico': sort_key = 'increment_niconico'
+    elif sort_key == 'total':    sort_key = 'increment_total'
+
+    key_str = json.dumps(('daily', sort_key, 100, params['song_type'], params['vocaloid_only']))
     cached = db.query(RankingCache).filter(RankingCache.cache_key == key_str).first()
     if cached:
+        response.headers["Cache-Control"] = "public, max-age=3600, stale-while-revalidate=300"
         return json.loads(cached.data)[:params['limit']]
     
     return get_gain_ranking(db, 1, **params)
 
 @router.get("/weekly", response_model=List[schemas.SongRanking])
-def get_weekly_ranking(params: dict = Depends(common_params), db: Session = Depends(get_db)):
-    key_str = json.dumps(('weekly', params['sort_by'], 100, params['song_type'], params['vocaloid_only']))
+def get_weekly_ranking(response: Response, params: dict = Depends(common_params), db: Session = Depends(get_db)):
+    sort_key = params['sort_by']
+    if sort_key == 'youtube':    sort_key = 'increment_youtube'
+    elif sort_key == 'niconico': sort_key = 'increment_niconico'
+    elif sort_key == 'total':    sort_key = 'increment_total'
+
+    key_str = json.dumps(('weekly', sort_key, 100, params['song_type'], params['vocaloid_only']))
     cached = db.query(RankingCache).filter(RankingCache.cache_key == key_str).first()
     if cached:
+        response.headers["Cache-Control"] = "public, max-age=3600, stale-while-revalidate=300"
         return json.loads(cached.data)[:params['limit']]
         
     return get_gain_ranking(db, 7, **params)
 
 @router.get("/monthly", response_model=List[schemas.SongRanking])
-def get_monthly_ranking(params: dict = Depends(common_params), db: Session = Depends(get_db)):
-    key_str = json.dumps(('monthly', params['sort_by'], 100, params['song_type'], params['vocaloid_only']))
+def get_monthly_ranking(response: Response, params: dict = Depends(common_params), db: Session = Depends(get_db)):
+    sort_key = params['sort_by']
+    if sort_key == 'youtube':    sort_key = 'increment_youtube'
+    elif sort_key == 'niconico': sort_key = 'increment_niconico'
+    elif sort_key == 'total':    sort_key = 'increment_total'
+
+    key_str = json.dumps(('monthly', sort_key, 100, params['song_type'], params['vocaloid_only']))
     cached = db.query(RankingCache).filter(RankingCache.cache_key == key_str).first()
     if cached:
+        response.headers["Cache-Control"] = "public, max-age=3600, stale-while-revalidate=300"
         return json.loads(cached.data)[:params['limit']]
         
     return get_gain_ranking(db, 30, **params)
 
 @router.get("/total", response_model=List[schemas.SongRanking])
 def get_total_ranking(
+    response: Response,
     limit: int = 10, 
     song_type: str = Query('Original,Remaster,Remix', description="Song type filter (comma-separated)"),
     vocaloid_only: bool = Query(True, description="Filter for SynthV/Vocaloid songs only"),
@@ -191,6 +211,7 @@ def get_total_ranking(
     key_str = json.dumps(('total', sort_by, 100, song_type, vocaloid_only))
     cached = db.query(RankingCache).filter(RankingCache.cache_key == key_str).first()
     if cached:
+        response.headers["Cache-Control"] = "public, max-age=3600, stale-while-revalidate=300"
         return json.loads(cached.data)[:limit]
         
     # Sort Logic

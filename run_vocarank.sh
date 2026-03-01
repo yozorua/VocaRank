@@ -9,6 +9,7 @@
 #   ./run_vocarank.sh views popular          (Runs fetch_views.py --mode popular)
 #   ./run_vocarank.sh views-song <id>        (Runs fetch_views.py for a specific song ID)
 #   ./run_vocarank.sh rankings               (Pre-calculates heavy rankings to DB Cache)
+#   ./run_vocarank.sh vocaloid-stats          (Pre-calculates vocaloid stats to DB Cache)
 
 # Navigate to the script's directory (VocaRank root)
 cd "$(dirname "$0")"
@@ -84,7 +85,18 @@ elif [ "$1" == "rankings" ]; then
     S=$((SECONDS%60))
     echo "[$TIMESTAMP | END] scripts/calculate_rankings_cache.py (Exit Code: $EXIT_CODE) - Time Elapsed: ${H}h ${M}m ${S}s" | tee -a "$LOG_FILE"
 
+elif [ "$1" == "vocaloid-stats" ]; then
+    SECONDS=0
+    echo "[$TIMESTAMP | START] scripts/calculate_vocaloid_stats_cache.py" | tee -a "$LOG_FILE"
+    /usr/bin/python3 -u -m scripts.calculate_vocaloid_stats_cache 2>&1 | tee -a "$LOG_FILE"
+    EXIT_CODE=${PIPESTATUS[0]}
+    
+    H=$((SECONDS/3600))
+    M=$(((SECONDS%3600)/60))
+    S=$((SECONDS%60))
+    echo "[$TIMESTAMP | END] scripts/calculate_vocaloid_stats_cache.py (Exit Code: $EXIT_CODE) - Time Elapsed: ${H}h ${M}m ${S}s" | tee -a "$LOG_FILE"
+
 else
-    echo "Usage: $0 {fetch-new|update-existing|views|rankings} [args...]"
+    echo "Usage: $0 {fetch-new|update-existing|views|rankings|vocaloid-stats} [args...]"
     exit 1
 fi
