@@ -183,10 +183,7 @@ export default function CommentsSection({ songId }: { songId: number }) {
                             className="w-full bg-transparent text-white text-sm placeholder-[var(--text-secondary)] resize-none outline-none min-h-[80px]"
                         />
                         <div className="flex justify-between items-center border-t border-[var(--hairline)] pt-3">
-                            <div className="flex items-center gap-4">
-                                <span className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-widest">{t('markdown_supported', { defaultMessage: 'Be respectful' })}</span>
-                                <span className={`text-[10px] font-mono ${newComment.length > 2900 ? 'text-red-400' : 'text-[var(--text-tertiary)]'}`}>{newComment.length}/3000</span>
-                            </div>
+                            <span className={`text-[10px] font-mono ${newComment.length > 2900 ? 'text-red-400' : 'text-[var(--text-tertiary)]'}`}>{newComment.length}/3000</span>
                             <button
                                 onClick={handlePostComment}
                                 disabled={!newComment.trim() || isSubmitting}

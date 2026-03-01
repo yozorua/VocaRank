@@ -78,6 +78,18 @@ export default async function PlaylistDetailPage({ params }: { params: Promise<{
         private: t('private'),
         save: t('save'),
         cancel: t('cancel'),
+        cover_upload: t('cover_upload'),
+        cover_remove: t('cover_remove'),
+        cover_drag_drop: t('cover_drag_drop'),
+        cover_browse: t('cover_browse'),
+        cover_change: t('cover_change'),
+        cover_mosaic_hint: t('cover_mosaic_hint'),
+        cover_undo: t('cover_undo'),
+        cover_error_type: t('cover_error_type'),
+        cover_error_size: t('cover_error_size'),
+        cover_crop_title: t('cover_crop_title'),
+        cover_crop_apply: t('cover_crop_apply'),
+        cover_crop_cancel: t('cover_crop_cancel'),
     };
 
     return (

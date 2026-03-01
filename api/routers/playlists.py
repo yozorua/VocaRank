@@ -1,5 +1,6 @@
 import json
 import os
+import time
 from datetime import datetime
 from typing import Optional
 
@@ -398,6 +399,10 @@ def toggle_favorite(
 
 # ── POST /playlists/{id}/cover — upload custom cover ─────────────────────────
 
+_ALLOWED_MIME = {"image/jpeg", "image/png", "image/webp"}
+_ALLOWED_EXT  = {".jpg", ".jpeg", ".png", ".webp"}
+_MAX_COVER_BYTES = 5 * 1024 * 1024  # 5 MB
+
 @router.post("/{playlist_id}/cover")
 async def upload_cover(
     playlist_id: int,
@@ -411,20 +416,64 @@ async def upload_cover(
     if pl.user_id != current_user.id:
         raise HTTPException(status_code=403)
 
-    ext = os.path.splitext(file.filename or "")[-1].lower()
-    if ext not in (".jpg", ".jpeg", ".png", ".webp"):
-        raise HTTPException(status_code=400, detail="Only JPEG, PNG, WEBP allowed")
+    # 1. Validate declared MIME type
+    if file.content_type not in _ALLOWED_MIME:
+        raise HTTPException(status_code=400, detail="Only JPEG, PNG, and WEBP images are allowed.")
 
-    from PIL import Image
-    import io
+    # 2. Validate file extension
+    ext = os.path.splitext(file.filename or "")[-1].lower()
+    if ext not in _ALLOWED_EXT:
+        raise HTTPException(status_code=400, detail="Only JPEG, PNG, and WEBP images are allowed.")
+
     data = await file.read()
-    img = Image.open(io.BytesIO(data)).convert("RGB")
+
+    # 3. Enforce size limit
+    if len(data) > _MAX_COVER_BYTES:
+        raise HTTPException(status_code=400, detail="File too large. Maximum size is 5MB.")
+
+    # 4. Verify it is a genuine image (re-encode through Pillow to strip any embedded payloads)
+    from PIL import Image, UnidentifiedImageError
+    import io
+    try:
+        # verify() checks integrity but closes the handle — re-open afterward
+        probe = Image.open(io.BytesIO(data))
+        probe.verify()
+        img = Image.open(io.BytesIO(data)).convert("RGB")
+    except (UnidentifiedImageError, Exception):
+        raise HTTPException(status_code=400, detail="Invalid or corrupted image file.")
+
     img.thumbnail((600, 600))
     filename = f"playlist_{playlist_id}.jpg"
     save_path = os.path.join(COVER_DIR, filename)
     img.save(save_path, "JPEG", quality=85)
 
-    pl.cover_url = f"/api/static/playlist_covers/{filename}"
+    pl.cover_url = f"/api/static/playlist_covers/{filename}?v={int(time.time())}"
     pl.updated_at = datetime.utcnow().isoformat()
     db.commit()
     return {"cover_url": pl.cover_url}
+
+
+# ── DELETE /playlists/{id}/cover — remove custom cover ───────────────────────
+
+@router.delete("/{playlist_id}/cover", status_code=204)
+def remove_cover(
+    playlist_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user_from_token),
+):
+    pl = db.query(models.Playlist).filter(models.Playlist.id == playlist_id).first()
+    if not pl:
+        raise HTTPException(status_code=404)
+    if pl.user_id != current_user.id:
+        raise HTTPException(status_code=403)
+
+    # Delete the file from disk if it is a locally stored cover
+    if pl.cover_url and "/api/static/playlist_covers/" in pl.cover_url:
+        filename = pl.cover_url.split("/api/static/playlist_covers/")[-1].split("?")[0]
+        file_path = os.path.join(COVER_DIR, filename)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+
+    pl.cover_url = None
+    pl.updated_at = datetime.utcnow().isoformat()
+    db.commit()
