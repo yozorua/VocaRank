@@ -91,7 +91,8 @@
         "custom": "自訂",
         "sort_total": "總觀看數",
         "sort_youtube": "YouTube 排行",
-        "sort_niconico": "Niconico 排行"
+        "sort_niconico": "Niconico 排行",
+        "unstable_hint": "此期間的統計數據仍在收集中，結果可能不完整。"
     },
     "SongDetail": {
         "total_views": "總觀看數",

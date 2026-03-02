@@ -128,6 +128,60 @@ def search_songs(
         
     return response
 
+
+@router.get("/batch", response_model=List[schemas.SongRanking])
+def get_songs_batch(
+    ids: str = Query(..., description="Comma-separated song IDs (max 50)"),
+    db: Session = Depends(get_db),
+):
+    """Fetch multiple songs by ID in one request — used by the player shared-queue feature."""
+    from sqlalchemy import bindparam
+
+    id_list = [int(x) for x in ids.split(',') if x.strip().isdigit()][:50]
+    if not id_list:
+        return []
+
+    sql = text("""
+        SELECT
+            s.id,
+            s.name_english, s.name_japanese, s.name_romaji,
+            (s.youtube_views + s.niconico_views) AS total_views,
+            s.youtube_views,
+            s.niconico_views,
+            s.pv_data,
+            s.song_type,
+            s.publish_date
+        FROM songs s
+        WHERE s.id IN :song_ids
+    """).bindparams(bindparam('song_ids', expanding=True))
+
+    rows = db.execute(sql, {'song_ids': id_list}).fetchall()
+    # Preserve the caller's requested order
+    row_map = {row[0]: row for row in rows}
+    ordered = [row_map[i] for i in id_list if i in row_map]
+
+    artists_map = get_artists_for_songs(db, [r[0] for r in ordered])
+
+    response = []
+    for row in ordered:
+        sid = row[0]
+        yt_id, nico_id, nico_thumb = extract_pvs(row[7])
+        am = artists_map.get(sid, {'producers': [], 'vocalists': []})
+        producers = am.get('producers', [])
+        vocalists = am.get('vocalists', [])
+        response.append(schemas.SongRanking(
+            id=sid,
+            name_english=row[1], name_japanese=row[2], name_romaji=row[3],
+            total_views=row[4], views_youtube=row[5], views_niconico=row[6],
+            youtube_id=yt_id, niconico_id=nico_id, niconico_thumb_url=nico_thumb,
+            song_type=row[8], publish_date=row[9],
+            artist_string=" · ".join([p['name'] for p in producers]) if producers else "Unknown",
+            vocaloid_string=" · ".join([v['name'] for v in vocalists]) if vocalists else "Unknown",
+            artists=producers, vocalists=vocalists,
+        ))
+    return response
+
+
 @router.get("/{song_id}", response_model=schemas.SongDetail)
 def get_song(song_id: int, db: Session = Depends(get_db)):
     """

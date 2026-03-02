@@ -131,9 +131,12 @@ export default function PlayerPage() {
             isLoadingFromUrl.current = true;
             const fetchQueue = async () => {
                 try {
-                    const ids = listIds.split(',').slice(0, 50);
-                    const songsRaw = await Promise.all(ids.map(id => fetch(`${API_BASE_URL}/songs/${id}`).then(res => res.ok ? res.json() : null)));
-                    const validSongs = songsRaw.filter(s => s && s.youtube_id);
+                    // Single batch request — avoids N parallel fetches which caused random timeouts/drops
+                    const ids = listIds.split(',').filter(x => x.trim()).slice(0, 50).join(',');
+                    const res = await fetch(`${API_BASE_URL}/songs/batch?ids=${encodeURIComponent(ids)}`);
+                    if (!res.ok) return;
+                    const songs: SongRanking[] = await res.json();
+                    const validSongs = songs.filter(s => !!s.youtube_id);
                     if (validSongs.length > 0) playSong(validSongs[0], validSongs);
                 } catch { }
                 finally { isLoadingFromUrl.current = false; }

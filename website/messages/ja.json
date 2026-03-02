@@ -91,7 +91,8 @@
         "custom": "カスタム",
         "sort_total": "合計再生数",
         "sort_youtube": "YouTubeランキング",
-        "sort_niconico": "ニコニコランキング"
+        "sort_niconico": "ニコニコランキング",
+        "unstable_hint": "この期間の統計データはまだ収集中のため、結果が不完全な場合があります。"
     },
     "SongDetail": {
         "total_views": "総再生数",

@@ -55,8 +55,9 @@ function RankingContent() {
         }
 
         setLoading(true);
-        setSongs([]);
         setError(false);
+        // Don't clear songs here — keep the previous list visible while loading
+        // to avoid an empty-state flash when switching tabs quickly.
 
         // Invalidate any previous in-flight request so stale responses are ignored
         const thisRequestId = ++requestIdRef.current;
@@ -112,11 +113,11 @@ function RankingContent() {
     };
 
     const tabs = [
-        { key: 'daily', label: t('daily') },
-        { key: 'weekly', label: t('weekly') },
-        { key: 'monthly', label: t('monthly') },
-        { key: 'total', label: t('total') },
-        { key: 'custom', label: t('custom') ?? 'CUSTOM' },
+        { key: 'daily', label: t('daily'), unstable: false },
+        { key: 'weekly', label: t('weekly'), unstable: true },
+        { key: 'monthly', label: t('monthly'), unstable: true },
+        { key: 'total', label: t('total'), unstable: false },
+        { key: 'custom', label: t('custom') ?? 'CUSTOM', unstable: false },
     ];
 
     const sortOptions = [
@@ -139,12 +140,21 @@ function RankingContent() {
                         <Link
                             key={tab.key}
                             href={`/ranking?mode=${tab.key}&sort=${sort}`}
-                            className={`pb-3 border-b-2 transition-all font-bold whitespace-nowrap text-sm tracking-[0.1em] ${mode === tab.key
+                            className={`pb-3 border-b-2 transition-all font-bold whitespace-nowrap text-sm tracking-[0.1em] flex items-center gap-1.5 ${mode === tab.key
                                 ? 'text-white border-[var(--vermilion)]'
                                 : 'text-[var(--text-secondary)] border-transparent hover:text-white'
                                 }`}
                         >
                             {tab.label}
+                            {tab.unstable && (
+                                <span title={t('unstable_hint')} className="shrink-0 text-[var(--text-secondary)] opacity-60 hover:opacity-100 transition-opacity">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="12" y1="8" x2="12" y2="12"/>
+                                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                    </svg>
+                                </span>
+                            )}
                         </Link>
                     ))}
                 </div>

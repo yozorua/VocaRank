@@ -87,7 +87,8 @@
         "custom": "Custom",
         "sort_total": "Total Views",
         "sort_youtube": "YouTube Ranking",
-        "sort_niconico": "Niconico Ranking"
+        "sort_niconico": "Niconico Ranking",
+        "unstable_hint": "Statistics for this period may be incomplete while data is still being collected."
     },
     "SongDetail": {
         "total_views": "Total Views",
