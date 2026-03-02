@@ -59,7 +59,14 @@ function PodiumImage({ youtubeId, niconicoThumb, alt }: { youtubeId?: string | n
  * When we reach the end of the middle copy, instantly (no animation) jump to the same logical
  * position in the middle of the tripled list — seamless loop.
  */
-export default function PodiumScroll({ songs }: Props) {
+function getSongTitle(song: SongRow, locale: string): string {
+    if (locale === 'ja' || locale === 'zh-TW') {
+        return song.name_japanese || song.name_romaji || song.name_english || '—';
+    }
+    return song.name_english || song.name_romaji || song.name_japanese || '—';
+}
+
+export default function PodiumScroll({ songs, locale }: Props) {
     const n = songs.length;
     // Triple the list for infinite loop
     const tripled = [...songs, ...songs, ...songs];
@@ -169,7 +176,7 @@ export default function PodiumScroll({ songs }: Props) {
         >
             {tripled.map((song, triIdx) => {
                 const rank = (triIdx % n) + 1;
-                const title = song.name_japanese || song.name_english || song.name_romaji || '—';
+                const title = getSongTitle(song, locale);
                 const artistLabel = song.artists?.map(a => a.name).join(' · ') || song.artist_string?.replace(/, /g, ' · ');
 
                 return (

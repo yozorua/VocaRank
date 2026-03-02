@@ -73,11 +73,12 @@
         "label_date_start": "Start Date",
         "label_date_end": "End Date",
         "label_required_artists": "Required Artists",
-        "apply": "Apply Filters",
+        "apply": "Apply",
         "placeholder_min_views": "0",
         "placeholder_max_views": "Total views",
         "label_sort_by": "Sort By",
-        "sort_total": "Total Views"
+        "sort_total": "Total Views",
+        "sort_niconico": "NicoNico"
     },
     "RankingPage": {
         "title": "Song Rankings",
@@ -90,7 +91,8 @@
         "sort_total": "Total Views",
         "sort_youtube": "YouTube Ranking",
         "sort_niconico": "Niconico Ranking",
-        "unstable_hint": "Statistics for this period may be incomplete while data is still being collected."
+        "unstable_hint": "Statistics for this period may be incomplete while data is still being collected.",
+        "custom_apply_prompt": "Configure filters above and click Apply"
     },
     "SongDetail": {
         "total_views": "Total Views",

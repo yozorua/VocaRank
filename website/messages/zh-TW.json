@@ -77,11 +77,12 @@
         "label_date_start": "開始日期",
         "label_date_end": "結束日期",
         "label_required_artists": "指定歌手",
-        "apply": "套用篩選",
+        "apply": "套用",
         "placeholder_min_views": "0",
         "placeholder_max_views": "總觀看數",
         "label_sort_by": "排序依據",
-        "sort_total": "總觀看數"
+        "sort_total": "總觀看數",
+        "sort_niconico": "NicoNico"
     },
     "RankingPage": {
         "title": "歌曲排行榜",
@@ -94,7 +95,8 @@
         "sort_total": "總觀看數",
         "sort_youtube": "YouTube 排行",
         "sort_niconico": "Niconico 排行",
-        "unstable_hint": "此期間的統計數據仍在收集中，結果可能不完整。"
+        "unstable_hint": "此期間的統計數據仍在收集中，結果可能不完整。",
+        "custom_apply_prompt": "請設定上方篩選條件後按下套用"
     },
     "SongDetail": {
         "total_views": "總觀看數",

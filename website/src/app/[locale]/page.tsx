@@ -281,7 +281,9 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             <>
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 sm:gap-4">
                 {(topPicks as SongRow[]).map((song, idx) => {
-                  const title = song.name_japanese || song.name_english || song.name_romaji || '—';
+                  const title = (locale === 'ja' || locale === 'zh-TW')
+                    ? (song.name_japanese || song.name_romaji || song.name_english || '—')
+                    : (song.name_english || song.name_romaji || song.name_japanese || '—');
                   return (
                     <Link
                       key={song.id}

@@ -77,11 +77,12 @@
         "label_date_start": "開始日",
         "label_date_end": "終了日",
         "label_required_artists": "必須アーティスト",
-        "apply": "フィルターを適用",
+        "apply": "適用",
         "placeholder_min_views": "0",
         "placeholder_max_views": "合計再生数",
         "label_sort_by": "並び順",
-        "sort_total": "合計再生数"
+        "sort_total": "合計再生数",
+        "sort_niconico": "ニコニコ"
     },
     "RankingPage": {
         "title": "楽曲ランキング",
@@ -94,7 +95,8 @@
         "sort_total": "合計再生数",
         "sort_youtube": "YouTubeランキング",
         "sort_niconico": "ニコニコランキング",
-        "unstable_hint": "この期間の統計データはまだ収集中のため、結果が不完全な場合があります。"
+        "unstable_hint": "この期間の統計データはまだ収集中のため、結果が不完全な場合があります。",
+        "custom_apply_prompt": "上のフィルターを設定して適用ボタンを押してください"
     },
     "SongDetail": {
         "total_views": "総再生数",

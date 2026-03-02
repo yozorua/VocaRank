@@ -14,7 +14,7 @@ export default async function VocalistGraphPage() {
             </div>
 
             <div className="flex-1 w-full relative border border-[var(--hairline-strong)] bg-black/50 overflow-hidden min-h-[600px] md:min-h-[800px]">
-                <ArtistGraphClient apiEndpoint="/artists/graph/vocalists" />
+                <ArtistGraphClient apiEndpoint="/artists/graph/vocalists" defaultShowLines={false} />
             </div>
         </main>
     );

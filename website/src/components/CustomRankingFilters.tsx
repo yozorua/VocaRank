@@ -141,7 +141,7 @@ export default function CustomRankingFilters({ initialFilters, onApply }: Custom
                                         : 'border-[var(--hairline-strong)] text-[var(--text-secondary)] hover:border-white/50 hover:text-white'
                                         }`}
                                 >
-                                    {opt === 'total' ? (t('sort_total') || 'Total Views') : opt === 'youtube' ? 'YouTube' : 'NicoNico'}
+                                    {opt === 'total' ? t('sort_total') : opt === 'youtube' ? 'YouTube' : t('sort_niconico')}
                                 </button>
                             ))}
                         </div>
@@ -178,6 +178,7 @@ export default function CustomRankingFilters({ initialFilters, onApply }: Custom
                             <input
                                 type="date"
                                 value={dateStart}
+                                max={dateEnd || undefined}
                                 onChange={(e) => setDateStart(e.target.value)}
                                 className="w-full min-w-0 bg-black/40 border border-[var(--hairline-strong)] px-3 py-2 text-sm text-white focus:outline-none focus:border-[var(--vermilion)] [color-scheme:dark]"
                             />
@@ -187,6 +188,7 @@ export default function CustomRankingFilters({ initialFilters, onApply }: Custom
                             <input
                                 type="date"
                                 value={dateEnd}
+                                min={dateStart || undefined}
                                 onChange={(e) => setDateEnd(e.target.value)}
                                 className="w-full min-w-0 bg-black/40 border border-[var(--hairline-strong)] px-3 py-2 text-sm text-white focus:outline-none focus:border-[var(--vermilion)] [color-scheme:dark]"
                             />

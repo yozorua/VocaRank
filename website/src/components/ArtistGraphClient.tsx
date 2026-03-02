@@ -9,9 +9,10 @@ import { forceCollide } from 'd3-force';
 
 interface Props {
     apiEndpoint?: string;
+    defaultShowLines?: boolean;
 }
 
-export default function ArtistGraphClient({ apiEndpoint = '/artists/graph' }: Props) {
+export default function ArtistGraphClient({ apiEndpoint = '/artists/graph', defaultShowLines = true }: Props) {
     const [graphData, setGraphData] = useState({ nodes: [], links: [] });
     const [loading, setLoading] = useState(true);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -23,6 +24,8 @@ export default function ArtistGraphClient({ apiEndpoint = '/artists/graph' }: Pr
 
     const [hoverNode, setHoverNode] = useState<any>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    // Only auto-freeze once the bloom animation has completed
+    const shouldAutoFreezeRef = useRef(false);
 
     // CRITICAL UX FIX: The "Bloom" Animation
     // If we spawn 1000 nodes using their massive 'views' radii, the D3 physics engine immediately traps them 
@@ -35,7 +38,7 @@ export default function ArtistGraphClient({ apiEndpoint = '/artists/graph' }: Pr
     // Render Options State
     const [searchText, setSearchText] = useState("");
     const [showLabels, setShowLabels] = useState(true);
-    const [showLines, setShowLines] = useState(true);
+    const [showLines, setShowLines] = useState(defaultShowLines);
     const [freezePhysics, setFreezePhysics] = useState(false);
 
     // PERFORMANCE OPTIMIZATION: Pre-calculate O(1) Lookups
@@ -116,6 +119,9 @@ export default function ArtistGraphClient({ apiEndpoint = '/artists/graph' }: Pr
         if (graphData.nodes.length > 0) {
             const timer = setTimeout(() => {
                 setSizeMode('views');
+                // Allow auto-freeze only after the bloom has fired so onEngineStop
+                // during the initial pagerank phase doesn't prematurely lock the map.
+                shouldAutoFreezeRef.current = true;
             }, 1000); // 1 second gives the pagerank graph enough time to effectively distance the nodes
             return () => clearTimeout(timer);
         }
@@ -153,8 +159,11 @@ export default function ArtistGraphClient({ apiEndpoint = '/artists/graph' }: Pr
                 .onEngineStop(() => {
                     if (graphInstanceRef.current && mounted) {
                         graphInstanceRef.current.zoomToFit(400);
-                        // Automatically freeze the physics to save battery once stabilized
-                        setFreezePhysics(true);
+                        // Only auto-freeze after the bloom has completed; an early stop during
+                        // the pagerank phase (before the 1s bloom timer) should not lock the map.
+                        if (shouldAutoFreezeRef.current) {
+                            setFreezePhysics(true);
+                        }
                     }
                 });
 

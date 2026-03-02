@@ -45,6 +45,14 @@ function RankingContent() {
     const requestIdRef = useRef(0);
 
     useEffect(() => {
+        // For custom mode, only fetch when the user has explicitly applied filters
+        if (mode === 'custom' && !sp.get('applied')) {
+            setSongs([]);
+            setLoading(false);
+            setError(false);
+            return;
+        }
+
         const key = getCacheKey();
 
         // Cache hit: instant, no network needed
@@ -104,6 +112,7 @@ function RankingContent() {
     const handleApplyFilters = (filters: CustomFilters) => {
         const params = new URLSearchParams();
         params.set('mode', 'custom');
+        params.set('applied', '1');
         if (filters.songType) params.set('song_type', filters.songType);
         if (filters.publishDateStart) params.set('publish_date_start', filters.publishDateStart);
         if (filters.publishDateEnd) params.set('publish_date_end', filters.publishDateEnd);
@@ -169,7 +178,7 @@ function RankingContent() {
                             <Link
                                 key={option.key}
                                 href={`/ranking?mode=${mode}&sort=${option.key}`}
-                                className={`text-xs md:text-sm uppercase font-bold transition-all tracking-widest ${sort === option.key
+                                className={`text-[10px] md:text-xs uppercase font-bold transition-all tracking-widest ${sort === option.key
                                     ? 'text-white'
                                     : 'text-[var(--text-secondary)] hover:text-white'
                                     }`}
@@ -183,6 +192,15 @@ function RankingContent() {
 
             {mode === 'custom' && (
                 <CustomRankingFilters initialFilters={currentFilters} onApply={handleApplyFilters} />
+            )}
+
+            {/* Custom mode: prompt user to apply filters */}
+            {mode === 'custom' && !sp.get('applied') && !loading && (
+                <div className="flex flex-col items-center justify-center py-24 gap-3 border-t border-[var(--hairline)] text-[var(--text-secondary)] text-xs tracking-widest uppercase">
+                    <span className="w-4 h-px bg-[var(--hairline-strong)]"></span>
+                    {t('custom_apply_prompt') ?? 'Configure filters above and click Apply'}
+                    <span className="w-4 h-px bg-[var(--hairline-strong)]"></span>
+                </div>
             )}
 
             {/* Loading */}
