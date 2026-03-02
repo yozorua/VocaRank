@@ -73,7 +73,8 @@ export const getCustomRankings = async (
     publishDateEnd?: string,
     viewsMin?: number,
     viewsMax?: number,
-    artistIds?: string
+    artistIds?: string,
+    sortBy?: string
 ): Promise<SongRanking[]> => {
     const params = new URLSearchParams();
     params.append('limit', limit.toString());
@@ -85,6 +86,7 @@ export const getCustomRankings = async (
     if (viewsMin !== undefined) params.append('views_min', viewsMin.toString());
     if (viewsMax !== undefined) params.append('views_max', viewsMax.toString());
     if (artistIds) params.append('artist_ids', artistIds);
+    if (sortBy) params.append('sort_by', sortBy);
 
     return fetcher(`/rankings/custom?${params.toString()}`);
 };

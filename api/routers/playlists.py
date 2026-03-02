@@ -155,6 +155,11 @@ def _build_playlist_out(
         songs_out = [_build_song_out(ps) for ps in songs_slice]
     else:
         songs_out = []
+    total_secs = sum(
+        ps.song.length_seconds
+        for ps in pl.songs
+        if ps.song.length_seconds
+    ) or None
     return schemas.PlaylistOut(
         id=pl.id,
         user_id=pl.user_id,
@@ -165,6 +170,7 @@ def _build_playlist_out(
         created_at=pl.created_at,
         updated_at=pl.updated_at,
         song_count=len(pl.songs),
+        total_duration_seconds=total_secs,
         favorite_count=fav_count,
         is_favorited=is_fav,
         owner=schemas.PlaylistOwner(

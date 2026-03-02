@@ -189,6 +189,7 @@ class PlaylistOut(BaseModel):
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
     song_count: int = 0
+    total_duration_seconds: Optional[int] = None
     favorite_count: int = 0
     is_favorited: bool = False
     owner: Optional[PlaylistOwner] = None

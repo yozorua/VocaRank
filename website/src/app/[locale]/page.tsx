@@ -38,26 +38,30 @@ async function getDailyTopTotal(limit = 10) {
   return [];
 }
 
-// Today's Top Picks: niconico daily
-async function getDailyTopNico(limit = 5) {
+// Today's Top Picks: random mix from daily YouTube + NicoNico top 100
+async function getDailyTopPicks(count = 12) {
   try {
     const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    const res = await fetch(
-      `${apiBase}/rankings/daily?limit=100&vocaloid_only=true&sort_by=increment_niconico`,
-      { next: { revalidate: 3600 } }
-    );
-    if (res.ok) {
-      const data = await res.json();
-      return data.slice(0, limit);
+    const [ytRes, nicoRes] = await Promise.all([
+      fetch(`${apiBase}/rankings/daily?limit=100&vocaloid_only=true&sort_by=increment_youtube`, { next: { revalidate: 3600 } }),
+      fetch(`${apiBase}/rankings/daily?limit=100&vocaloid_only=true&sort_by=increment_niconico`, { next: { revalidate: 3600 } }),
+    ]);
+    const ytData: SongRow[] = ytRes.ok ? await ytRes.json() : [];
+    const nicoData: SongRow[] = nicoRes.ok ? await nicoRes.json() : [];
+    // Merge and deduplicate by ID
+    const seen = new Set<number>();
+    const pool: SongRow[] = [];
+    for (const song of [...ytData, ...nicoData]) {
+      if (!seen.has(song.id)) { seen.add(song.id); pool.push(song); }
     }
+    // Fisher-Yates shuffle (deterministic per revalidation window)
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    return pool.slice(0, count);
   } catch { }
   return [];
-}
-
-function formatViews(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(n);
 }
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -191,10 +195,10 @@ const cards: Card[] = [
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Home' });
-  const [stats, dailyTop, nicoTop] = await Promise.all([
+  const [stats, dailyTop, topPicks] = await Promise.all([
     getSiteStats(),
     getDailyTopTotal(10),
-    getDailyTopNico(5),
+    getDailyTopPicks(12),
   ]);
 
   return (
@@ -273,63 +277,51 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         {/* ─── Today's Top Picks ────────────────────────────────────────────── */}
         <section className="flex flex-col gap-8">
           <SectionDivider label={t('section_top_movers')} />
-          <div className="glass-panel hairline-border">
-            {(nicoTop as SongRow[]).length > 0 ? (
-              <div className="divide-y divide-[var(--hairline)]">
-                {(nicoTop as SongRow[]).map((song, idx) => {
-                  const rank = idx + 1;
+          {(topPicks as SongRow[]).length > 0 ? (
+            <>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 sm:gap-4">
+                {(topPicks as SongRow[]).map((song, idx) => {
                   const title = song.name_japanese || song.name_english || song.name_romaji || '—';
-                  const thumb = song.niconico_thumb_url
-                    || (song.youtube_id ? `https://img.youtube.com/vi/${song.youtube_id}/hqdefault.jpg` : null);
-                  const gain = song.increment_niconico ?? song.increment_total;
                   return (
-                    <Link key={song.id} href={`/song/${song.id}`}
-                      className={`flex items-center gap-4 px-6 py-4 hover:bg-white/[0.02] transition-colors group relative ${rank <= 3 ? 'pl-5' : ''}`}
+                    <Link
+                      key={song.id}
+                      href={`/song/${song.id}`}
+                      className={`group flex flex-col gap-2${idx >= 9 ? ' hidden sm:flex' : ''}`}
                     >
-                      {rank <= 3 && (
-                        <div className="absolute left-0 top-0 bottom-0 w-0.5" style={{ backgroundColor: rankColor(rank) }} />
-                      )}
-                      <span className={`font-black shrink-0 font-serif ${rank <= 3 ? 'text-xl w-7' : 'text-lg w-6'}`} style={{ color: rankColor(rank) }}>{rank}</span>
-
-                      {(song.youtube_id || song.niconico_thumb_url) ? (
-                        <div className="w-10 h-10 shrink-0 border border-[var(--hairline)] overflow-hidden bg-black relative">
+                      <div className="aspect-square w-full overflow-hidden border border-[var(--hairline)] bg-black relative">
+                        {(song.youtube_id || song.niconico_thumb_url) ? (
                           <ThumbnailImage
-                            youtubeId={song.youtube_id || ''}
+                            youtubeId={song.youtube_id || undefined}
                             niconicoThumb={song.niconico_thumb_url}
                             alt={title}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           />
-                        </div>
-                      ) : (
-                        <div className="w-10 h-10 bg-white/5 border border-[var(--hairline)] shrink-0 flex items-center justify-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[var(--text-secondary)]"><circle cx="12" cy="12" r="10" /><polygon points="10 8 16 12 10 16 10 8" /></svg>
-                        </div>
-                      )}
-
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white truncate group-hover:text-[var(--gold)] transition-colors">{title}</p>
-                        <p className="text-xs text-[var(--text-secondary)] truncate">{song.artist_string}</p>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-[var(--hairline-strong)]"><circle cx="12" cy="12" r="10" /><polygon points="10 8 16 12 10 16 10 8" /></svg>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       </div>
-                      <div className="shrink-0 flex items-center gap-1.5">
-                        <span className="text-sm font-bold" style={{ color: rankColor(rank) }}>+{formatViews(gain)}</span>
-                        <span className="text-[9px] text-[var(--text-secondary)] tracking-wide">{t('top_movers_views')}</span>
+                      <div className="flex flex-col gap-0.5 px-0.5">
+                        <p className="text-xs font-semibold text-white truncate group-hover:text-[var(--gold)] transition-colors leading-snug" title={title}>{title}</p>
+                        <p className="text-[10px] text-[var(--text-secondary)] truncate leading-snug">{song.artist_string}</p>
                       </div>
                     </Link>
                   );
                 })}
               </div>
-            ) : (
-              <div className="px-6 py-10 text-center text-[var(--text-secondary)] text-sm">{t('top_movers_loading')}</div>
-            )}
-
-            <div className="px-6 py-4 border-t border-[var(--hairline)] text-right">
-              <Link href="/ranking" className="group inline-flex items-center gap-1 text-[10px] tracking-[0.3em] uppercase text-[var(--text-secondary)] hover:text-[var(--vermilion)] transition-colors">
-                <span className="inline-block font-serif opacity-50 group-hover:opacity-100 group-hover:-translate-x-1 transition-all duration-300">〈</span>
-                {t('top_movers_see_all')}
-                <span className="inline-block font-serif opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300">〉</span>
-              </Link>
-            </div>
-          </div>
+              <div className="text-right">
+                <Link href="/ranking" className="group inline-flex items-center gap-1 text-[10px] tracking-[0.3em] uppercase text-[var(--text-secondary)] hover:text-[var(--vermilion)] transition-colors">
+                  <span className="inline-block font-serif opacity-50 group-hover:opacity-100 group-hover:-translate-x-1 transition-all duration-300">〈</span>
+                  {t('top_movers_see_all')}
+                  <span className="inline-block font-serif opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300">〉</span>
+                </Link>
+              </div>
+            </>
+          ) : (
+            <div className="glass-panel hairline-border px-6 py-10 text-center text-[var(--text-secondary)] text-sm">{t('top_movers_loading')}</div>
+          )}
         </section>
 
         {/* ─── Feature Cards ────────────────────────────────────────────────── */}

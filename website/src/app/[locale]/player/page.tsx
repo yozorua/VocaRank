@@ -277,8 +277,9 @@ export default function PlayerPage() {
                             <div className="flex items-start justify-between gap-4">
                                 <div className="flex-1 min-w-0">
                                     <a
-                                        href={`/song/${currentSong.id}`}
-                                        onClick={(e) => { e.preventDefault(); router.push(`/song/${currentSong.id}`); }}
+                                        href={`/${locale}/song/${currentSong.id}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                         className="block group/title w-max max-w-full pb-1"
                                     >
                                         <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-[0.05em] text-white leading-tight truncate mb-2 group-hover/title:text-[var(--gold)] transition-colors" title={displayTitle || ''}>
@@ -290,9 +291,10 @@ export default function PlayerPage() {
                                             {currentSong.artists && currentSong.artists.map((artist, idx) => (
                                                 <React.Fragment key={artist.id}>
                                                     <a
-                                                        href={`/artist/${artist.id}`}
+                                                        href={`/${locale}/artist/${artist.id}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
                                                         className="text-base sm:text-lg font-serif text-[var(--gold)] hover:text-[#ff8f83] truncate transition-colors cursor-pointer tracking-widest"
-                                                        onClick={(e) => { e.preventDefault(); router.push(`/artist/${artist.id}`); }}
                                                     >
                                                         {artist.name}
                                                     </a>
@@ -308,8 +310,9 @@ export default function PlayerPage() {
                                                 currentSong.vocalists.map((artist: any) => (
                                                     <a
                                                         key={artist.id}
-                                                        href={`/artist/${artist.id}`}
-                                                        onClick={(e) => { e.preventDefault(); router.push(`/artist/${artist.id}`); }}
+                                                        href={`/${locale}/artist/${artist.id}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
                                                         className="group inline-flex w-max items-center gap-2 pr-3 border border-[var(--hairline)] hover:border-[var(--vermilion)] transition-all bg-[var(--bg-dark)]"
                                                     >
                                                         <div className="w-6 h-6 flex justify-center items-center bg-[var(--hairline)] shrink-0 overflow-hidden">
@@ -335,9 +338,10 @@ export default function PlayerPage() {
                                                 currentSong.vocalists.map((artist: any) => (
                                                     <a
                                                         key={artist.id}
-                                                        href={`/artist/${artist.id}`}
+                                                        href={`/${locale}/artist/${artist.id}`}
                                                         title={artist.name}
-                                                        onClick={(e) => { e.preventDefault(); router.push(`/artist/${artist.id}`); }}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
                                                         className="group relative w-8 h-8 rounded-full overflow-hidden border border-[var(--hairline)] hover:border-[var(--vermilion)] transition-all bg-[var(--hairline-strong)] flex items-center justify-center hover:z-10 shadow-sm"
                                                     >
                                                         {artist.picture_url_thumb ? (

@@ -19,6 +19,7 @@ type Playlist = {
     cover_url?: string | null;
     is_public: number;
     song_count: number;
+    total_duration_seconds?: number | null;
     favorite_count: number;
     songs: PlaylistSong[];
     owner?: { id: number; name?: string | null };
@@ -28,6 +29,13 @@ type Props = {
     playlist: Playlist;
     locale?: string;
 };
+
+function formatDuration(seconds: number, t: ReturnType<typeof useTranslations<'Playlist'>>): string {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    if (hrs > 0) return t('duration_hr_min', { hrs, mins });
+    return t('duration_min_only', { mins: mins || 1 });
+}
 
 export default function PlaylistCard({ playlist }: Props) {
     const t = useTranslations('Playlist');
@@ -62,6 +70,9 @@ export default function PlaylistCard({ playlist }: Props) {
                     <div className="flex flex-col gap-0.5">
                         <span className="text-xs text-[var(--text-secondary)]">
                             {t('song_count', { count: playlist.song_count })}
+                            {playlist.total_duration_seconds ? (
+                                <> <span className="opacity-40 mx-1">·</span>{formatDuration(playlist.total_duration_seconds, t)}</>
+                            ) : null}
                         </span>
                         {playlist.owner?.name && (
                             <span className="text-[10px] text-[var(--text-secondary)] opacity-50 truncate">

@@ -79,7 +79,9 @@
         "label_required_artists": "必須アーティスト",
         "apply": "フィルターを適用",
         "placeholder_min_views": "0",
-        "placeholder_max_views": "合計再生数"
+        "placeholder_max_views": "合計再生数",
+        "label_sort_by": "並び順",
+        "sort_total": "合計再生数"
     },
     "RankingPage": {
         "title": "楽曲ランキング",
@@ -277,6 +279,8 @@
         "private": "非公開",
         "visibility": "公開設定",
         "song_count": "{count}曲",
+        "duration_hr_min": "{hrs}時間{mins}分",
+        "duration_min_only": "{mins}分",
         "play_all": "全曲再生",
         "add_song": "曲を追加",
         "already_added": "追加済み",

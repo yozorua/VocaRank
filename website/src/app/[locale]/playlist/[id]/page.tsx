@@ -36,6 +36,7 @@ type Playlist = {
     cover_url?: string | null;
     is_public: number;
     song_count: number;
+    total_duration_seconds?: number | null;
     favorite_count: number;
     is_favorited: boolean;
     songs: Song[];
@@ -120,7 +121,17 @@ export default async function PlaylistDetailPage({ params }: { params: Promise<{
                         {playlist.owner?.name && (
                             <p className="text-xs text-[var(--text-secondary)] opacity-60">{playlist.owner.name}</p>
                         )}
-                        <p className="text-xs text-[var(--text-secondary)]">{t('song_count', { count: playlist.song_count })}</p>
+                        <p className="text-xs text-[var(--text-secondary)]">
+                            {t('song_count', { count: playlist.song_count })}
+                            {playlist.total_duration_seconds ? (() => {
+                                const hrs = Math.floor(playlist.total_duration_seconds / 3600);
+                                const mins = Math.floor((playlist.total_duration_seconds % 3600) / 60);
+                                const dur = hrs > 0
+                                    ? t('duration_hr_min', { hrs, mins })
+                                    : t('duration_min_only', { mins: mins || 1 });
+                                return <><span className="opacity-40 mx-2">·</span>{dur}</>;
+                            })() : null}
+                        </p>
 
                         {/* Row 1: Play All + Favorite + Share */}
                         <div className="flex items-center gap-2 flex-wrap">

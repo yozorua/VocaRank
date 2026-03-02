@@ -309,7 +309,7 @@ def get_total_ranking(
 
 @router.get("/custom", response_model=List[schemas.SongRanking])
 def get_custom_ranking(
-    limit: int = 100, 
+    limit: int = 100,
     song_type: str = Query('Original,Remaster,Remix,Cover', description="Song type filter (comma-separated)"),
     vocaloid_only: bool = Query(True, description="Filter for SynthV/Vocaloid songs only"),
     publish_date_start: Optional[str] = Query(None, description="Start date for publish_date (YYYY-MM-DD)"),
@@ -317,10 +317,15 @@ def get_custom_ranking(
     views_min: Optional[int] = Query(None, description="Minimum total views"),
     views_max: Optional[int] = Query(None, description="Maximum total views"),
     artist_ids: Optional[str] = Query(None, description="Comma-separated required artist IDs"),
+    sort_by: str = Query('total', description="Sort by: total, youtube, or niconico"),
     db: Session = Depends(get_db)
 ):
     # No caching for custom queries to save memory, as they are highly variable
-    order_clause = "(s.youtube_views + s.niconico_views) DESC"
+    sort_map = {
+        'youtube': 's.youtube_views DESC',
+        'niconico': 's.niconico_views DESC',
+    }
+    order_clause = sort_map.get(sort_by, "(s.youtube_views + s.niconico_views) DESC")
     
     query_str = f"""
         SELECT 

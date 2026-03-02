@@ -75,7 +75,9 @@
         "label_required_artists": "Required Artists",
         "apply": "Apply Filters",
         "placeholder_min_views": "0",
-        "placeholder_max_views": "Total views"
+        "placeholder_max_views": "Total views",
+        "label_sort_by": "Sort By",
+        "sort_total": "Total Views"
     },
     "RankingPage": {
         "title": "Song Rankings",
@@ -273,6 +275,8 @@
         "private": "Private",
         "visibility": "Visibility",
         "song_count": "{count} songs",
+        "duration_hr_min": "{hrs} hr {mins} min",
+        "duration_min_only": "{mins} min",
         "play_all": "Play All",
         "add_song": "Add Song",
         "already_added": "Already added",

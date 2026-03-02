@@ -28,13 +28,14 @@ function RankingContent() {
         publishDateEnd: sp.get('publish_date_end') || '',
         viewsMin: sp.get('views_min') || '',
         viewsMax: sp.get('views_max') || '',
-        artistIds: sp.get('artist_ids') || ''
+        artistIds: sp.get('artist_ids') || '',
+        viewsSort: sp.get('views_sort') || 'total',
     };
 
     // Cache key incorporates all custom filters if mode is custom
     const getCacheKey = () => {
         if (mode === 'custom') {
-            return `custom:${currentFilters.songType}:${currentFilters.publishDateStart}:${currentFilters.publishDateEnd}:${currentFilters.viewsMin}:${currentFilters.viewsMax}:${currentFilters.artistIds}`;
+            return `custom:${currentFilters.songType}:${currentFilters.publishDateStart}:${currentFilters.publishDateEnd}:${currentFilters.viewsMin}:${currentFilters.viewsMax}:${currentFilters.artistIds}:${currentFilters.viewsSort}`;
         }
         return `${mode}:${sort}`;
     };
@@ -75,7 +76,8 @@ function RankingContent() {
                 currentFilters.publishDateEnd,
                 vMin,
                 vMax,
-                currentFilters.artistIds
+                currentFilters.artistIds,
+                currentFilters.viewsSort || 'total'
             );
         } else {
             fetchPromise = getRankings(mode, 100, sort);
@@ -108,6 +110,7 @@ function RankingContent() {
         if (filters.viewsMin) params.set('views_min', filters.viewsMin);
         if (filters.viewsMax) params.set('views_max', filters.viewsMax);
         if (filters.artistIds) params.set('artist_ids', filters.artistIds);
+        if (filters.viewsSort && filters.viewsSort !== 'total') params.set('views_sort', filters.viewsSort);
 
         router.push(`/ranking?${params.toString()}`);
     };
@@ -214,7 +217,7 @@ function RankingContent() {
                 </div>
             )}
 
-            {!loading && !error && <RankingTable songs={songs} mode={mode} sort={mode === 'custom' ? 'total' : sort} />}
+            {!loading && !error && <RankingTable songs={songs} mode={mode} sort={mode === 'custom' ? (currentFilters.viewsSort || 'total') : sort} />}
 
         </div>
     );

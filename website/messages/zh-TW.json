@@ -79,7 +79,9 @@
         "label_required_artists": "指定歌手",
         "apply": "套用篩選",
         "placeholder_min_views": "0",
-        "placeholder_max_views": "總觀看數"
+        "placeholder_max_views": "總觀看數",
+        "label_sort_by": "排序依據",
+        "sort_total": "總觀看數"
     },
     "RankingPage": {
         "title": "歌曲排行榜",
@@ -277,6 +279,8 @@
         "private": "私人",
         "visibility": "公開設定",
         "song_count": "{count} 首",
+        "duration_hr_min": "{hrs} 小時 {mins} 分",
+        "duration_min_only": "{mins} 分鐘",
         "play_all": "全部播放",
         "add_song": "新增歌曲",
         "already_added": "已新增",
