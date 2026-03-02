@@ -30,7 +30,7 @@ export default function FooterPageViews({ page, label }: Props) {
     if (views === null) return null;
 
     return (
-        <p className="text-sm mt-2 opacity-60 flex items-baseline gap-2 justify-center">
+        <p className="text-xs text-[var(--text-secondary)] opacity-40 flex items-baseline gap-1.5 justify-center">
             <span>{label}:</span>
             <span className="font-mono">{views.toLocaleString()}</span>
         </p>

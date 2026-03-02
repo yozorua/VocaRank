@@ -117,7 +117,9 @@ export default function PlaylistSongList({ songs: initialSongs, playlistId, apiT
     return (
         <div className="divide-y divide-[var(--hairline)]">
             {songs.map((song, idx) => {
-                const title = song.name_japanese || song.name_english || song.name_romaji || '—';
+                const title = (locale === 'ja' || locale === 'zh-TW')
+                    ? (song.name_japanese || song.name_english || song.name_romaji || '—')
+                    : (song.name_english || song.name_japanese || song.name_romaji || '—');
                 const isDragOver = dragOver === idx;
 
                 return (

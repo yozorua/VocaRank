@@ -116,7 +116,7 @@ export default async function PlaylistDetailPage({ params }: { params: Promise<{
                     <div className="flex flex-col gap-3 flex-1 min-w-0">
                         <h1 className="text-3xl font-bold text-white">{playlist.title}</h1>
                         {playlist.description && (
-                            <p className="text-[var(--text-secondary)] text-sm leading-relaxed line-clamp-3 overflow-hidden break-words">{playlist.description}</p>
+                            <p className="text-[var(--text-secondary)] text-sm leading-relaxed break-words whitespace-pre-line">{playlist.description}</p>
                         )}
                         {playlist.owner?.name && (
                             <p className="text-xs text-[var(--text-secondary)] opacity-60">{playlist.owner.name}</p>

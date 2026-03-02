@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { API_BASE_URL } from '@/lib/api';
 import ThumbnailImage from '@/components/ThumbnailImage';
 
@@ -26,6 +27,7 @@ type Props = {
 export default function AddSongToPlaylist({ playlistId, placeholder, addLabel, alreadyAddedLabel, existingSongIds = [] }: Props) {
     const { data: session } = useSession();
     const router = useRouter();
+    const locale = useLocale();
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<SearchResult[]>([]);
     const [loading, setLoading] = useState(false);
@@ -42,7 +44,7 @@ export default function AddSongToPlaylist({ playlistId, placeholder, addLabel, a
         setDebounce(setTimeout(async () => {
             setLoading(true);
             try {
-                const res = await fetch(`${API_BASE_URL}/songs/search?query=${encodeURIComponent(q)}&limit=8&vocaloid_only=true`);
+                const res = await fetch(`${API_BASE_URL}/songs/search?query=${encodeURIComponent(q)}&limit=20&vocaloid_only=false`);
                 if (res.ok) setResults(await res.json());
             } finally {
                 setLoading(false);
@@ -110,7 +112,9 @@ export default function AddSongToPlaylist({ playlistId, placeholder, addLabel, a
             {results.length > 0 && (
                 <div className="absolute top-full left-0 right-0 z-50 bg-[var(--bg-dark)] border border-[var(--hairline-strong)] shadow-2xl max-h-72 overflow-y-auto">
                     {results.map(song => {
-                        const title = song.name_japanese || song.name_english || '—';
+                        const title = (locale === 'ja' || locale === 'zh-TW')
+                            ? (song.name_japanese || song.name_english || '—')
+                            : (song.name_english || song.name_japanese || '—');
                         const isAdded = addedIds.has(song.id);
                         // Replace comma separators with middle dot for producers display
                         const artistDisplay = song.artist_string?.replace(/, /g, ' · ') ?? '';

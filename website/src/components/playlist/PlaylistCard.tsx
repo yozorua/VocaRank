@@ -55,9 +55,9 @@ export default function PlaylistCard({ playlist }: Props) {
                 )}
             </div>
 
-            {/* Info — fixed height so all cards align */}
-            <div className="p-3 flex flex-col justify-between gap-2 h-[100px]">
-                <div className="flex flex-col gap-1 min-h-0">
+            {/* Info */}
+            <div className="p-3 flex flex-col justify-between gap-2 flex-1 min-h-[100px]">
+                <div className="flex flex-col gap-1">
                     <p className="text-sm font-semibold text-white truncate group-hover:text-[var(--gold)] transition-colors leading-snug">
                         {playlist.title}
                     </p>

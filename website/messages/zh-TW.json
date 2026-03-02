@@ -317,7 +317,7 @@
         "loading_queue": "正在從播放器佇列載入歌曲..."
     },
     "Footer": {
-        "footer_source": "歌曲資料由 VocaDB 提供支持。播放數據收集自 YouTube 及 Niconico。",
+        "footer_source": "歌曲及藝術家資料由 <vocadb>VocaDB</vocadb> 提供支持。播放數據收集自 YouTube 及 Niconico。",
         "footer_contact": "聯絡我們",
         "homepage_views": "瀏覽次數",
         "footer_dev": "本站目前仍在積極開發中——部分功能可能尚未完成。"
