@@ -251,6 +251,8 @@ def main():
                                           if p.get('service') == 'Youtube'
                                           and p.get('pvId') in up['temp_yt_views']]
                         if working_yt_pvs:
+                            # Read pre-correction view count BEFORE the per-PV loop overwrites it
+                            pre_correction_views = working_yt_pvs[0].get('views')
                             dead_yt_pvs = [p for p in pvs
                                            if p.get('service') == 'Youtube'
                                            and p.get('pvId') not in up['temp_yt_views']]
@@ -260,6 +262,18 @@ def main():
                             log_message("INFO", f"Song {sid}: Dead YouTube primary {yt_id!r} → promoting {new_primary!r}")
                             up['yt_id'] = new_primary
                             pv_changed = True
+                            # Backfill past daily_snapshots to prevent artificial ranking jump.
+                            # Use the working PV's last known view count as the baseline;
+                            # fall back to today's fetched value (zeroes out gain) if never tracked.
+                            baseline = pre_correction_views if pre_correction_views is not None else up['temp_yt_views'].get(new_primary, 0)
+                            try:
+                                cursor.execute(
+                                    "UPDATE daily_snapshots SET youtube_views = %s WHERE song_id = %s AND date < CURRENT_DATE",
+                                    (baseline, sid)
+                                )
+                                log_message("INFO", f"Song {sid}: Backfilled daily_snapshots to {baseline} to prevent ranking jump")
+                            except Exception as e:
+                                log_message("WARNING", f"Song {sid}: Failed to backfill snapshots: {e}")
                     for pv in pvs:
                         service = pv.get('service')
                         pvid = pv.get('pvId')
