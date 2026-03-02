@@ -1,0 +1,8 @@
+# VocaRank Monitor dependencies
+# Most are already installed by the main project; this file documents them.
+
+textual>=0.47.0       # TUI framework  (already installed)
+psutil>=5.9.0         # system metrics (already installed)
+psycopg2-binary>=2.9  # PostgreSQL     (already installed)
+python-dotenv>=1.0    # .env loading   (already installed)
+requests>=2.28        # HTTP checks    (already installed)

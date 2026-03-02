@@ -62,7 +62,6 @@ export default function PlayerPage() {
     const NICO_PLAYER_ID = 'vocarank-player';
     const NICO_ORIGIN = 'https://embed.nicovideo.jp';
     const ignoreNextNicoPause = useRef(false);
-    const isChangingSong = useRef(false);
     const nicoHasPlayed = useRef(false); // guard against spurious status=4 before video actually plays
 
     useEffect(() => {
@@ -227,15 +226,12 @@ export default function PlayerPage() {
 
     const isNicoSong = !currentSong?.youtube_id && !!currentSong?.niconico_id;
 
-    // Reset NicoNico state on song change; guard isChangingSong to suppress YouTube's onPause on unmount
+    // Reset NicoNico state on song change
     useEffect(() => {
-        isChangingSong.current = true;
         nicoHasPlayed.current = false;
         setNicoProgress(0);
         setNicoDuration(0);
         setNicoReady(false);
-        const t = setTimeout(() => { isChangingSong.current = false; }, 600);
-        return () => clearTimeout(t);
     }, [currentSong?.id]);
 
     // NicoNico postMessage listener
@@ -345,7 +341,7 @@ export default function PlayerPage() {
                                     onDuration={handleDuration}
                                     onReady={handleReady}
                                     onPlay={() => setIsPlaying(true)}
-                                    onPause={() => { if (!isChangingSong.current) setIsPlaying(false); }}
+                                    onPause={() => { if (!isNicoSong) setIsPlaying(false); }}
                                     onEnded={loopMode === 'song' ? undefined : nextSong}
                                     width="100%"
                                     height="100%"
