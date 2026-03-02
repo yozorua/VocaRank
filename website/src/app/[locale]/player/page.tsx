@@ -9,6 +9,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { API_BASE_URL } from '@/lib/api';
 import { SongRanking } from '@/types';
 import { useSession, signIn } from 'next-auth/react';
+import ThumbnailImage from '@/components/ThumbnailImage';
 
 export default function PlayerPage() {
     const {
@@ -53,6 +54,17 @@ export default function PlayerPage() {
     const queueDragOverIdx = React.useRef<number | null>(null);
     const [queueDragOver, setQueueDragOver] = React.useState<number | null>(null);
 
+    // NicoNico player state
+    const nicoIframeRef = useRef<HTMLIFrameElement>(null);
+    const [nicoProgress, setNicoProgress] = useState(0);
+    const [nicoDuration, setNicoDuration] = useState(0);
+    const [nicoReady, setNicoReady] = useState(false);
+    const NICO_PLAYER_ID = 'vocarank-player';
+    const NICO_ORIGIN = 'https://embed.nicovideo.jp';
+    const ignoreNextNicoPause = useRef(false);
+    const isChangingSong = useRef(false);
+    const nicoHasPlayed = useRef(false); // guard against spurious status=4 before video actually plays
+
     useEffect(() => {
         setIsMounted(true);
         // Load progress keyed by the current song ID to prevent cross-playlist leaking
@@ -87,7 +99,7 @@ export default function PlayerPage() {
                     // Map playlist songs directly — the playlist endpoint already returns all needed fields.
                     // Avoids N individual /songs/{id} fetches which caused random timeouts and dropped songs.
                     const valid: SongRanking[] = (pl.songs as any[])
-                        .filter((s) => !!s.youtube_id)
+                        .filter((s) => !!(s.youtube_id || s.niconico_id))
                         .map((s): SongRanking => ({
                             id: s.song_id,
                             name_english: s.name_english ?? null,
@@ -136,7 +148,7 @@ export default function PlayerPage() {
                     const res = await fetch(`${API_BASE_URL}/songs/batch?ids=${encodeURIComponent(ids)}`);
                     if (!res.ok) return;
                     const songs: SongRanking[] = await res.json();
-                    const validSongs = songs.filter(s => !!s.youtube_id);
+                    const validSongs = songs.filter(s => !!(s.youtube_id || s.niconico_id));
                     if (validSongs.length > 0) playSong(validSongs[0], validSongs);
                 } catch { }
                 finally { isLoadingFromUrl.current = false; }
@@ -213,9 +225,86 @@ export default function PlayerPage() {
         return `${m}:${s.toString().padStart(2, '0')}`;
     };
 
+    const isNicoSong = !currentSong?.youtube_id && !!currentSong?.niconico_id;
+
+    // Reset NicoNico state on song change; guard isChangingSong to suppress YouTube's onPause on unmount
+    useEffect(() => {
+        isChangingSong.current = true;
+        nicoHasPlayed.current = false;
+        setNicoProgress(0);
+        setNicoDuration(0);
+        setNicoReady(false);
+        const t = setTimeout(() => { isChangingSong.current = false; }, 600);
+        return () => clearTimeout(t);
+    }, [currentSong?.id]);
+
+    // NicoNico postMessage listener
+    useEffect(() => {
+        if (!isNicoSong) return;
+        const handleMessage = (event: MessageEvent) => {
+            if (event.origin !== NICO_ORIGIN) return;
+            const msg = event.data;
+            if (!msg || msg.playerId !== NICO_PLAYER_ID) return;
+            if (msg.eventName === 'loadComplete') {
+                setNicoReady(true);
+            } else if (msg.eventName === 'playerMetadataChange') {
+                // API sends time in milliseconds — convert to seconds
+                const ct: number = (msg.data?.currentTime ?? 0) / 1000;
+                const dur: number = (msg.data?.duration ?? 0) / 1000;
+                if (dur > 0) {
+                    setNicoDuration(dur);
+                    setNicoProgress(ct / dur);
+                }
+                // Mark as having actually played once we see real playback time
+                if (ct > 1) nicoHasPlayed.current = true;
+                if (ct > 0 && currentSong) localStorage.setItem(`vocarank_progress_${currentSong.id}`, ct.toString());
+            } else if (msg.eventName === 'playerStatusChange') {
+                const s = msg.data?.playerStatus;
+                if (s === 2) setIsPlaying(true);
+                else if (s === 3) {
+                    if (ignoreNextNicoPause.current) {
+                        ignoreNextNicoPause.current = false;
+                    } else {
+                        setIsPlaying(false);
+                    }
+                } else if (s === 4) {
+                    if (loopMode === 'song') {
+                        ignoreNextNicoPause.current = true;
+                        nicoIframeRef.current?.contentWindow?.postMessage(
+                            { eventName: 'seek', data: { time: 0 }, sourceConnectorType: 1, playerId: NICO_PLAYER_ID }, NICO_ORIGIN);
+                        nicoIframeRef.current?.contentWindow?.postMessage(
+                            { eventName: 'play', sourceConnectorType: 1, playerId: NICO_PLAYER_ID }, NICO_ORIGIN);
+                    } else if (nicoHasPlayed.current) { nextSong(); }
+                }
+            }
+        };
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, [isNicoSong, loopMode, nextSong, setIsPlaying, currentSong]);
+
+    // Sync play/pause to NicoNico
+    useEffect(() => {
+        if (!isNicoSong || !nicoReady) return;
+        nicoIframeRef.current?.contentWindow?.postMessage(
+            { eventName: isPlaying ? 'play' : 'pause', sourceConnectorType: 1, playerId: NICO_PLAYER_ID },
+            NICO_ORIGIN
+        );
+    }, [isNicoSong, isPlaying, nicoReady]);
+
+    // Sync volume to NicoNico
+    useEffect(() => {
+        if (!isNicoSong || !nicoReady) return;
+        nicoIframeRef.current?.contentWindow?.postMessage(
+            { eventName: 'volumeChange', data: { volume }, sourceConnectorType: 1, playerId: NICO_PLAYER_ID },
+            NICO_ORIGIN
+        );
+    }, [isNicoSong, volume, nicoReady]);
+
     if (!isMounted || !currentSong) return null;
 
     const isLooping = loopMode !== 'off';
+    const displayProgress = isNicoSong ? nicoProgress : progress;
+    const displayDuration = isNicoSong ? nicoDuration : duration;
 
     const toggleFullscreen = () => {
         if (!document.fullscreenElement) {
@@ -245,28 +334,47 @@ export default function PlayerPage() {
                         {/* Video Container with Overlaid Protection Shield */}
                         <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-[var(--hairline-strong)] bg-black group shrink-0">
 
-                            <ReactPlayer
-                                ref={playerRef}
-                                url={`https://www.youtube.com/watch?v=${currentSong.youtube_id}`}
-                                playing={isPlaying}
-                                volume={volume}
-                                loop={loopMode === 'song'}
-                                onProgress={handleProgress as any}
-                                onDuration={handleDuration}
-                                onReady={handleReady}
-                                onPlay={() => setIsPlaying(true)}
-                                onPause={() => setIsPlaying(false)}
-                                onEnded={loopMode === 'song' ? undefined : nextSong}
-                                width="100%"
-                                height="100%"
-                                className="absolute inset-0"
-                                config={{
-                                    playerVars: {
-                                        showinfo: 0 as any, controls: 0 as any, autoplay: 1 as any, playsinline: 1 as any,
-                                        disablekb: 1 as any, fs: 0 as any, iv_load_policy: 3 as any, rel: 0 as any, modestbranding: 1 as any
-                                    }
-                                }}
-                            />
+                            {!isNicoSong ? (
+                                <ReactPlayer
+                                    ref={playerRef}
+                                    url={`https://www.youtube.com/watch?v=${currentSong.youtube_id}`}
+                                    playing={isPlaying}
+                                    volume={volume}
+                                    loop={loopMode === 'song'}
+                                    onProgress={handleProgress as any}
+                                    onDuration={handleDuration}
+                                    onReady={handleReady}
+                                    onPlay={() => setIsPlaying(true)}
+                                    onPause={() => { if (!isChangingSong.current) setIsPlaying(false); }}
+                                    onEnded={loopMode === 'song' ? undefined : nextSong}
+                                    width="100%"
+                                    height="100%"
+                                    className="absolute inset-0"
+                                    config={{
+                                        playerVars: {
+                                            showinfo: 0 as any, controls: 0 as any, autoplay: 1 as any, playsinline: 1 as any,
+                                            disablekb: 1 as any, fs: 0 as any, iv_load_policy: 3 as any, rel: 0 as any, modestbranding: 1 as any
+                                        }
+                                    }}
+                                />
+                            ) : (
+                                <iframe
+                                    ref={nicoIframeRef}
+                                    key={currentSong.niconico_id}
+                                    src={`https://embed.nicovideo.jp/watch/${currentSong.niconico_id}?jsapi=1&playerId=${NICO_PLAYER_ID}&autoplay=1`}
+                                    width="100%"
+                                    height="100%"
+                                    className="absolute inset-0 border-0"
+                                    allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                                    allowFullScreen
+                                    title={displayTitle || 'Niconico Video'}
+                                />
+                            )}
+                            {isNicoSong && (
+                                <div className="absolute bottom-3 left-3 z-10 pointer-events-none bg-black/70 backdrop-blur-sm border border-white/20 rounded-full px-2.5 py-0.5">
+                                    <span className="text-[11px] font-bold tracking-widest text-white uppercase">NicoNico</span>
+                                </div>
+                            )}
 
                         </div>
 
@@ -364,11 +472,11 @@ export default function PlayerPage() {
 
                             {/* Interactive Progress Bar */}
                             <div className="w-full flex items-center gap-4">
-                                <span className="text-xs font-mono text-[var(--text-secondary)] w-10 text-left">{formatTime(progress * duration)}</span>
+                                <span className="text-xs font-mono text-[var(--text-secondary)] w-10 text-left">{formatTime(displayProgress * displayDuration)}</span>
                                 <div className="flex-1 flex items-center group/progress relative py-4 cursor-pointer">
                                     {/* Visual Track */}
                                     <div className="absolute inset-x-0 w-full h-1.5 sm:h-2 bg-black/40 rounded-full pointer-events-none m-auto" style={{ top: 'calc(50% - 3px)' }}>
-                                        <div className="absolute left-0 top-0 bottom-0 h-full bg-[var(--vermilion)] rounded-full transition-all duration-75 ease-out" style={{ width: `${Math.max(0, Math.min(100, progress * 100))}%` }} />
+                                        <div className="absolute left-0 top-0 bottom-0 h-full bg-[var(--vermilion)] rounded-full transition-all duration-75 ease-out" style={{ width: `${Math.max(0, Math.min(100, displayProgress * 100))}%` }} />
                                     </div>
                                     {/* Invisible Range Slider for huge hitbox */}
                                     <input
@@ -376,21 +484,30 @@ export default function PlayerPage() {
                                         min={0}
                                         max={1}
                                         step="0.001"
-                                        value={progress}
+                                        value={displayProgress}
                                         onChange={(e) => {
                                             const v = parseFloat(e.target.value);
-                                            setProgress(v);
-                                            if (playerRef.current) playerRef.current.seekTo(v, 'fraction');
+                                            if (!isNicoSong) {
+                                                setProgress(v);
+                                                if (playerRef.current) playerRef.current.seekTo(v, 'fraction');
+                                            } else {
+                                                ignoreNextNicoPause.current = true;
+                                                setNicoProgress(v);
+                                                nicoIframeRef.current?.contentWindow?.postMessage(
+                                                    { eventName: 'seek', data: { time: Math.round(v * nicoDuration * 1000) }, sourceConnectorType: 1, playerId: NICO_PLAYER_ID },
+                                                    NICO_ORIGIN
+                                                );
+                                            }
                                         }}
                                         className="w-full h-8 opacity-0 z-10 cursor-pointer absolute inset-0 m-auto"
                                     />
                                     {/* Custom Thumb Dot */}
                                     <div
                                         className="absolute w-3 h-3 bg-white rounded-full shadow-md z-20 pointer-events-none transition-transform sm:scale-0 sm:group-hover/progress:scale-100"
-                                        style={{ left: `calc(${progress * 100}% - 6px)`, top: '50%', transform: 'translateY(-50%)' }}
+                                        style={{ left: `calc(${displayProgress * 100}% - 6px)`, top: '50%', transform: 'translateY(-50%)' }}
                                     />
                                 </div>
-                                <span className="text-xs font-mono text-[var(--text-secondary)] w-10">{formatTime(duration)}</span>
+                                <span className="text-xs font-mono text-[var(--text-secondary)] w-10">{formatTime(displayDuration)}</span>
                             </div>
 
                             {/* Transport Controls */}
@@ -592,7 +709,7 @@ export default function PlayerPage() {
                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="18" x2="20" y2="18" /></svg>
                                         </div>
                                         <div className="relative w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-black">
-                                            <img src={`https://i.ytimg.com/vi/${song.youtube_id}/mqdefault.jpg`} alt="" className="w-full h-full object-cover" />
+                                            <ThumbnailImage youtubeId={song.youtube_id} niconicoThumb={song.niconico_thumb_url} alt="" className="w-full h-full object-cover" />
                                             {isCurrent && (
                                                 <div className="absolute inset-0 bg-[var(--vermilion)]/20 flex items-center justify-center">
                                                     <div className="w-1.5 h-3 bg-white mx-0.5 animate-[bounce_1s_infinite]"></div>
@@ -671,7 +788,7 @@ export default function PlayerPage() {
                                             || song.artist_string?.replace(/, /g, ' · ');
                                         return (
                                             <div key={song.id} className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white/5 transition-colors">
-                                                <img src={`https://i.ytimg.com/vi/${song.youtube_id}/mqdefault.jpg`} alt="" className="w-10 h-10 object-cover rounded shrink-0" />
+                                                <ThumbnailImage youtubeId={song.youtube_id} niconicoThumb={song.niconico_thumb_url} alt="" className="w-10 h-10 object-cover rounded shrink-0" />
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-xs text-white font-semibold truncate">{title}</p>
                                                     {producers && <p className="text-[10px] text-[var(--text-secondary)] truncate mt-0.5">{producers}</p>}

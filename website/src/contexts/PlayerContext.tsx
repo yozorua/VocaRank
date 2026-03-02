@@ -88,14 +88,14 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
         // If a new list is provided, use it as the queue
         if (list && list.length > 0) {
-            // Filter out songs without youtube_id since we only play YouTube
-            const validQueue = list.filter(s => !!s.youtube_id);
+            // Filter out songs without any playable video
+            const validQueue = list.filter(s => !!(s.youtube_id || s.niconico_id));
             newQueue = validQueue;
 
             const index = validQueue.findIndex(s => s.id === song.id);
-            // If the song isn't in the list (or has no YT id), just play it explicitly
+            // If the song isn't in the list (or has no playable video), just play it explicitly
             if (index === -1) {
-                if (song.youtube_id) {
+                if (song.youtube_id || song.niconico_id) {
                     newQueue = [song];
                     newIndex = 0;
                 }
@@ -104,7 +104,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
             }
         } else {
             // Standalone play
-            if (song.youtube_id) {
+            if (song.youtube_id || song.niconico_id) {
                 newQueue = [song];
                 newIndex = 0;
             }
