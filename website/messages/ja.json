@@ -304,6 +304,7 @@
         "cover_undo": "元に戻す",
         "cover_error_type": "PNG、JPG、WEBP形式のみ対応しています。",
         "cover_error_size": "ファイルサイズは5MB未満にしてください。",
+        "title_too_long": "タイトルが長すぎます（{current}/{max} 文字）",
         "cover_crop_title": "カバーをトリミング",
         "cover_crop_apply": "適用",
         "cover_crop_cancel": "キャンセル",

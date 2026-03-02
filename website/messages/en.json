@@ -300,6 +300,7 @@
         "cover_undo": "Undo",
         "cover_error_type": "Only PNG, JPG, and WEBP images are supported.",
         "cover_error_size": "File must be under 5MB.",
+        "title_too_long": "Title is too long ({current}/{max} characters)",
         "cover_crop_title": "Crop Cover",
         "cover_crop_apply": "Apply",
         "cover_crop_cancel": "Cancel",

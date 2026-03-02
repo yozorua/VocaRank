@@ -198,7 +198,8 @@ export default function NewPlaylistPage() {
         }
     };
 
-    const canSave = title.trim().length > 0 && songs.length > 0;
+    const titleTooLong = title.length > 200;
+    const canSave = title.trim().length > 0 && songs.length > 0 && !titleTooLong;
 
     const search = (q: string) => {
         setQuery(q);
@@ -337,8 +338,11 @@ export default function NewPlaylistPage() {
                                 value={title}
                                 onChange={e => setTitle(e.target.value)}
                                 placeholder={t('name_placeholder')}
-                                className="bg-white/5 border border-[var(--hairline)] px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[var(--vermilion)]/50"
+                                className={`bg-white/5 border px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none ${titleTooLong ? 'border-red-500/70 focus:border-red-500' : 'border-[var(--hairline)] focus:border-[var(--vermilion)]/50'}`}
                             />
+                            {titleTooLong && (
+                                <p className="text-[11px] text-red-400">{t('title_too_long', { current: title.length, max: 200 })}</p>
+                            )}
                         </label>
 
                         {/* Description */}

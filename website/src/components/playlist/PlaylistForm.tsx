@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { API_BASE_URL } from '@/lib/api';
@@ -92,6 +93,7 @@ const getCroppedImg = (src: string, pixelCrop: any): Promise<Blob | null> =>
 
 export default function PlaylistForm({ locale, existingPlaylist, t, iconOnly }: Props) {
     const { data: session } = useSession();
+    const tIntl = useTranslations('Playlist');
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState(existingPlaylist?.title ?? '');
     const [desc, setDesc] = useState(existingPlaylist?.description ?? '');
@@ -179,6 +181,7 @@ export default function PlaylistForm({ locale, existingPlaylist, t, iconOnly }: 
     if (!session) return null;
 
     const activeCover = coverPreview ?? (!removeCover ? (existingPlaylist?.cover_url ?? null) : null);
+    const titleTooLong = title.length > 200;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -308,8 +311,11 @@ export default function PlaylistForm({ locale, existingPlaylist, t, iconOnly }: 
                                 value={title}
                                 onChange={e => setTitle(e.target.value)}
                                 placeholder={t.name_placeholder}
-                                className="bg-white/5 border border-[var(--hairline)] px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[var(--vermilion)]/50"
+                                className={`bg-white/5 border px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none ${titleTooLong ? 'border-red-500/70 focus:border-red-500' : 'border-[var(--hairline)] focus:border-[var(--vermilion)]/50'}`}
                             />
+                            {titleTooLong && (
+                                <p className="text-[11px] text-red-400">{tIntl('title_too_long', { current: title.length, max: 200 })}</p>
+                            )}
                         </label>
 
                         <label className="flex flex-col gap-1.5">
@@ -421,7 +427,7 @@ export default function PlaylistForm({ locale, existingPlaylist, t, iconOnly }: 
                                 className="flex-1 py-2 text-sm border border-[var(--hairline)] text-[var(--text-secondary)] hover:text-white transition-colors">
                                 {t.cancel}
                             </button>
-                            <button type="submit" disabled={loading}
+                            <button type="submit" disabled={loading || titleTooLong}
                                 className="flex-1 py-2 text-sm border border-[var(--vermilion)] text-[var(--vermilion)] hover:bg-[var(--vermilion)]/10 transition-colors disabled:opacity-40">
                                 {loading ? '...' : t.save}
                             </button>
