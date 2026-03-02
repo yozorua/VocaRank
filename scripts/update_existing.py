@@ -11,19 +11,30 @@ def update_song_by_id(conn: psycopg2.extensions.connection, song_id: int):
     """Fetches and updates a specific song by ID, preserving existing view counts."""
     cursor = conn.cursor()
     
-    cursor.execute("SELECT niconico_views, youtube_views, niconico_history, youtube_history FROM songs WHERE id=%s", (song_id,))
+    cursor.execute("SELECT niconico_views, youtube_views, niconico_history, youtube_history, pv_data FROM songs WHERE id=%s", (song_id,))
     existing = cursor.fetchone()
-    
+
     nico_views = 0
     yt_views = 0
     nico_hist = '[]'
     yt_hist = '[]'
-    
+    old_pv_data_str = None
+
     if existing:
         nico_views = existing[0] if existing[0] else 0
         yt_views = existing[1] if existing[1] else 0
         nico_hist = existing[2] if existing[2] else '[]'
         yt_hist = existing[3] if existing[3] else '[]'
+        old_pv_data_str = existing[4] if existing[4] else None
+
+    old_yt_views = {}
+    if old_pv_data_str:
+        try:
+            for pv in json.loads(old_pv_data_str):
+                if pv.get('service') == 'Youtube':
+                    old_yt_views[pv['pvId']] = pv.get('views')
+        except:
+            pass
         
     data = fetch_song(song_id)
     if not data:
@@ -47,6 +58,31 @@ def update_song_by_id(conn: psycopg2.extensions.connection, song_id: int):
         ensure_artists_exist_with_conn(conn, artist_ids)
         
         record = list(base_record)
+
+        if old_yt_views:
+            try:
+                new_pvs = json.loads(record[9])
+                if isinstance(new_pvs, list):
+                    has_any_known_alive = any(
+                        old_yt_views.get(p.get('pvId')) is not None
+                        for p in new_pvs if p.get('service') == 'Youtube'
+                    )
+                    if has_any_known_alive:
+                        alive_yt = [p for p in new_pvs
+                                    if p.get('service') == 'Youtube'
+                                    and old_yt_views.get(p.get('pvId')) is not None]
+                        dead_yt = [p for p in new_pvs
+                                   if p.get('service') == 'Youtube'
+                                   and p.get('pvId') in old_yt_views
+                                   and old_yt_views[p.get('pvId')] is None]
+                        new_yt = [p for p in new_pvs
+                                  if p.get('service') == 'Youtube'
+                                  and p.get('pvId') not in old_yt_views]
+                        other = [p for p in new_pvs if p.get('service') != 'Youtube']
+                        record[9] = json.dumps(alive_yt + new_yt + other + dead_yt)
+            except:
+                pass
+
         record[11] = nico_views
         record[12] = yt_views
         record[13] = nico_hist

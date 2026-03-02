@@ -245,6 +245,21 @@ def main():
             try:
                 pvs = json.loads(up['pv_data'])
                 if isinstance(pvs, list):
+                    yt_id = up['yt_id']
+                    if yt_id and yt_id not in up['temp_yt_views'] and up['temp_yt_views']:
+                        working_yt_pvs = [p for p in pvs
+                                          if p.get('service') == 'Youtube'
+                                          and p.get('pvId') in up['temp_yt_views']]
+                        if working_yt_pvs:
+                            dead_yt_pvs = [p for p in pvs
+                                           if p.get('service') == 'Youtube'
+                                           and p.get('pvId') not in up['temp_yt_views']]
+                            other_pvs = [p for p in pvs if p.get('service') != 'Youtube']
+                            pvs = working_yt_pvs + other_pvs + dead_yt_pvs
+                            new_primary = working_yt_pvs[0]['pvId']
+                            log_message("INFO", f"Song {sid}: Dead YouTube primary {yt_id!r} → promoting {new_primary!r}")
+                            up['yt_id'] = new_primary
+                            pv_changed = True
                     for pv in pvs:
                         service = pv.get('service')
                         pvid = pv.get('pvId')
