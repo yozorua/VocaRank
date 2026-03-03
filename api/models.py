@@ -130,7 +130,8 @@ class Playlist(Base):
     is_public   = Column(Integer, default=1)  # 1=public, 0=private
     created_at  = Column(String)
     updated_at  = Column(String)
-    live_id     = Column(Integer, ForeignKey("official_lives.id"), nullable=True)
+    live_id             = Column(Integer, ForeignKey("official_lives.id"), nullable=True)
+    live_display_order  = Column(Integer, default=0)
 
     user      = relationship("User")
     songs     = relationship("PlaylistSong", back_populates="playlist",

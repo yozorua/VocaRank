@@ -4,6 +4,26 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { notFound } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
 import LiveDetailClient from './LiveDetailClient';
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+    const { slug } = await params;
+    try {
+        const live = await fetchLive(slug);
+        if (!live) return {};
+        return {
+            title: live.name,
+            description: live.description || undefined,
+            openGraph: {
+                title: live.name,
+                description: live.description || undefined,
+                images: live.cover_url ? [{ url: live.cover_url }] : [],
+            },
+        };
+    } catch {
+        return {};
+    }
+}
 
 const API = process.env.API_URL_INTERNAL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -87,6 +107,7 @@ export default async function LiveDetailPage({ params }: { params: Promise<{ slu
                 {/* Playlist grid (client for admin controls) */}
                 <LiveDetailClient
                     slug={slug}
+                    liveId={live.id}
                     initialPlaylists={playlists}
                     isAdmin={isAdmin}
                     apiToken={session?.apiToken}

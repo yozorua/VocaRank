@@ -43,11 +43,12 @@ export default function PlaylistCard({ playlist }: Props) {
     return (
         <Link
             href={`/playlist/${playlist.id}`}
-            className="group flex flex-col glass-panel hairline-border overflow-hidden hover:border-[var(--vermilion)]/30 transition-all duration-300"
+            className="group flex flex-col glass-panel hairline-border overflow-hidden hover:border-[var(--vermilion)]/30 transition-all duration-300 h-full"
         >
             {/* Cover */}
             <div className="aspect-square w-full overflow-hidden bg-[var(--bg-panel)] relative shrink-0">
                 <MosaicCover songs={playlist.songs} coverUrl={playlist.cover_url} />
+                <div className="absolute inset-0 bg-black/20 pointer-events-none" />
                 {!playlist.is_public && (
                     <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-sm px-2 py-0.5 text-[9px] text-[var(--text-secondary)] tracking-widest uppercase border border-[var(--hairline)]">
                         Private
@@ -61,10 +62,12 @@ export default function PlaylistCard({ playlist }: Props) {
                     <p className="text-sm font-semibold text-white break-words group-hover:text-[var(--gold)] transition-colors leading-snug">
                         {playlist.title}
                     </p>
-                    {/* Always reserve space for description — show 2-line clamped text or empty line */}
-                    <p className="text-xs text-[var(--text-secondary)] leading-snug line-clamp-2 overflow-hidden">
-                        {playlist.description || '\u00A0'}
-                    </p>
+                    {/* Fixed 2-line height so all cards are uniform (2 × 16.5px ≈ 34px) */}
+                    <div className="h-[34px] overflow-hidden">
+                        <p className="text-xs text-[var(--text-secondary)] leading-snug line-clamp-2">
+                            {playlist.description || ''}
+                        </p>
+                    </div>
                 </div>
                 <div className="flex items-center justify-between">
                     <div className="flex flex-col gap-0.5">

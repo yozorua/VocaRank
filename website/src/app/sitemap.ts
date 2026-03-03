@@ -1,15 +1,15 @@
 import { MetadataRoute } from 'next';
-import { API_BASE_URL } from '@/lib/api';
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://vocarank.live';
+const API = process.env.API_URL_INTERNAL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 const LOCALES = ['en', 'ja', 'zh-TW'];
 
-function localeUrls(path: string): MetadataRoute.Sitemap[number] {
+function localeUrls(path: string, priority = 0.8): MetadataRoute.Sitemap[number] {
     return {
         url: `${BASE_URL}/en${path}`,
         lastModified: new Date(),
         changeFrequency: 'daily',
-        priority: 0.8,
+        priority,
         alternates: {
             languages: Object.fromEntries(LOCALES.map(l => [l, `${BASE_URL}/${l}${path}`])),
         },
@@ -27,32 +27,49 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 languages: Object.fromEntries(LOCALES.map(l => [l, `${BASE_URL}/${l}`])),
             },
         },
-        localeUrls('/ranking'),
-        localeUrls('/search'),
-        localeUrls('/playlist'),
-        localeUrls('/statistic/vocaloid'),
-        localeUrls('/statistic/producer-network'),
-        localeUrls('/statistic/vocalist-network'),
+        localeUrls('/ranking', 0.9),
+        localeUrls('/search', 0.8),
+        localeUrls('/playlist', 0.8),
+        localeUrls('/statistic/vocaloid', 0.7),
+        localeUrls('/statistic/producer-network', 0.7),
+        localeUrls('/statistic/vocalist-network', 0.7),
     ];
 
-    // Fetch top songs dynamically
-    let songRoutes: MetadataRoute.Sitemap = [];
+    // Official live pages
+    let liveRoutes: MetadataRoute.Sitemap = [];
     try {
-        const res = await fetch(`${API_BASE_URL}/rankings?limit=500`, { next: { revalidate: 86400 } });
+        const res = await fetch(`${API}/official-lives`, { next: { revalidate: 86400 } });
         if (res.ok) {
-            const data = await res.json();
-            const songs = Array.isArray(data) ? data : (data.songs ?? []);
-            songRoutes = songs.slice(0, 500).map((s: { id: number }) => ({
-                url: `${BASE_URL}/en/song/${s.id}`,
+            const lives: { slug: string }[] = await res.json();
+            liveRoutes = lives.map(live => ({
+                url: `${BASE_URL}/en/playlist/live/${live.slug}`,
                 lastModified: new Date(),
                 changeFrequency: 'weekly' as const,
-                priority: 0.6,
+                priority: 0.7,
                 alternates: {
-                    languages: Object.fromEntries(LOCALES.map(l => [l, `${BASE_URL}/${l}/song/${s.id}`])),
+                    languages: Object.fromEntries(LOCALES.map(l => [l, `${BASE_URL}/${l}/playlist/live/${live.slug}`])),
                 },
             }));
         }
     } catch { }
 
-    return [...staticRoutes, ...songRoutes];
+    // Public playlist pages
+    let playlistRoutes: MetadataRoute.Sitemap = [];
+    try {
+        const res = await fetch(`${API}/playlists?per_page=200`, { next: { revalidate: 86400 } });
+        if (res.ok) {
+            const playlists: { id: number }[] = await res.json();
+            playlistRoutes = playlists.map(pl => ({
+                url: `${BASE_URL}/en/playlist/${pl.id}`,
+                lastModified: new Date(),
+                changeFrequency: 'weekly' as const,
+                priority: 0.6,
+                alternates: {
+                    languages: Object.fromEntries(LOCALES.map(l => [l, `${BASE_URL}/${l}/playlist/${pl.id}`])),
+                },
+            }));
+        }
+    } catch { }
+
+    return [...staticRoutes, ...liveRoutes, ...playlistRoutes];
 }

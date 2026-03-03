@@ -160,7 +160,7 @@ export default function OfficialLiveForm({ existingLive, onClose, onSaved }: Pro
             const res = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ name, slug, description: desc || null, display_order: order }),
+                body: JSON.stringify({ name, slug, description: desc, display_order: order }),
             });
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));

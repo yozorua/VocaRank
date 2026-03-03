@@ -1,4 +1,15 @@
 import { getTranslations, getLocale } from 'next-intl/server';
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+    const { locale } = await params;
+    const t = await getTranslations({ locale, namespace: 'Playlist' });
+    return {
+        title: t('title'),
+        description: t('description'),
+        openGraph: { title: t('title'), description: t('description') },
+    };
+}
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { Link } from '@/i18n/navigation';
@@ -83,7 +94,7 @@ export default async function PlaylistPage() {
                             title={t('create')}
                             className="shrink-0 w-9 h-9 md:w-auto md:h-auto md:px-5 md:py-2.5 flex items-center justify-center text-sm tracking-[0.12em] text-white border border-[var(--hairline-strong)] hover:text-[var(--vermilion)] hover:border-[var(--vermilion)]/50 transition-all"
                         >
-                            <span className="md:hidden text-base leading-none">+</span>
+                            <span className="md:hidden text-base">+</span>
                             <span className="hidden md:inline">+ {t('create')}</span>
                         </Link>
                     ) : (
@@ -92,7 +103,7 @@ export default async function PlaylistPage() {
                             title={t('create')}
                             className="shrink-0 w-9 h-9 md:w-auto md:h-auto md:px-5 md:py-2.5 flex items-center justify-center text-sm tracking-[0.12em] text-white border border-[var(--hairline-strong)] hover:text-[var(--vermilion)] hover:border-[var(--vermilion)]/50 transition-all"
                         >
-                            <span className="md:hidden text-base leading-none">+</span>
+                            <span className="md:hidden text-base">+</span>
                             <span className="hidden md:inline">+ {t('create')}</span>
                         </a>
                     )}

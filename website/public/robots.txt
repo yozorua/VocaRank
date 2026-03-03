@@ -1,16 +1,13 @@
 User-agent: *
 Crawl-delay: 5
 
-# Block crawling of individual artist and song pages
-# (data changes daily; no indexing value for search engines)
-Disallow: /en/artist/
-Disallow: /en/song/
-Disallow: /ja/artist/
-Disallow: /ja/song/
-Disallow: /zh-TW/artist/
-Disallow: /zh-TW/song/
+# Block private/functional pages not useful for search
+Disallow: /*/profile
+Disallow: /*/player
+Disallow: /*/playlist/new
+Disallow: /*/login
 
-# Allow everything else (homepage, ranking, search, etc.)
+# Allow everything else (homepage, ranking, search, playlists, lives, statistics, songs, artists)
 Allow: /
 
 Sitemap: https://vocarank.live/sitemap.xml

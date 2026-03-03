@@ -303,6 +303,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-[var(--hairline-strong)]"><circle cx="12" cy="12" r="10" /><polygon points="10 8 16 12 10 16 10 8" /></svg>
                           </div>
                         )}
+                        <div className="absolute inset-0 bg-black/20 pointer-events-none" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       </div>
                       <div className="flex flex-col gap-0.5 px-0.5">

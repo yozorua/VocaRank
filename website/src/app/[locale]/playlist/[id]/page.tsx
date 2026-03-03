@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
+import type { Metadata } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import MosaicCover from '@/components/playlist/MosaicCover';
@@ -52,6 +53,25 @@ async function fetchPlaylist(id: string, token?: string): Promise<Playlist | nul
         return res.json();
     } catch {
         return null;
+    }
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string; locale: string }> }): Promise<Metadata> {
+    const { id } = await params;
+    try {
+        const pl = await fetchPlaylist(id);
+        if (!pl || !pl.is_public) return {};
+        return {
+            title: pl.title,
+            description: pl.description || undefined,
+            openGraph: {
+                title: pl.title,
+                description: pl.description || undefined,
+                images: pl.cover_url ? [{ url: pl.cover_url }] : [],
+            },
+        };
+    } catch {
+        return {};
     }
 }
 

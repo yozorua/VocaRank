@@ -15,8 +15,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VocaRank",
-  description: "The definitive Vocaloid ranking platform.",
+  metadataBase: new URL('https://vocarank.live'),
+  title: {
+    default: 'VocaRank',
+    template: '%s | VocaRank',
+  },
+  description: "The definitive Vocaloid ranking platform. Discover the most popular Vocaloid songs with real-time rankings from YouTube and Niconico.",
+  openGraph: {
+    siteName: 'VocaRank',
+    type: 'website',
+    images: [{ url: '/web-app-manifest-512x512.png', width: 512, height: 512, alt: 'VocaRank' }],
+  },
+  twitter: {
+    card: 'summary',
+    images: ['/web-app-manifest-512x512.png'],
+  },
   icons: {
     icon: [
       { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' },

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import PlaylistCard from '@/components/playlist/PlaylistCard';
@@ -31,12 +31,13 @@ type Playlist = {
 
 type Props = {
     slug: string;
+    liveId: number;
     initialPlaylists: Playlist[];
     isAdmin: boolean;
     apiToken?: string;
 };
 
-export default function LiveDetailClient({ slug, initialPlaylists, isAdmin, apiToken }: Props) {
+export default function LiveDetailClient({ slug, liveId, initialPlaylists, isAdmin, apiToken }: Props) {
     const t = useTranslations('Playlist');
     const router = useRouter();
     const [playlists, setPlaylists] = useState<Playlist[]>(initialPlaylists);
@@ -46,13 +47,60 @@ export default function LiveDetailClient({ slug, initialPlaylists, isAdmin, apiT
     const [assignOpen, setAssignOpen] = useState(false);
     const [assignLoading, setAssignLoading] = useState(false);
 
+    // Drag-and-drop state
+    const dragIdRef = useRef<number | null>(null);
+    const [dragOverId, setDragOverId] = useState<number | null>(null);
+
+    const handleDragStart = (e: React.DragEvent, id: number) => {
+        dragIdRef.current = id;
+        e.dataTransfer.effectAllowed = 'move';
+    };
+
+    const handleDragOver = (e: React.DragEvent, id: number) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (dragIdRef.current !== id) setDragOverId(id);
+    };
+
+    const handleDrop = (e: React.DragEvent, targetId: number) => {
+        e.preventDefault();
+        const fromId = dragIdRef.current;
+        if (fromId === null || fromId === targetId) {
+            dragIdRef.current = null;
+            setDragOverId(null);
+            return;
+        }
+        const next = [...playlists];
+        const fromIdx = next.findIndex(p => p.id === fromId);
+        const toIdx = next.findIndex(p => p.id === targetId);
+        const [item] = next.splice(fromIdx, 1);
+        next.splice(toIdx, 0, item);
+        setPlaylists(next);
+        dragIdRef.current = null;
+        setDragOverId(null);
+        void saveOrder(next.map(p => p.id));
+    };
+
+    const handleDragEnd = () => {
+        dragIdRef.current = null;
+        setDragOverId(null);
+    };
+
+    const saveOrder = async (ids: number[]) => {
+        if (!apiToken) return;
+        await fetch(`${API_BASE_URL}/official-lives/${liveId}/reorder`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiToken}` },
+            body: JSON.stringify({ playlist_ids: ids }),
+        });
+    };
+
     const handleUnassign = async (playlist: Playlist) => {
         if (!apiToken) return;
-        // live_id=0 is a sentinel for "unassign" — send null via API
         const res = await fetch(`${API_BASE_URL}/playlists/${playlist.id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiToken}` },
-            body: JSON.stringify({ live_id: 0 }),  // 0 means null/unassign in our API
+            body: JSON.stringify({ live_id: 0 }),
         });
         if (res.ok) {
             setPlaylists(prev => prev.filter(p => p.id !== playlist.id));
@@ -66,7 +114,6 @@ export default function LiveDetailClient({ slug, initialPlaylists, isAdmin, apiT
             const res = await fetch(`${API_BASE_URL}/playlists?query=${encodeURIComponent(q)}&per_page=20`);
             if (res.ok) {
                 const data: Playlist[] = await res.json();
-                // Exclude already-assigned playlists
                 const assignedIds = new Set(playlists.map(p => p.id));
                 setAssignResults(data.filter(p => !assignedIds.has(p.id)));
             }
@@ -77,18 +124,13 @@ export default function LiveDetailClient({ slug, initialPlaylists, isAdmin, apiT
 
     const handleAssign = async (playlist: Playlist) => {
         if (!apiToken) return;
-        // Fetch the live_id from slug
-        const liveRes = await fetch(`${API_BASE_URL}/official-lives/${slug}`);
-        if (!liveRes.ok) return;
-        const live = await liveRes.json();
-
         const res = await fetch(`${API_BASE_URL}/playlists/${playlist.id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiToken}` },
-            body: JSON.stringify({ live_id: live.id }),
+            body: JSON.stringify({ live_id: liveId }),
         });
         if (res.ok) {
-            setPlaylists(prev => [...prev, { ...playlist, live_id: live.id }]);
+            setPlaylists(prev => [...prev, { ...playlist, live_id: liveId }]);
             setAssignResults(prev => prev.filter(p => p.id !== playlist.id));
         }
     };
@@ -97,7 +139,7 @@ export default function LiveDetailClient({ slug, initialPlaylists, isAdmin, apiT
         <div className="flex flex-col gap-6">
             {/* Admin controls */}
             {isAdmin && (
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     <button
                         onClick={() => setEditFormOpen(true)}
                         className="text-xs text-[var(--text-secondary)] hover:text-[var(--vermilion)] border border-[var(--hairline)] hover:border-[var(--vermilion)]/40 px-4 py-2 transition-all"
@@ -110,6 +152,11 @@ export default function LiveDetailClient({ slug, initialPlaylists, isAdmin, apiT
                     >
                         {t('assign_playlist')}
                     </button>
+                    {playlists.length > 1 && (
+                        <span className="text-[10px] text-[var(--text-secondary)] opacity-40 select-none">
+                            ↕ drag to reorder
+                        </span>
+                    )}
                 </div>
             )}
 
@@ -150,7 +197,26 @@ export default function LiveDetailClient({ slug, initialPlaylists, isAdmin, apiT
             ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {playlists.map(pl => (
-                        <div key={pl.id} className="relative group/item">
+                        <div
+                            key={pl.id}
+                            className={`relative group/item transition-opacity duration-150 ${
+                                dragIdRef.current === pl.id ? 'opacity-40' : 'opacity-100'
+                            } ${dragOverId === pl.id ? 'ring-1 ring-[var(--vermilion)]/60' : ''}`}
+                            draggable={isAdmin}
+                            onDragStart={isAdmin ? e => handleDragStart(e, pl.id) : undefined}
+                            onDragOver={isAdmin ? e => handleDragOver(e, pl.id) : undefined}
+                            onDrop={isAdmin ? e => handleDrop(e, pl.id) : undefined}
+                            onDragEnd={isAdmin ? handleDragEnd : undefined}
+                        >
+                            {isAdmin && (
+                                <div className="absolute top-0 left-0 right-0 h-6 flex items-center justify-center opacity-0 group-hover/item:opacity-100 transition-opacity z-10 cursor-grab active:cursor-grabbing pointer-events-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-white/50">
+                                        <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
+                                        <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
+                                        <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
+                                    </svg>
+                                </div>
+                            )}
                             <PlaylistCard playlist={pl} />
                             {isAdmin && (
                                 <button

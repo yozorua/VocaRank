@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -100,7 +101,8 @@ def get_live_playlists(slug: str, db: Session = Depends(get_db)):
         return None
 
     result = []
-    for pl in live.playlists:
+    sorted_playlists = sorted(live.playlists, key=lambda p: (p.live_display_order or 0, p.id))
+    for pl in sorted_playlists:
         preview_songs = [
             {
                 "song_id": ps.song_id,
@@ -136,6 +138,33 @@ def get_live_playlists(slug: str, db: Session = Depends(get_db)):
             "live_id": pl.live_id,
         })
     return result
+
+
+# ── POST /official-lives/{live_id}/reorder — reorder playlists ───────────────
+
+class ReorderRequest(BaseModel):
+    playlist_ids: list[int]
+
+
+@router.post("/{live_id}/reorder", status_code=200)
+def reorder_live_playlists(
+    live_id: int,
+    data: ReorderRequest,
+    db: Session = Depends(get_db),
+    admin: models.User = Depends(get_admin_user),
+):
+    live = db.query(models.OfficialLive).filter(models.OfficialLive.id == live_id).first()
+    if not live:
+        raise HTTPException(status_code=404, detail="Official live not found")
+    for order, pl_id in enumerate(data.playlist_ids):
+        pl = db.query(models.Playlist).filter(
+            models.Playlist.id == pl_id,
+            models.Playlist.live_id == live_id,
+        ).first()
+        if pl:
+            pl.live_display_order = order
+    db.commit()
+    return {"ok": True}
 
 
 # ── POST /official-lives — create ─────────────────────────────────────────────
@@ -185,7 +214,7 @@ def update_live(
             raise HTTPException(status_code=409, detail="Slug already in use")
         live.slug = data.slug
     if data.description is not None:
-        live.description = data.description
+        live.description = data.description or None
     if data.display_order is not None:
         live.display_order = data.display_order
     db.commit()

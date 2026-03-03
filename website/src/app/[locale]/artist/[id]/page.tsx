@@ -6,6 +6,30 @@ import ArtistPublishHistogram from '@/components/ArtistPublishHistogram';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; id: string }> }): Promise<Metadata> {
+    const { id } = await params;
+    const artistId = parseInt(id, 10);
+    if (isNaN(artistId)) return {};
+    try {
+        const artist = await getArtist(artistId);
+        const title = artist.name_english || artist.name_japanese || artist.name_romaji || 'Artist';
+        const description = artist.artist_type ? `${title} · ${artist.artist_type}` : title;
+        const thumb = artist.picture_url_original || artist.picture_url_thumb;
+        return {
+            title,
+            description,
+            openGraph: {
+                title,
+                description,
+                images: thumb ? [{ url: thumb }] : [],
+            },
+        };
+    } catch {
+        return {};
+    }
+}
 import { formatArtistType } from '@/lib/formatArtistType';
 import FavoriteButton from '@/components/FavoriteButton';
 
