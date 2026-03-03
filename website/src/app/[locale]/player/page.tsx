@@ -672,7 +672,7 @@ export default function PlayerPage() {
                             </div>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto space-y-1 pr-1 hover:pr-0 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full transition-all duration-300 [scrollbar-width:none] hover:[scrollbar-width:thin]">
+                        <div className="flex-1 overflow-y-auto space-y-1 player-queue-scroll">
                             {queue.map((song: SongRanking, idx: number) => {
                                 const isCurrent = idx === currentIndex;
                                 const queueSongTitle = locale === 'ja' || locale === 'zh-TW'

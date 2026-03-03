@@ -128,15 +128,17 @@ export default function Navbar() {
                             </span>
 
                             {/* Dropdown Menu */}
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0 w-64 bg-[var(--bg-dark)] border border-[var(--hairline-strong)] shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-[200]">
-                                <div className="p-2 relative z-10 bg-[var(--bg-dark)]">
-                                    <Link href="/statistic/producer-network" className="block w-full px-4 py-3 text-sm text-[var(--text-secondary)] hover:text-white hover:bg-white/5 transition-colors text-center font-bold">
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0 w-max bg-[var(--bg-dark)] border border-[var(--hairline-strong)] shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-[200] overflow-hidden">
+                                {/* Vermilion accent top line — mirrors the nav link underline effect */}
+                                <div className="h-px bg-[var(--vermilion)]" />
+                                <div className="py-1 relative z-10 bg-[var(--bg-dark)]">
+                                    <Link href="/statistic/producer-network" className="flex items-center justify-center w-full px-6 py-2.5 text-sm text-[var(--text-secondary)] hover:text-white hover:bg-white/5 transition-colors font-bold whitespace-nowrap tracking-[0.05em]">
                                         {t('statistics_producer_network', { defaultMessage: 'Producers Network' })}
                                     </Link>
-                                    <Link href="/statistic/vocalist-network" className="block w-full px-4 py-3 text-sm text-[var(--text-secondary)] hover:text-white hover:bg-white/5 transition-colors text-center font-bold border-t border-[var(--hairline)]">
+                                    <Link href="/statistic/vocalist-network" className="flex items-center justify-center w-full px-6 py-2.5 text-sm text-[var(--text-secondary)] hover:text-white hover:bg-white/5 transition-colors font-bold border-t border-[var(--hairline)] whitespace-nowrap tracking-[0.05em]">
                                         {t('statistics_vocalist_network', { defaultMessage: 'Voicebank Network' })}
                                     </Link>
-                                    <Link href="/statistic/vocaloid" className="block w-full px-4 py-3 text-sm text-[var(--text-secondary)] hover:text-white hover:bg-white/5 transition-colors text-center font-bold border-t border-[var(--hairline)]">
+                                    <Link href="/statistic/vocaloid" className="flex items-center justify-center w-full px-6 py-2.5 text-sm text-[var(--text-secondary)] hover:text-white hover:bg-white/5 transition-colors font-bold border-t border-[var(--hairline)] whitespace-nowrap tracking-[0.05em]">
                                         {t('statistics_vocaloid', { defaultMessage: 'Stats for Vocaloid' })}
                                     </Link>
                                 </div>

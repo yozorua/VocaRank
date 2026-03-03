@@ -210,7 +210,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
         {/* Radial ambient glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[60%] pointer-events-none z-0"
-          style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(232,74,95,0.08) 0%, transparent 55%)' }} />
+          style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(110,120,180,0.09) 0%, transparent 55%)' }} />
 
         <div className="relative z-10 w-full flex flex-col items-center gap-6">
 

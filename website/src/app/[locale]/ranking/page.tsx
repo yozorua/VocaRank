@@ -126,7 +126,7 @@ function RankingContent() {
 
     const tabs = [
         { key: 'daily', label: t('daily'), unstable: false },
-        { key: 'weekly', label: t('weekly'), unstable: true },
+        { key: 'weekly', label: t('weekly'), unstable: false },
         { key: 'monthly', label: t('monthly'), unstable: true },
         { key: 'total', label: t('total'), unstable: false },
         { key: 'custom', label: t('custom') ?? 'CUSTOM', unstable: false },
