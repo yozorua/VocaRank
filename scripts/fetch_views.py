@@ -268,12 +268,13 @@ def main():
                             baseline = pre_correction_views if pre_correction_views is not None else up['temp_yt_views'].get(new_primary, 0)
                             try:
                                 cursor.execute(
-                                    "UPDATE daily_snapshots SET youtube_views = %s WHERE song_id = %s AND date < CURRENT_DATE",
+                                    "UPDATE daily_snapshots SET youtube_views = %s WHERE song_id = %s AND date::date < CURRENT_DATE",
                                     (baseline, sid)
                                 )
                                 log_message("INFO", f"Song {sid}: Backfilled daily_snapshots to {baseline} to prevent ranking jump")
                             except Exception as e:
                                 log_message("WARNING", f"Song {sid}: Failed to backfill snapshots: {e}")
+                                conn.rollback()
                     for pv in pvs:
                         service = pv.get('service')
                         pvid = pv.get('pvId')

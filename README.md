@@ -285,7 +285,86 @@ Add to crontab (`crontab -e`) for automated data updates:
 0 0 * * * cd /opt/vocarank && ./database_backup.sh --daily-dump /opt/vocarank-backups
 ```
 
-### 10. Verify Deployment
+### 10. PostgreSQL Tuning
+
+PostgreSQL ships with conservative defaults tuned for minimal hardware. For production use, write a drop-in config so the main `postgresql.conf` stays untouched:
+
+```bash
+sudo nano /etc/postgresql/16/main/conf.d/vocarank.conf
+```
+
+Paste the settings below for your RAM tier, then restart PostgreSQL:
+
+```bash
+sudo systemctl restart postgresql
+```
+
+**Settings by RAM tier (SSD assumed; 16-core+ CPU):**
+
+| Setting | 16 GB RAM | 64 GB RAM | Notes |
+|---|---|---|---|
+| `shared_buffers` | `4GB` | `16GB` | 25% of RAM. PostgreSQL's own buffer pool — the #1 setting. Without this, every parallel worker re-reads the same data through the OS page cache. **Requires restart.** |
+| `effective_cache_size` | `12GB` | `48GB` | 75% of RAM. Planner hint only — no memory is allocated. Influences index vs. seq scan decisions. |
+| `work_mem` | `32MB` | `64MB` | Memory per sort/hash op per worker. Peak usage = `max_parallel_workers × 2 ops × work_mem`. |
+| `maintenance_work_mem` | `512MB` | `2GB` | Used by VACUUM, CREATE INDEX, `pg_dump`. |
+| `wal_buffers` | `64MB` | `64MB` | Diminishing returns above 64 MB. |
+| `max_worker_processes` | `8` | `16` | Total background + parallel workers. **Requires restart.** |
+| `max_parallel_workers` | `4` | `8` | Hard system-wide cap on parallel query workers. Prevents cron jobs from spawning unbounded workers during heavy ranking queries. |
+| `max_parallel_workers_per_gather` | `2` | `4` | Workers per single query plan node. |
+| `checkpoint_completion_target` | `0.9` | `0.9` | Spreads checkpoint I/O over 90% of the interval, reducing spikes. |
+| `max_wal_size` | `2GB` | `4GB` | Reduces checkpoint frequency under write load. |
+| `min_wal_size` | `128MB` | `256MB` | |
+| `random_page_cost` | `1.1` | `1.1` | Default 4.0 is for spinning disk. SSD random reads ≈ sequential — lower value encourages index use. Set to `4.0` if using HDD. |
+| `effective_io_concurrency` | `200` | `200` | Parallel prefetch for bitmap scans. Use `1` for HDD. |
+
+**16 GB config:**
+
+```conf
+shared_buffers = 4GB
+effective_cache_size = 12GB
+work_mem = 32MB
+maintenance_work_mem = 512MB
+wal_buffers = 64MB
+max_worker_processes = 8
+max_parallel_workers = 4
+max_parallel_workers_per_gather = 2
+checkpoint_completion_target = 0.9
+max_wal_size = 2GB
+min_wal_size = 128MB
+random_page_cost = 1.1
+effective_io_concurrency = 200
+```
+
+**64 GB config:**
+
+```conf
+shared_buffers = 16GB
+effective_cache_size = 48GB
+work_mem = 64MB
+maintenance_work_mem = 2GB
+wal_buffers = 64MB
+max_worker_processes = 16
+max_parallel_workers = 8
+max_parallel_workers_per_gather = 4
+checkpoint_completion_target = 0.9
+max_wal_size = 4GB
+min_wal_size = 256MB
+random_page_cost = 1.1
+effective_io_concurrency = 200
+```
+
+**Verify settings loaded after restart:**
+
+```bash
+sudo -u postgres psql -c "SHOW shared_buffers; SHOW work_mem; SHOW max_parallel_workers;"
+```
+
+> **Connecting as the vocarank user** requires `-h localhost` to force TCP (password auth) since peer auth checks the Linux username:
+> ```bash
+> psql -U vocarank -d vocarank -h localhost -c "SHOW shared_buffers;"
+> ```
+
+### 11. Verify Deployment
 
 ```bash
 # Check services are running
