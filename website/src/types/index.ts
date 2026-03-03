@@ -58,3 +58,14 @@ export interface SongDetail extends SongRanking {
 }
 
 export type RankingMode = 'daily' | 'weekly' | 'monthly' | 'total' | 'custom';
+
+export interface OfficialLive {
+    id: number;
+    name: string;
+    slug: string;
+    description: string | null;
+    cover_url: string | null;
+    display_order: number;
+    created_at: string | null;
+    playlist_count: number;
+}

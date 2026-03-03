@@ -35,6 +35,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/components/AuthProvider";
 import { PlayerProvider } from "@/contexts/PlayerContext";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export default async function RootLayout({
   children,
@@ -45,11 +47,12 @@ export default async function RootLayout({
 }>) {
   const { locale } = await params;
   const messages = await getMessages();
+  const session = await getServerSession(authOptions);
 
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} flex flex-col min-h-screen`}>
-        <AuthProvider>
+        <AuthProvider session={session}>
           <PlayerProvider>
             <NextIntlClientProvider messages={messages}>
               <Navbar />

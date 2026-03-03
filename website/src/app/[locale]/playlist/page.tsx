@@ -2,7 +2,9 @@ import { getTranslations, getLocale } from 'next-intl/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { Link } from '@/i18n/navigation';
-import PlaylistCard from '@/components/playlist/PlaylistCard';
+import PlaylistSearchSection from '@/components/playlist/PlaylistSearchSection';
+import OfficialLivesSection from '@/components/playlist/OfficialLivesSection';
+import CollapsiblePlaylistSection from '@/components/playlist/CollapsiblePlaylistSection';
 
 const API = process.env.API_URL_INTERNAL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -42,16 +44,27 @@ async function fetchFavoritePlaylists(token: string) {
     }
 }
 
+async function fetchOfficialLives() {
+    try {
+        const res = await fetch(`${API}/official-lives`, { cache: 'no-store' });
+        if (!res.ok) return [];
+        return res.json();
+    } catch {
+        return [];
+    }
+}
+
 export default async function PlaylistPage() {
     const t = await getTranslations('Playlist');
     const locale = await getLocale();
     const session = await getServerSession(authOptions);
-    const apiToken = (session as any)?.apiToken as string | undefined;
+    const apiToken = session?.apiToken as string | undefined;
 
-    const [publicPlaylists, myPlaylists, favoritedPlaylists] = await Promise.all([
+    const [publicPlaylists, myPlaylists, favoritedPlaylists, officialLives] = await Promise.all([
         fetchPublicPlaylists(),
         apiToken ? fetchMyPlaylists(apiToken) : Promise.resolve([]),
         apiToken ? fetchFavoritePlaylists(apiToken) : Promise.resolve([]),
+        fetchOfficialLives(),
     ]);
 
     return (
@@ -85,52 +98,31 @@ export default async function PlaylistPage() {
                     )}
                 </div>
 
-                {/* My Playlists */}
-                {myPlaylists.length > 0 && (
-                    <div className="flex flex-col gap-4">
-                        <h2 className="text-sm font-semibold text-[var(--text-secondary)] tracking-[0.3em] uppercase">
-                            {t('mine')}
-                        </h2>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                            {myPlaylists.map((pl: Parameters<typeof PlaylistCard>[0]['playlist']) => (
-                                <PlaylistCard key={pl.id} playlist={pl} />
-                            ))}
-                        </div>
-                    </div>
-                )}
+                {/* Official Lives — client component so admin controls & modals work */}
+                <OfficialLivesSection initialLives={officialLives} />
 
-                {/* Favorited Playlists */}
-                {favoritedPlaylists.length > 0 && (
-                    <div className="flex flex-col gap-4">
-                        <h2 className="text-sm font-semibold text-[var(--text-secondary)] tracking-[0.3em] uppercase">
-                            {t('favorited')}
-                        </h2>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                            {favoritedPlaylists.map((pl: Parameters<typeof PlaylistCard>[0]['playlist']) => (
-                                <PlaylistCard key={pl.id} playlist={pl} />
-                            ))}
-                        </div>
-                    </div>
-                )}
+                {/* My Playlists — collapsible, default open */}
+                <CollapsiblePlaylistSection
+                    label={t('mine')}
+                    storageKey="playlist_section_mine"
+                    playlists={myPlaylists}
+                    defaultOpen={true}
+                />
 
-                {/* Public grid */}
+                {/* Favorited Playlists — collapsible, default open */}
+                <CollapsiblePlaylistSection
+                    label={t('favorited')}
+                    storageKey="playlist_section_favorited"
+                    playlists={favoritedPlaylists}
+                    defaultOpen={true}
+                />
+
+                {/* Browse Playlists with search */}
                 <div className="flex flex-col gap-4">
-                    {myPlaylists.length > 0 && (
-                        <h2 className="text-sm font-semibold text-[var(--text-secondary)] tracking-[0.3em] uppercase">
-                            {t('browse')}
-                        </h2>
-                    )}
-                    {publicPlaylists.length === 0 ? (
-                        <div className="glass-panel hairline-border px-8 py-12 text-center text-[var(--text-secondary)] text-sm">
-                            {t('no_playlists')}
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                            {publicPlaylists.map((pl: Parameters<typeof PlaylistCard>[0]['playlist']) => (
-                                <PlaylistCard key={pl.id} playlist={pl} />
-                            ))}
-                        </div>
-                    )}
+                    <h2 className="text-sm font-semibold text-[var(--text-secondary)] tracking-[0.3em] uppercase">
+                        {t('browse')}
+                    </h2>
+                    <PlaylistSearchSection initialPlaylists={publicPlaylists} />
                 </div>
 
             </div>

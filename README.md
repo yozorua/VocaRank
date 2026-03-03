@@ -377,3 +377,56 @@ curl http://127.0.0.1:8000/health
 journalctl -u vocarank-api -f
 journalctl -u vocarank-web -f
 ```
+
+---
+
+## Admin Setup
+
+### Granting Admin Access
+
+The `is_admin` flag on the `users` table controls access to Official Lives management and playlist assignment on the site.
+
+**1. Find your user record:**
+
+```bash
+psql -U vocarank -d vocarank -h localhost -c \
+  "SELECT id, email, name FROM users ORDER BY created_at LIMIT 10;"
+```
+
+**2. Grant admin rights to an account:**
+
+```bash
+psql -U vocarank -d vocarank -h localhost -c \
+  "UPDATE users SET is_admin = true WHERE email = 'your@email.com';"
+```
+
+**3. Sign out and sign back in** — the `isAdmin` flag is baked into the NextAuth JWT at login time, so an active session won't pick up the change until re-authentication.
+
+> **Note:** The `-h localhost` flag forces TCP connection (password auth). Without it, `psql` uses peer auth and will reject the `vocarank` user. You will be prompted for the DB password from `.env`.
+
+### What admins can do
+
+- **Official Lives** — Create, edit, delete curated concert/event collections on the Playlist page
+- **Assign playlists** — Link any public playlist to an Official Live from the live's detail page
+- **Unassign playlists** — Remove a playlist from a live (playlist remains public in Browse)
+
+### Running the Official Lives migration (already applied)
+
+If setting up from scratch on a new DB, run this after `Base.metadata.create_all`:
+
+```sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;
+
+CREATE TABLE IF NOT EXISTS official_lives (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(200) NOT NULL,
+    slug VARCHAR(200) UNIQUE NOT NULL,
+    description TEXT,
+    cover_url VARCHAR(500),
+    display_order INTEGER DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE playlists ADD COLUMN IF NOT EXISTS live_id INTEGER
+    REFERENCES official_lives(id) ON DELETE SET NULL;
+```

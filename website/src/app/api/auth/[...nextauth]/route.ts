@@ -46,6 +46,7 @@ export const authOptions: AuthOptions = {
                             if (profileData.name) token.name = profileData.name;
                             if (profileData.picture_url) token.picture = profileData.picture_url;
                             if (profileData.id) token.userId = profileData.id;
+                            token.isAdmin = profileData.is_admin ?? false;
                         }
 
                     } else {
@@ -64,6 +65,9 @@ export const authOptions: AuthOptions = {
             }
             if (token && token.userId) {
                 (session as any).userId = token.userId as number;
+            }
+            if (token) {
+                (session as any).isAdmin = token.isAdmin as boolean ?? false;
             }
             // Bind VocaRank customizations
             if (token.name && session.user) session.user.name = token.name;

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, BigInteger, String, Text, ForeignKey, Table
+from sqlalchemy import Column, Integer, BigInteger, String, Text, ForeignKey, Table, Boolean
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -50,7 +50,7 @@ class Artist(Base):
 
 class User(Base):
     __tablename__ = "users"
-    
+
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     email = Column(String, unique=True, index=True, nullable=False)
     name = Column(String)
@@ -59,7 +59,8 @@ class User(Base):
     country = Column(String)
     age_range = Column(String)
     last_login = Column(String)
-    
+    is_admin = Column(Boolean, default=False)
+
     oauth_accounts = relationship("OAuthAccount", back_populates="user", cascade="all, delete-orphan")
 
 class OAuthAccount(Base):
@@ -104,6 +105,20 @@ class SongVote(Base):
 
     song = relationship("Song")
 
+class OfficialLive(Base):
+    __tablename__ = "official_lives"
+
+    id            = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    name          = Column(String(200), nullable=False)
+    slug          = Column(String(200), unique=True, nullable=False)
+    description   = Column(Text)
+    cover_url     = Column(String(500))
+    display_order = Column(Integer, default=0)
+    created_at    = Column(String)
+
+    playlists = relationship("Playlist", back_populates="live")
+
+
 class Playlist(Base):
     __tablename__ = "playlists"
 
@@ -115,12 +130,14 @@ class Playlist(Base):
     is_public   = Column(Integer, default=1)  # 1=public, 0=private
     created_at  = Column(String)
     updated_at  = Column(String)
+    live_id     = Column(Integer, ForeignKey("official_lives.id"), nullable=True)
 
-    user     = relationship("User")
-    songs    = relationship("PlaylistSong", back_populates="playlist",
-                            order_by="PlaylistSong.position", cascade="all, delete-orphan")
+    user      = relationship("User")
+    songs     = relationship("PlaylistSong", back_populates="playlist",
+                             order_by="PlaylistSong.position", cascade="all, delete-orphan")
     favorites = relationship("PlaylistFavorite", back_populates="playlist",
                              cascade="all, delete-orphan")
+    live      = relationship("OfficialLive", back_populates="playlists")
 
 class PlaylistSong(Base):
     __tablename__ = "playlist_songs"

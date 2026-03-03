@@ -192,13 +192,15 @@ def _optional_user(token: str = Depends(lambda: None), db: Session = Depends(get
 def list_playlists(
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
+    query: Optional[str] = Query(None),
     db: Session = Depends(get_db),
 ):
     offset = (page - 1) * per_page
+    q = db.query(models.Playlist).filter(models.Playlist.is_public == 1)
+    if query:
+        q = q.filter(models.Playlist.title.ilike(f"%{query}%"))
     playlists = (
-        db.query(models.Playlist)
-        .filter(models.Playlist.is_public == 1)
-        .order_by(models.Playlist.created_at.desc())
+        q.order_by(models.Playlist.created_at.desc())
         .offset(offset).limit(per_page)
         .all()
     )
@@ -299,7 +301,8 @@ def update_playlist(
     pl = db.query(models.Playlist).filter(models.Playlist.id == playlist_id).first()
     if not pl:
         raise HTTPException(status_code=404)
-    if pl.user_id != current_user.id:
+    # Non-admins can only edit their own playlists
+    if pl.user_id != current_user.id and not getattr(current_user, 'is_admin', False):
         raise HTTPException(status_code=403, detail="Not your playlist")
     if data.title is not None:
         pl.title = data.title
@@ -307,6 +310,9 @@ def update_playlist(
         pl.description = data.description
     if data.is_public is not None:
         pl.is_public = data.is_public
+    # Only admins can set/clear live_id (live_id=0 means unassign → set NULL)
+    if data.live_id is not None and getattr(current_user, 'is_admin', False):
+        pl.live_id = data.live_id if data.live_id > 0 else None
     pl.updated_at = datetime.utcnow().isoformat()
     db.commit()
     db.refresh(pl)

@@ -130,6 +130,7 @@ class UserBase(BaseModel):
     country: Optional[str] = None
     age_range: Optional[str] = None
     last_login: Optional[str] = None
+    is_admin: Optional[bool] = False
 
     class Config:
         orm_mode = True
@@ -207,6 +208,7 @@ class PlaylistUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     is_public: Optional[int] = None
+    live_id: Optional[int] = None  # admin-only; set/unset live assignment
 
 class PlaylistAddSong(BaseModel):
     song_id: int
@@ -239,3 +241,29 @@ class SongCommentOut(SongCommentBase):
 
     class Config:
         orm_mode = True
+
+# --- Official Live Schemas ---
+class OfficialLiveOut(BaseModel):
+    id: int
+    name: str
+    slug: str
+    description: Optional[str] = None
+    cover_url: Optional[str] = None
+    display_order: int = 0
+    created_at: Optional[str] = None
+    playlist_count: int = 0
+
+    class Config:
+        orm_mode = True
+
+class OfficialLiveCreate(BaseModel):
+    name: str
+    slug: str
+    description: Optional[str] = None
+    display_order: int = 0
+
+class OfficialLiveUpdate(BaseModel):
+    name: Optional[str] = None
+    slug: Optional[str] = None
+    description: Optional[str] = None
+    display_order: Optional[int] = None
