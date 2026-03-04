@@ -87,7 +87,7 @@ export default function CustomRankingFilters({ initialFilters, onApply }: Custom
                                         key={type}
                                         onClick={() => toggleType(type)}
                                         className={`px-3 py-1.5 text-xs font-bold tracking-widest transition-colors border ${active
-                                            ? 'border-white text-white bg-white/10'
+                                            ? 'border-[var(--vermilion)] text-[var(--vermilion)] bg-[var(--vermilion)]/10'
                                             : 'border-[var(--hairline-strong)] text-[var(--text-secondary)] hover:border-white/50 hover:text-white'
                                             }`}
                                     >
@@ -154,6 +154,7 @@ export default function CustomRankingFilters({ initialFilters, onApply }: Custom
                                 type="number"
                                 value={viewsMin}
                                 onChange={(e) => setViewsMin(e.target.value)}
+                                onKeyDown={(e) => { if (['+', '-', 'e', 'E'].includes(e.key)) e.preventDefault(); }}
                                 min="0"
                                 placeholder={t('placeholder_min_views') || "0"}
                                 className="w-full min-w-0 bg-black/40 border border-[var(--hairline-strong)] px-3 py-2 text-sm text-white focus:outline-none focus:border-[var(--vermilion)]"
@@ -165,6 +166,7 @@ export default function CustomRankingFilters({ initialFilters, onApply }: Custom
                                 type="number"
                                 value={viewsMax}
                                 onChange={(e) => setViewsMax(e.target.value)}
+                                onKeyDown={(e) => { if (['+', '-', 'e', 'E'].includes(e.key)) e.preventDefault(); }}
                                 min="0"
                                 placeholder={t('placeholder_max_views') || "∞"}
                                 className="w-full min-w-0 bg-black/40 border border-[var(--hairline-strong)] px-3 py-2 text-sm text-white focus:outline-none focus:border-[var(--vermilion)]"

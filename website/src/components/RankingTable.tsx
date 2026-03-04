@@ -135,7 +135,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                     <span key={artist.id} className="flex items-center">
                         <Link
                             href={`/artist/${artist.id}`}
-                            className="text-gray-400 hover:text-[var(--miku-teal)] transition-colors"
+                            className="text-gray-400 hover:text-white transition-colors"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {artist.name}
@@ -268,7 +268,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                     const increment = getIncrement(song);
 
                     return (
-                        <div key={song.id} className="group hairline-border p-4 bg-transparent active:bg-[var(--hairline)] transition-colors block cursor-pointer" onClick={() => router.push(`/song/${song.id}` as any)}>
+                        <div key={song.id} className="hairline-border p-4 bg-transparent transition-colors block">
                             <div className="flex items-center gap-4">
                                 {/* Rank */}
                                 {showRank && (
@@ -296,9 +296,9 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
 
                                 {/* Info */}
                                 <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                    <div className="font-bold text-sm text-white line-clamp-1 leading-relaxed mb-1 group-hover:text-[var(--gold)] transition-colors tracking-wide">
+                                    <Link href={`/song/${song.id}`} className="font-bold text-sm text-white line-clamp-1 leading-relaxed mb-1 hover:text-[var(--gold)] transition-colors tracking-wide block">
                                         {getSongName(song)}
-                                    </div>
+                                    </Link>
                                     <div className="text-[11px] text-[var(--text-secondary)] flex flex-wrap items-center gap-2 min-w-0">
                                         <div className="flex-shrink-0">{formatSongType(song.song_type)}</div>
                                         <div className="truncate min-w-0">{renderArtistList(song.artists)}</div>
@@ -366,12 +366,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                             return (
                                 <tr
                                     key={song.id}
-                                    className={`
-                                        group bg-transparent border-b border-[var(--hairline)]
-                                        hover:bg-[var(--hairline)] hover:cursor-pointer
-                                        transition-colors duration-300
-                                    `}
-                                    onClick={() => router.push(`/song/${song.id}`)}
+                                    className="bg-transparent border-b border-[var(--hairline)] transition-colors duration-300"
                                 >
                                     {showRank && (
                                         <td className="py-4 pl-4 text-center align-middle">
@@ -399,9 +394,9 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                         </div>
                                     </td>
                                     <td className="py-4 pl-2 pr-4 text-ellipsis overflow-hidden">
-                                        <div className="font-bold text-white text-base mb-1.5 line-clamp-1 group-hover:text-[var(--gold)] transition-colors tracking-wide w-full" title={getSongName(song) ?? ""}>
+                                        <Link href={`/song/${song.id}`} className="font-bold text-white text-base mb-1.5 line-clamp-1 hover:text-[var(--gold)] transition-colors tracking-wide w-full block" title={getSongName(song) ?? ""}>
                                             {getSongName(song)}
-                                        </div>
+                                        </Link>
                                         <div className="flex flex-col gap-1.5 w-full">
                                             <div className="text-[11px] text-[var(--text-secondary)] flex items-center gap-2 min-w-0 w-full">
                                                 <div className="w-[72px] flex-shrink-0">
@@ -427,7 +422,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                         {formatDate(song.publish_date)}
                                     </td>
                                     <td className={`py-4 text-right font-mono text-base tracking-wider ${(mode !== 'total' && mode !== 'custom') ? 'pr-6' : 'pr-4'}`}>
-                                        <div className="text-white group-hover:text-[var(--gold)] transition-colors duration-300">
+                                        <div className="text-white">
                                             {(getViews(song) || 0).toLocaleString()}
                                         </div>
                                     </td>
