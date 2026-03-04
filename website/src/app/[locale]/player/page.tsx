@@ -68,8 +68,6 @@ export default function PlayerPage() {
     const lastYoutubeIdRef = useRef<string | undefined>(undefined);
     // Detect blocked autoplay (iOS/Android silently ignores playVideo() without user gesture).
     // onPlay sets this true; if it never fires within the timeout we correct isPlaying to false.
-    const hasPlayStartedRef = useRef(false);
-    const autoplayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
         setIsMounted(true);
@@ -268,25 +266,6 @@ export default function PlayerPage() {
         }
     }, [currentSong?.youtube_id]);
 
-    // Blocked-autoplay correction: iOS/Android silently ignores playVideo() when there is no
-    // recent user gesture (e.g. async playlist load in a new tab). If isPlaying is true but the
-    // player's onPlay event never fires within 2 s, the browser blocked it — correct the state.
-    useEffect(() => {
-        if (!isMounted || isNicoSong) return;
-        if (autoplayTimerRef.current) clearTimeout(autoplayTimerRef.current);
-        if (isPlaying) {
-            hasPlayStartedRef.current = false;
-            autoplayTimerRef.current = setTimeout(() => {
-                if (!hasPlayStartedRef.current) {
-                    setIsPlaying(false);
-                }
-            }, 2000);
-        }
-        return () => {
-            if (autoplayTimerRef.current) clearTimeout(autoplayTimerRef.current);
-        };
-    }, [isPlaying, isNicoSong, currentSong?.id, isMounted, setIsPlaying]);
-
     // NicoNico postMessage listener
     useEffect(() => {
         if (!isNicoSong) return;
@@ -398,11 +377,6 @@ export default function PlayerPage() {
                                         onDuration={handleDuration}
                                         onReady={handleReady}
                                         onPlay={() => {
-                                            hasPlayStartedRef.current = true;
-                                            if (autoplayTimerRef.current) {
-                                                clearTimeout(autoplayTimerRef.current);
-                                                autoplayTimerRef.current = null;
-                                            }
                                             setIsPlaying(true);
                                         }}
                                         onPause={() => { if (!isNicoSong) setIsPlaying(false); }}
