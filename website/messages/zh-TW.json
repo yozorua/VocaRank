@@ -262,7 +262,8 @@
         "loop_list": "循環：清單",
         "loop_song": "循環：單曲",
         "shuffle_on": "隨機：開",
-        "shuffle_off": "隨機：關"
+        "shuffle_off": "隨機：關",
+        "tap_to_play": "點擊影片以開始播放"
     },
     "Playlist": {
         "title": "播放清單",

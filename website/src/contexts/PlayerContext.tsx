@@ -58,11 +58,10 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
             if (savedVolume) setVolumeState(parseFloat(savedVolume));
 
             const savedIsPlaying = localStorage.getItem('vocarank_isPlaying');
-            const isMobile = window.innerWidth <= 768;
-            if (savedIsPlaying === 'true' && !isMobile) {
+            // Restore playing state on all devices. The player page detects blocked autoplay
+            // (iOS/Android) via a timeout and corrects isPlaying to false if needed.
+            if (savedIsPlaying === 'true') {
                 setIsPlaying(true);
-            } else if (isMobile) {
-                setIsPlaying(false);
             }
         } catch (e) {
             console.error('Failed to parse player state', e);

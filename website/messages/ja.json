@@ -262,7 +262,8 @@
         "loop_list": "ループ：リスト",
         "loop_song": "ループ：シングル",
         "shuffle_on": "シャッフル：オン",
-        "shuffle_off": "シャッフル：オフ"
+        "shuffle_off": "シャッフル：オフ",
+        "tap_to_play": "動画をタップして再生"
     },
     "Playlist": {
         "title": "プレイリスト",

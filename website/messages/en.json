@@ -258,7 +258,8 @@
         "loop_list": "Loop List",
         "loop_song": "Loop Song",
         "shuffle_on": "Shuffle On",
-        "shuffle_off": "Shuffle Off"
+        "shuffle_off": "Shuffle Off",
+        "tap_to_play": "Tap on the video to play"
     },
     "Playlist": {
         "title": "Playlists",
