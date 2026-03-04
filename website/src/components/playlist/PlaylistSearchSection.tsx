@@ -28,28 +28,43 @@ type Playlist = {
 
 type Props = {
     initialPlaylists: Playlist[];
+    initialTotal: number;
+    browseLabel: string;
 };
 
-export default function PlaylistSearchSection({ initialPlaylists }: Props) {
+const PAGE_SIZE = 10;
+
+export default function PlaylistSearchSection({ initialPlaylists, initialTotal, browseLabel }: Props) {
     const t = useTranslations('Playlist');
     const [query, setQuery] = useState('');
     const [playlists, setPlaylists] = useState<Playlist[]>(initialPlaylists);
+    const [total, setTotal] = useState(initialTotal);
+    const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+    // Fetch first page + total when query changes
     useEffect(() => {
         if (debounceRef.current) clearTimeout(debounceRef.current);
         debounceRef.current = setTimeout(async () => {
             setLoading(true);
             try {
-                const url = query.trim()
-                    ? `${API_BASE_URL}/playlists?per_page=40&query=${encodeURIComponent(query)}`
-                    : `${API_BASE_URL}/playlists?per_page=40`;
-                const res = await fetch(url);
-                if (res.ok) {
-                    const data = await res.json();
-                    setPlaylists(data);
+                const q = query.trim();
+                const baseUrl = q
+                    ? `${API_BASE_URL}/playlists?per_page=${PAGE_SIZE}&query=${encodeURIComponent(q)}`
+                    : `${API_BASE_URL}/playlists?per_page=${PAGE_SIZE}`;
+                const countUrl = q
+                    ? `${API_BASE_URL}/playlists/count?query=${encodeURIComponent(q)}`
+                    : `${API_BASE_URL}/playlists/count`;
+
+                const [listRes, countRes] = await Promise.all([fetch(baseUrl), fetch(countUrl)]);
+                if (listRes.ok) setPlaylists(await listRes.json());
+                if (countRes.ok) {
+                    const cd = await countRes.json();
+                    setTotal(cd.total ?? 0);
                 }
+                setPage(1);
             } catch {
                 // keep current list on error
             } finally {
@@ -59,8 +74,40 @@ export default function PlaylistSearchSection({ initialPlaylists }: Props) {
         return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
     }, [query]);
 
+    const loadMore = async () => {
+        setLoadingMore(true);
+        try {
+            const nextPage = page + 1;
+            const q = query.trim();
+            const url = q
+                ? `${API_BASE_URL}/playlists?per_page=${PAGE_SIZE}&page=${nextPage}&query=${encodeURIComponent(q)}`
+                : `${API_BASE_URL}/playlists?per_page=${PAGE_SIZE}&page=${nextPage}`;
+            const res = await fetch(url);
+            if (res.ok) {
+                const more: Playlist[] = await res.json();
+                setPlaylists(prev => [...prev, ...more]);
+                setPage(nextPage);
+            }
+        } catch {
+            // keep current list on error
+        } finally {
+            setLoadingMore(false);
+        }
+    };
+
+    const hasMore = playlists.length < total;
+
     return (
         <div className="flex flex-col gap-4">
+            {/* Section heading */}
+            <div className="flex items-center gap-4">
+                <h2 className="text-sm md:text-base font-bold tracking-[0.05em] text-[var(--text-secondary)] flex-shrink-0">
+                    {browseLabel}
+                </h2>
+                <span className="text-xs text-[var(--text-secondary)] opacity-40 flex-shrink-0">({total})</span>
+                <div className="flex-1 h-px bg-[var(--hairline)]" />
+            </div>
+
             {/* Search bar */}
             <div className="relative flex items-center max-w-sm">
                 <svg
@@ -94,11 +141,25 @@ export default function PlaylistSearchSection({ initialPlaylists }: Props) {
                     {t('no_playlists')}
                 </div>
             ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                    {playlists.map(pl => (
-                        <PlaylistCard key={pl.id} playlist={pl} />
-                    ))}
-                </div>
+                <>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        {playlists.map(pl => (
+                            <PlaylistCard key={pl.id} playlist={pl} />
+                        ))}
+                    </div>
+
+                    {hasMore && (
+                        <div className="flex justify-center pt-2">
+                            <button
+                                onClick={loadMore}
+                                disabled={loadingMore}
+                                className="px-6 py-2 text-xs tracking-[0.2em] text-[var(--text-secondary)] border border-[var(--hairline-strong)] hover:text-white hover:border-white/30 transition-all disabled:opacity-50"
+                            >
+                                {loadingMore ? '…' : t('show_more')}
+                            </button>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );

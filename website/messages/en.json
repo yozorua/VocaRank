@@ -335,7 +335,8 @@
     "live_cover_label": "Cover Image",
     "live_save_error": "Failed to save.",
     "live_cover_removed": "Cover will be removed",
-    "live_delete_confirm": "Delete \"{name}\"? All playlist assignments will be cleared."
+    "live_delete_confirm": "Delete \"{name}\"? All playlist assignments will be cleared.",
+    "show_more": "Show More"
   },
   "Footer": {
     "footer_source": "Song and artist data powered by <vocadb>VocaDB</vocadb>. View counts collected from YouTube & Niconico.",

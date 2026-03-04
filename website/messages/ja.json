@@ -339,7 +339,8 @@
     "live_cover_label": "カバー画像",
     "live_save_error": "保存に失敗しました。",
     "live_cover_removed": "カバーが削除されます",
-    "live_delete_confirm": "「{name}」を削除しますか？すべてのプレイリスト割り当てが解除されます。"
+    "live_delete_confirm": "「{name}」を削除しますか？すべてのプレイリスト割り当てが解除されます。",
+    "show_more": "もっと見る"
   },
   "Footer": {
     "footer_source": "楽曲・アーティストデータは <vocadb>VocaDB</vocadb> の提供によるものです。再生数は YouTube と Niconico から収集しています。",

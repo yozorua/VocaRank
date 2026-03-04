@@ -21,11 +21,22 @@ const API = process.env.API_URL_INTERNAL || process.env.NEXT_PUBLIC_API_URL || '
 
 async function fetchPublicPlaylists() {
     try {
-        const res = await fetch(`${API}/playlists?per_page=40`, { cache: 'no-store' });
+        const res = await fetch(`${API}/playlists?per_page=10`, { cache: 'no-store' });
         if (!res.ok) return [];
         return res.json();
     } catch {
         return [];
+    }
+}
+
+async function fetchPublicPlaylistCount() {
+    try {
+        const res = await fetch(`${API}/playlists/count`, { cache: 'no-store' });
+        if (!res.ok) return 0;
+        const data = await res.json();
+        return data.total as number;
+    } catch {
+        return 0;
     }
 }
 
@@ -71,8 +82,9 @@ export default async function PlaylistPage() {
     const session = await getServerSession(authOptions);
     const apiToken = session?.apiToken as string | undefined;
 
-    const [publicPlaylists, myPlaylists, favoritedPlaylists, officialLives] = await Promise.all([
+    const [publicPlaylists, publicPlaylistCount, myPlaylists, favoritedPlaylists, officialLives] = await Promise.all([
         fetchPublicPlaylists(),
+        fetchPublicPlaylistCount(),
         apiToken ? fetchMyPlaylists(apiToken) : Promise.resolve([]),
         apiToken ? fetchFavoritePlaylists(apiToken) : Promise.resolve([]),
         fetchOfficialLives(),
@@ -109,8 +121,13 @@ export default async function PlaylistPage() {
                     )}
                 </div>
 
-                {/* Official Lives — client component so admin controls & modals work */}
-                <OfficialLivesSection initialLives={officialLives} />
+                {/* Favorited Playlists — collapsible, default open */}
+                <CollapsiblePlaylistSection
+                    label={t('favorited')}
+                    storageKey="playlist_section_favorited"
+                    playlists={favoritedPlaylists}
+                    defaultOpen={true}
+                />
 
                 {/* My Playlists — collapsible, default open */}
                 <CollapsiblePlaylistSection
@@ -120,20 +137,15 @@ export default async function PlaylistPage() {
                     defaultOpen={true}
                 />
 
-                {/* Favorited Playlists — collapsible, default open */}
-                <CollapsiblePlaylistSection
-                    label={t('favorited')}
-                    storageKey="playlist_section_favorited"
-                    playlists={favoritedPlaylists}
-                    defaultOpen={true}
-                />
+                {/* Official Lives — client component so admin controls & modals work */}
+                <OfficialLivesSection initialLives={officialLives} />
+
+                {/* Separator */}
+                <div className="border-t border-[var(--hairline)]" />
 
                 {/* Browse Playlists with search */}
                 <div className="flex flex-col gap-4">
-                    <h2 className="text-sm font-semibold text-[var(--text-secondary)] tracking-[0.3em]">
-                        {t('browse')}
-                    </h2>
-                    <PlaylistSearchSection initialPlaylists={publicPlaylists} />
+                    <PlaylistSearchSection initialPlaylists={publicPlaylists} initialTotal={publicPlaylistCount} browseLabel={t('browse')} />
                 </div>
 
             </div>

@@ -55,14 +55,14 @@ export default function OfficialLivesSection({ initialLives }: Props) {
     return (
         <div className="flex flex-col gap-3">
             {/* Section header — clickable to toggle */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
                 <button
                     onClick={() => setOpen(v => {
                         const next = !v;
                         try { localStorage.setItem('playlist_section_lives', String(next)); } catch { /* */ }
                         return next;
                     })}
-                    className="flex items-center gap-2 group"
+                    className="flex items-center gap-2 group flex-shrink-0"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -73,15 +73,16 @@ export default function OfficialLivesSection({ initialLives }: Props) {
                     >
                         <polyline points="6 9 12 15 18 9" />
                     </svg>
-                    <h2 className="text-sm font-semibold text-[var(--text-secondary)] tracking-[0.3em] group-hover:text-white transition-colors">
+                    <h2 className="text-sm md:text-base font-bold tracking-[0.05em] text-[var(--text-secondary)] group-hover:text-white transition-colors">
                         {t('official_lives')}
                     </h2>
                     <span className="text-xs text-[var(--text-secondary)] opacity-40">({lives.length})</span>
                 </button>
+                <div className="flex-1 h-px bg-[var(--hairline)]" />
                 {isAdmin && (
                     <button
                         onClick={handleAdd}
-                        className="text-xs text-[var(--text-secondary)] hover:text-[var(--vermilion)] border border-[var(--hairline)] hover:border-[var(--vermilion)]/40 px-3 py-1.5 transition-all"
+                        className="text-xs text-[var(--text-secondary)] hover:text-[var(--vermilion)] border border-[var(--hairline)] hover:border-[var(--vermilion)]/40 px-3 py-1.5 transition-all flex-shrink-0"
                     >
                         + {t('add_live')}
                     </button>

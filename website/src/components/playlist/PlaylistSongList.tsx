@@ -49,6 +49,51 @@ export default function PlaylistSongList({ songs: initialSongs, playlistId, apiT
     const dragIdx = useRef<number | null>(null);
     const dragOverIdx = useRef<number | null>(null);
     const [dragOver, setDragOver] = useState<number | null>(null);
+    const isDragging = useRef(false);
+    const scrollRafRef = useRef<number | null>(null);
+
+    // Auto-scroll when dragging near viewport edges
+    useEffect(() => {
+        const EDGE = 80;   // px from top/bottom that triggers scroll
+        const MAX_SPEED = 18; // max px per frame
+
+        const onDragOver = (e: DragEvent) => {
+            if (!isDragging.current) return;
+            e.preventDefault();
+            const y = e.clientY;
+            const vh = window.innerHeight;
+
+            let speed = 0;
+            if (y < EDGE) speed = -MAX_SPEED * (1 - y / EDGE);
+            else if (y > vh - EDGE) speed = MAX_SPEED * ((y - (vh - EDGE)) / EDGE);
+
+            if (scrollRafRef.current !== null) cancelAnimationFrame(scrollRafRef.current);
+            if (speed !== 0) {
+                const scroll = () => {
+                    window.scrollBy(0, speed);
+                    scrollRafRef.current = requestAnimationFrame(scroll);
+                };
+                scrollRafRef.current = requestAnimationFrame(scroll);
+            }
+        };
+
+        const stopScroll = () => {
+            if (scrollRafRef.current !== null) {
+                cancelAnimationFrame(scrollRafRef.current);
+                scrollRafRef.current = null;
+            }
+        };
+
+        document.addEventListener('dragover', onDragOver);
+        document.addEventListener('dragend', stopScroll);
+        document.addEventListener('drop', stopScroll);
+        return () => {
+            document.removeEventListener('dragover', onDragOver);
+            document.removeEventListener('dragend', stopScroll);
+            document.removeEventListener('drop', stopScroll);
+            stopScroll();
+        };
+    }, []);
 
     const authHeaders = {
         Authorization: `Bearer ${apiToken}`,
@@ -84,6 +129,7 @@ export default function PlaylistSongList({ songs: initialSongs, playlistId, apiT
     // ── Drag handlers ──
     const onDragStart = (idx: number) => {
         dragIdx.current = idx;
+        isDragging.current = true;
     };
 
     const onDragEnter = (idx: number) => {
@@ -92,6 +138,7 @@ export default function PlaylistSongList({ songs: initialSongs, playlistId, apiT
     };
 
     const onDragEnd = () => {
+        isDragging.current = false;
         const from = dragIdx.current;
         const to = dragOverIdx.current;
         dragIdx.current = null;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
@@ -12,6 +12,7 @@ type SearchResult = {
     name_english?: string | null;
     name_japanese?: string | null;
     artist_string: string;
+    song_type?: string | null;
     youtube_id?: string | null;
     niconico_thumb_url?: string | null;
 };
@@ -34,6 +35,16 @@ export default function AddSongToPlaylist({ playlistId, placeholder, addLabel, a
     const [adding, setAdding] = useState<number | null>(null);
     const [addedIds, setAddedIds] = useState<Set<number>>(new Set(existingSongIds));
     const [debounce, setDebounce] = useState<ReturnType<typeof setTimeout> | null>(null);
+
+    // Sync addedIds when existingSongIds changes (e.g. after a song is deleted via PlaylistSongList)
+    useEffect(() => {
+        setAddedIds(prev => {
+            const next = new Set(existingSongIds);
+            // Preserve any optimistically-added IDs that aren't in the server list yet
+            // (i.e. IDs the user just added but the refresh hasn't landed yet)
+            return next;
+        });
+    }, [existingSongIds]);
 
     if (!session) return null;
 
@@ -70,6 +81,15 @@ export default function AddSongToPlaylist({ playlistId, placeholder, addLabel, a
         } finally {
             setAdding(null);
         }
+    };
+
+    const formatSongType = (type: string | null | undefined) => {
+        if (!type) return null;
+        if (type === 'Original') return <span className="text-[var(--cyan-subtle)] font-bold uppercase text-[9px] tracking-widest shrink-0">ORIGINAL</span>;
+        if (type === 'Cover') return <span className="text-[#E8954A] font-bold uppercase text-[9px] tracking-widest shrink-0">COVER</span>;
+        if (type === 'Remix') return <span className="text-[var(--gold)] font-bold uppercase text-[9px] tracking-widest shrink-0">REMIX</span>;
+        if (type === 'Remaster') return <span className="text-[#B284BE] font-bold uppercase text-[9px] tracking-widest shrink-0">REMASTER</span>;
+        return <span className="text-[var(--text-secondary)] font-bold uppercase text-[9px] tracking-widest shrink-0">{type.toUpperCase()}</span>;
     };
 
     const clearSearch = () => {
@@ -137,7 +157,11 @@ export default function AddSongToPlaylist({ playlistId, placeholder, addLabel, a
                                 )}
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm text-white truncate">{title}</p>
-                                    <p className="text-xs text-[var(--text-secondary)] truncate">{artistDisplay}</p>
+                                    <div className="flex items-center gap-1.5 min-w-0">
+                                        {formatSongType(song.song_type)}
+                                        {song.song_type && artistDisplay && <span className="text-[var(--text-secondary)] opacity-30 text-[9px]">·</span>}
+                                        <p className="text-xs text-[var(--text-secondary)] truncate">{artistDisplay}</p>
+                                    </div>
                                 </div>
                                 <span className={`text-[10px] shrink-0 font-medium ${isAdded ? 'text-[var(--text-secondary)]' : 'text-[var(--vermilion)]'}`}>
                                     {adding === song.id ? '...' : isAdded ? `✓ ${alreadyAddedLabel}` : `+ ${addLabel}`}

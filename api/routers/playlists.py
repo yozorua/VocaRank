@@ -186,6 +186,19 @@ def _optional_user(token: str = Depends(lambda: None), db: Session = Depends(get
     return None  # public endpoints override via separate dep
 
 
+# ── GET /playlists/count — total public playlist count ────────────────────────
+
+@router.get("/count")
+def count_playlists(
+    query: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+):
+    q = db.query(models.Playlist).filter(models.Playlist.is_public == 1)
+    if query:
+        q = q.filter(models.Playlist.title.ilike(f"%{query}%"))
+    return {"total": q.count()}
+
+
 # ── GET /playlists/ — browse public playlists ─────────────────────────────────
 
 @router.get("", response_model=list[schemas.PlaylistOut])

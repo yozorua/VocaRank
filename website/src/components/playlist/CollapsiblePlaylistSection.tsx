@@ -51,21 +51,24 @@ export default function CollapsiblePlaylistSection({ label, storageKey, playlist
 
     return (
         <div className="flex flex-col gap-3">
-            <button onClick={toggle} className="flex items-center gap-2 group w-fit">
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="11" height="11"
-                    viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" strokeWidth="2.5"
-                    className={`text-[var(--text-secondary)] transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-                >
-                    <polyline points="6 9 12 15 18 9" />
-                </svg>
-                <h2 className="text-sm font-semibold text-[var(--text-secondary)] tracking-[0.3em] group-hover:text-white transition-colors">
-                    {label}
-                </h2>
-                <span className="text-xs text-[var(--text-secondary)] opacity-40">({playlists.length})</span>
-            </button>
+            <div className="flex items-center gap-4">
+                <button onClick={toggle} className="flex items-center gap-2 group flex-shrink-0">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="11" height="11"
+                        viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" strokeWidth="2.5"
+                        className={`text-[var(--text-secondary)] transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+                    >
+                        <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                    <h2 className="text-sm md:text-base font-bold tracking-[0.05em] text-[var(--text-secondary)] group-hover:text-white transition-colors">
+                        {label}
+                    </h2>
+                    <span className="text-xs text-[var(--text-secondary)] opacity-40">({playlists.length})</span>
+                </button>
+                <div className="flex-1 h-px bg-[var(--hairline)]" />
+            </div>
 
             {open && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">

@@ -339,7 +339,8 @@
     "live_cover_label": "封面圖片",
     "live_save_error": "儲存失敗。",
     "live_cover_removed": "封面將被移除",
-    "live_delete_confirm": "刪除「{name}」？所有播放清單指定將被清除。"
+    "live_delete_confirm": "刪除「{name}」？所有播放清單指定將被清除。",
+    "show_more": "顯示更多"
   },
   "Footer": {
     "footer_source": "歌曲及創作者資料由 <vocadb>VocaDB</vocadb> 提供支持。播放數據收集自 YouTube 及 Niconico。",
