@@ -512,7 +512,11 @@ export default function AboutClient({ founder: initialFounder, initialAnnounceme
                 {/* Filter tabs */}
                 <div className="flex mb-4 border-b border-[var(--hairline)]">
                     {(['all', 'bug', 'feature'] as const).map(f => (
-                        <button key={f} onClick={() => setReportFilter(f)} className={`px-4 py-2 text-xs font-bold transition-colors border-b-2 -mb-px ${reportFilter === f ? 'border-[var(--vermilion)] text-white' : 'border-transparent text-[var(--text-secondary)] hover:text-white'}`}>
+                        <button key={f} onClick={() => {
+                            setReportFilter(f);
+                            setShowForm(false);
+                            if (f !== 'all') setReportForm(prev => ({ ...prev, report_type: f }));
+                        }} className={`px-4 py-2 text-xs font-bold transition-colors border-b-2 -mb-px ${reportFilter === f ? 'border-[var(--vermilion)] text-white' : 'border-transparent text-[var(--text-secondary)] hover:text-white'}`}>
                             {f === 'all' ? t('all') : f === 'bug' ? t('filter_bugs') : t('filter_features')}
                         </button>
                     ))}
@@ -588,7 +592,7 @@ export default function AboutClient({ founder: initialFounder, initialAnnounceme
                 {userId ? (
                     <div>
                         {!showForm ? (
-                            <button onClick={() => setShowForm(true)} className="flex items-center gap-2 text-xs text-[var(--text-secondary)] hover:text-white border border-[var(--hairline)] px-4 py-2 transition-colors hover:border-[var(--hairline-strong)]">
+                            <button onClick={() => { setReportForm(f => ({ ...f, report_type: reportFilter === 'all' ? 'bug' : reportFilter })); setShowForm(true); }} className="flex items-center gap-2 text-xs text-[var(--text-secondary)] hover:text-white border border-[var(--hairline)] px-4 py-2 transition-colors hover:border-[var(--hairline-strong)]">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                                 {t('submit_report')}
                             </button>

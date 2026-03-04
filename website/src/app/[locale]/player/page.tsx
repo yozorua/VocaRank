@@ -66,8 +66,7 @@ export default function PlayerPage() {
     // Track last YouTube ID so ReactPlayer stays mounted (with a URL) even during Niconico songs.
     // This preserves iOS WebKit's autoplay activation on the player element across song transitions.
     const lastYoutubeIdRef = useRef<string | undefined>(undefined);
-    // Detect blocked autoplay (iOS/Android silently ignores playVideo() without user gesture).
-    // onPlay sets this true; if it never fires within the timeout we correct isPlaying to false.
+    const premuteVolumeRef = useRef<number>(0.5);
 
     useEffect(() => {
         setIsMounted(true);
@@ -216,7 +215,12 @@ export default function PlayerPage() {
                 toggleFullscreen();
             } else if (e.key === 'm' || e.key === 'M') {
                 e.preventDefault();
-                setVolume(volume === 0 ? 0.8 : 0);
+                if (volume === 0) {
+                    setVolume(premuteVolumeRef.current);
+                } else {
+                    premuteVolumeRef.current = volume;
+                    setVolume(0);
+                }
             }
         };
 
@@ -561,7 +565,14 @@ export default function PlayerPage() {
                                 <div className="hidden sm:flex items-center group/volume gap-3 w-32 border border-transparent hover:border-white/10 rounded-full pl-0 pr-2 py-1 transition-all">
                                     <button
                                         className="text-[var(--text-secondary)] hover:text-white transition-colors"
-                                        onClick={() => setVolume(volume === 0 ? 0.5 : 0)}
+                                        onClick={() => {
+                                            if (volume === 0) {
+                                                setVolume(premuteVolumeRef.current);
+                                            } else {
+                                                premuteVolumeRef.current = volume;
+                                                setVolume(0);
+                                            }
+                                        }}
                                     >
                                         {volume === 0 ? (
                                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
