@@ -299,9 +299,9 @@ export default function AboutClient({ founder: initialFounder, initialAnnounceme
 
     // ── Derived ────────────────────────────────────────────────────────────────
 
-    const filteredReports = reports.filter(r =>
-        reportFilter === 'all' || r.report_type === reportFilter
-    );
+    const filteredReports = reports
+        .filter(r => reportFilter === 'all' || r.report_type === reportFilter)
+        .sort((a, b) => b.upvote_count - a.upvote_count);
 
     const reportTypeLabel = (type: string) => type === 'bug' ? t('bug') : t('feature');
     const reportStatusLabel = (s: string) => s === 'open' ? t('status_open') : s === 'resolved' ? t('status_resolved') : t('status_closed');
@@ -626,7 +626,7 @@ export default function AboutClient({ founder: initialFounder, initialAnnounceme
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[var(--text-secondary)] flex-shrink-0"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
                         <p className="text-sm text-[var(--text-secondary)]">
                             {t('login_to_submit')}{' '}
-                            <Link href="/login" className="text-[var(--vermilion)] hover:underline">{t('login')}</Link>
+                            <a href={`/api/auth/signin?callbackUrl=/${locale}/about`} className="text-[var(--vermilion)] hover:underline">{t('login')}</a>
                         </p>
                     </div>
                 )}
