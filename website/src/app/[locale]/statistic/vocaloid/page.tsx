@@ -25,6 +25,12 @@ export default async function VocaloidStatisticPage() {
             </div>
 
             <VocaloidStatsClient />
+
+            <footer className="border-t border-[var(--hairline)] pt-4 pb-2">
+                <p className="text-xs text-[var(--text-secondary)] opacity-60 text-center leading-relaxed">
+                    {t('caption')}
+                </p>
+            </footer>
         </main>
     );
 }

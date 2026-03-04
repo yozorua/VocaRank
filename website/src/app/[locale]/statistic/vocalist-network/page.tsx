@@ -27,6 +27,12 @@ export default async function VocalistGraphPage() {
             <div className="flex-1 w-full relative border border-[var(--hairline-strong)] bg-black/50 overflow-hidden min-h-[600px] md:min-h-[800px]">
                 <ArtistGraphClient apiEndpoint="/artists/graph/vocalists" defaultShowLines={false} />
             </div>
+
+            <footer className="border-t border-[var(--hairline)] pt-4 pb-2 mt-4">
+                <p className="text-xs text-[var(--text-secondary)] opacity-60 text-center leading-relaxed">
+                    {t('caption')}
+                </p>
+            </footer>
         </main>
     );
 }
