@@ -311,7 +311,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                       </div>
                       <div className="flex flex-col gap-0.5 px-0.5">
                         <p className="text-xs font-semibold text-white truncate group-hover:text-[var(--gold)] transition-colors leading-snug" title={title}>{title}</p>
-                        <p className="text-[10px] text-[var(--text-secondary)] truncate leading-snug">{song.artist_string}</p>
+                        <p className="text-[10px] text-[var(--text-secondary)] truncate leading-snug">{song.artists?.map(a => a.name).join(' · ') || song.artist_string?.replace(/, /g, ' · ')}</p>
                       </div>
                     </Link>
                   );
