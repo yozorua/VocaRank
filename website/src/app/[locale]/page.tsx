@@ -377,7 +377,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             <div className="absolute -top-[1px] -left-[1px] w-4 h-4 border-t-2 border-l-2 border-[var(--vermilion)] opacity-60" />
             <div className="absolute -bottom-[1px] -right-[1px] w-4 h-4 border-b-2 border-r-2 border-[var(--vermilion)] opacity-60" />
             <div className="flex gap-8 md:gap-16 items-start">
-              <div className="hidden md:flex vertical-text text-[var(--vermilion)] text-[10px] tracking-[0.5em] opacity-60 select-none shrink-0">VocaRank について</div>
+              <div className="hidden md:flex vertical-text text-[var(--vermilion)] text-[10px] tracking-[0.5em] opacity-60 select-none shrink-0">VOCARANK について</div>
               <div className="flex-1 flex flex-col gap-4">
                 <h2 className="text-lg font-bold tracking-[0.05em] text-white">{t('about_title')}</h2>
                 <div className="w-12 h-px bg-[var(--vermilion)] opacity-60" />

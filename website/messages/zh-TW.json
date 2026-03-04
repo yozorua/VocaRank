@@ -34,7 +34,7 @@
     "feature_explore": "探索",
     "section_about": "關於 VocaRank",
     "about_title": "VocaRank 是什麼？",
-    "about_body": "VocaRank 是實時更新的 Vocaloid 歌曲排行榜平台。每小時彙整來自 YouTube 和 Niconico 的觀看數據，除了能探索 Vocaloid 音樂的最新熱門趨勢，同時也記錄每首歌曲從過去到現在的變化。\n\nVocaRank 不只是一個單純的排行榜網站，我們結合由社群驅動的 VocaDB 資料庫（收錄超過 85 萬首歌曲與 14 萬名創作者），讓使用者能深入探索 V 家的龐大音樂社群。除了提供近期的熱門榜單，網站更記載長期的數據分析結果，包含聲庫使用率的變化，以及創作者間的合作關係視覺化的互動式網路關係圖。\n\n網站內建精心設計的音樂播放器，你可以隨時聆聽從知名神曲到最新熱門的各種曲目，並建立與分享專屬的播放清單。這是一個讓所有 Vocaloid 粉絲都能追溯歷史軌跡、發掘最新歌曲，並深度探索 V 家音樂魅力的平台。",
+    "about_body": "VocaRank 是實時更新的 Vocaloid 歌曲排行榜平台。每小時彙整來自 YouTube 和 Niconico 的觀看數據，除了能探索 Vocaloid 音樂的最新熱門趨勢，同時也記錄每首歌曲從過去到現在的變化。\n\nVocaRank 不只是一個單純的排行榜網站，我們結合由社群驅動的 VocaDB 資料庫，讓使用者能深入探索 V 家的龐大音樂社群。除了提供近期的熱門榜單，網站更記載長期的數據分析結果，包含聲庫使用率的變化，以及創作者間的合作關係視覺化的互動式網路關係圖。\n\n網站內建精心設計的音樂播放器，你可以隨時聆聽從知名神曲到最新熱門的各種曲目，並建立與分享專屬的播放清單。這是一個讓所有 Vocaloid 粉絲都能追溯歷史軌跡、發掘最新歌曲，並深度探索 V 家音樂魅力的平台。",
     "about_placeholder_note": "Preview stage"
   },
   "HomePage": {
@@ -70,13 +70,13 @@
   },
   "CustomRanking": {
     "title": "自訂排行榜參數",
-    "search_artist_placeholder": "搜尋想加入的歌手/聲庫...",
+    "search_artist_placeholder": "搜尋想加入的創作者/聲庫...",
     "label_song_types": "歌曲類型",
     "label_min_views": "最低觀看數",
     "label_max_views": "最高觀看數",
     "label_date_start": "開始日期",
     "label_date_end": "結束日期",
-    "label_required_artists": "指定歌手",
+    "label_required_artists": "指定創作者",
     "apply": "套用",
     "placeholder_min_views": "0",
     "placeholder_max_views": "總觀看數",
@@ -221,7 +221,7 @@
   "GraphVocalist": {
     "title": "虛擬歌手關係圖",
     "description": "探索多個虛擬歌手在歌曲中合作的人際網絡。",
-    "caption": "每個節點代表一個合成聲樂音源，連線代表兩個音源曾共同出現於同一首歌曲中。節點大小由所選權重決定。"
+    "caption": "每個節點代表一個虛擬歌手，連線代表兩個虛擬歌手曾共同出現於同一首歌曲中。節點大小由所選權重決定。"
   },
   "GraphPage": {
     "loading": "載入中...",
@@ -341,8 +341,8 @@
     "live_delete_confirm": "刪除「{name}」？所有播放清單指定將被清除。"
   },
   "Footer": {
-    "footer_source": "歌曲及藝術家資料由 <vocadb>VocaDB</vocadb> 提供支持。播放數據收集自 YouTube 及 Niconico。",
-    "footer_contact": "聯絡我們",
+    "footer_source": "歌曲及創作者資料由 <vocadb>VocaDB</vocadb> 提供支持。播放數據收集自 YouTube 及 Niconico。",
+    "footer_contact": "聯絡方式",
     "homepage_views": "瀏覽次數",
     "footer_dev": "本站目前仍在積極開發中——部分功能可能尚未完成。"
   },
@@ -363,7 +363,7 @@
     "contact_section": "聯絡方式",
     "announcements_section": "公告",
     "roadmap_section": "歷史",
-    "reports_section": "錯誤回報與功能需求",
+    "reports_section": "問題回報與功能請求",
     "no_announcements": "目前沒有公告。",
     "no_roadmap_items": "目前還沒有事件記錄。",
     "event_date_label": "日期",
@@ -377,11 +377,11 @@
     "status_open": "開放中",
     "status_resolved": "已解決",
     "status_closed": "已關閉",
-    "bug": "錯誤",
-    "feature": "功能需求",
+    "bug": "問題",
+    "feature": "功能請求",
     "submit_report": "提交",
     "submitting": "提交中...",
-    "login_to_submit": "請登入以提交錯誤回報或功能需求。",
+    "login_to_submit": "請登入以提交問題回報或功能請求。",
     "report_type_label": "類型",
     "report_title_label": "標題",
     "report_title_placeholder": "簡短描述...",
@@ -403,8 +403,8 @@
     "confirm_delete": "確定要刪除嗎？",
     "mark_as": "標記為",
     "all": "全部",
-    "filter_bugs": "錯誤回報",
-    "filter_features": "功能需求",
+    "filter_bugs": "問題回報",
+    "filter_features": "功能請求",
     "submitted_by": "由",
     "updated": "更新於",
     "show_more": "展開",

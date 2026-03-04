@@ -34,7 +34,7 @@
     "feature_explore": "Explore",
     "section_about": "About VocaRank",
     "about_title": "What is VocaRank?",
-    "about_body": "VocaRank is a real-time ranking platform for Vocaloid songs. By aggregating view counts from YouTube and Niconico every hour, it allows you to not only discover the latest trends in Vocaloid music but also track the historical performance of each song from past to present.\n\nMore than just a ranking site, VocaRank integrates with the community-driven VocaDB database (featuring over 850,000 songs and 140,000 creators), letting users dive deep into the massive Vocaloid music community. In addition to recent trending charts, the site offers long-term data analysis—including trends in voicebank usage and interactive network graphs that visualize collaborations between creators.\n\nWith our beautifully designed built-in music player, you can listen to everything from legendary classics to the latest hits anytime, as well as create and share your own playlists. VocaRank is the ultimate platform for all Vocaloid fans to trace the history, discover new songs, and fully experience the charm of Vocaloid music.",
+    "about_body": "VocaRank is a real-time ranking platform for Vocaloid songs. By aggregating view counts from YouTube and Niconico every hour, it allows you to not only discover the latest trends in Vocaloid music but also track the historical performance of each song from past to present.\n\nMore than just a ranking site, VocaRank integrates with the community-driven VocaDB database, letting users dive deep into the massive Vocaloid music community. In addition to recent trending charts, the site offers long-term data analysis—including trends in voicebank usage and interactive network graphs that visualize collaborations between creators.\n\nWith our beautifully designed built-in music player, you can listen to everything from legendary classics to the latest hits anytime, as well as create and share your own playlists. VocaRank is the ultimate platform for all Vocaloid fans to trace the history, discover new songs, and fully experience the charm of Vocaloid music.",
     "about_placeholder_note": "Preview stage"
   },
   "LanguageSwitcher": {
@@ -236,7 +236,7 @@
     "description": "Explore historical publishing trends and engine market-share distributions across the VocaRank database.",
     "songs_over_time": "Songs Published Over Time",
     "voicebank_distribution": "Voicebank Usage Ratio",
-    "engine_over_time": "Voicebank Ratio Over Time",
+    "engine_over_time": "Voicebank Usage Ratio Over Time",
     "year": "Year",
     "month": "Month",
     "switch_year": "Yearly",
