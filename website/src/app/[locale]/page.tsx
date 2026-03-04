@@ -1,4 +1,6 @@
 import { getTranslations } from 'next-intl/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { Link } from '@/i18n/navigation';
 import StatNumber from '@/components/StatNumber';
 import SignupCta from '@/components/SignupCta';
@@ -176,7 +178,7 @@ const cards: Card[] = [
     ),
   },
   {
-    href: '/api/auth/signin', titleKey: 'feature_favorites_title', descKey: 'feature_favorites_desc',
+    href: '/favorites', titleKey: 'feature_favorites_title', descKey: 'feature_favorites_desc',
     icon: <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>,
     preview: (
       <div className="flex flex-col justify-center gap-2 w-full h-full">
@@ -195,10 +197,11 @@ const cards: Card[] = [
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Home' });
-  const [stats, dailyTop, topPicks] = await Promise.all([
+  const [stats, dailyTop, topPicks, session] = await Promise.all([
     getSiteStats(),
     getDailyTopTotal(10),
     getDailyTopPicks(12),
+    getServerSession(authOptions),
   ]);
 
   return (
@@ -331,24 +334,39 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <section className="flex flex-col gap-8">
           <SectionDivider label={t('section_features')} />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {cards.map(card => (
-              <Link key={card.href} href={card.href}
-                className="group glass-panel hairline-border p-5 flex flex-col gap-4 hover:border-[var(--vermilion)]/40 transition-colors duration-300">
-                <div className="flex items-center gap-3">
-                  <span className="text-[var(--vermilion)] opacity-80 group-hover:opacity-100 transition-opacity">{card.icon}</span>
-                  <span className="text-sm font-bold tracking-[0.25em] uppercase text-white group-hover:text-[var(--vermilion)] transition-colors">
-                    {t(card.titleKey as Parameters<typeof t>[0])}
-                  </span>
-                </div>
-                <div className={`w-full border border-[var(--hairline)] p-3 bg-black/20 ${PREVIEW_H}`}>{card.preview}</div>
-                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{t(card.descKey as Parameters<typeof t>[0])}</p>
-                <div className="flex items-center gap-1 text-[12px] tracking-[0.3em] uppercase text-[var(--text-secondary)] group-hover:text-[var(--vermilion)] transition-colors mt-auto">
-                  <span className="inline-block font-serif opacity-60 group-hover:opacity-100 group-hover:-translate-x-0.5 transition-all duration-300">〈</span>
-                  <span>{t('feature_explore')}</span>
-                  <span className="inline-block font-serif opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-300">〉</span>
-                </div>
-              </Link>
-            ))}
+            {cards.map(card => {
+              const isFav = card.titleKey === 'feature_favorites_title';
+              const cardClassName = "group glass-panel hairline-border p-5 flex flex-col gap-4 hover:border-[var(--vermilion)]/40 transition-colors duration-300";
+              const cardInner = (
+                <>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[var(--vermilion)] opacity-80 group-hover:opacity-100 transition-opacity">{card.icon}</span>
+                    <span className="text-sm font-bold tracking-[0.25em] uppercase text-white group-hover:text-[var(--vermilion)] transition-colors">
+                      {t(card.titleKey as Parameters<typeof t>[0])}
+                    </span>
+                  </div>
+                  <div className={`w-full border border-[var(--hairline)] p-3 bg-black/20 ${PREVIEW_H}`}>{card.preview}</div>
+                  <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{t(card.descKey as Parameters<typeof t>[0])}</p>
+                  <div className="flex items-center gap-1 text-[12px] tracking-[0.3em] uppercase text-[var(--text-secondary)] group-hover:text-[var(--vermilion)] transition-colors mt-auto">
+                    <span className="inline-block font-serif opacity-60 group-hover:opacity-100 group-hover:-translate-x-0.5 transition-all duration-300">〈</span>
+                    <span>{t('feature_explore')}</span>
+                    <span className="inline-block font-serif opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-300">〉</span>
+                  </div>
+                </>
+              );
+              if (isFav && !session) {
+                return (
+                  <a key={card.href} href={`/api/auth/signin?callbackUrl=/${locale}/favorites`} className={cardClassName}>
+                    {cardInner}
+                  </a>
+                );
+              }
+              return (
+                <Link key={card.href} href={card.href} className={cardClassName}>
+                  {cardInner}
+                </Link>
+              );
+            })}
           </div>
         </section>
 

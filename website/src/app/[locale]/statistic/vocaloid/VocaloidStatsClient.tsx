@@ -282,8 +282,8 @@ export default function VocaloidStatsClient() {
                             <Legend
                                 verticalAlign="bottom"
                                 iconType="circle"
-                                iconSize={10}
-                                wrapperStyle={{ paddingTop: '16px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '4px 12px' }}
+                                iconSize={8}
+                                wrapperStyle={{ paddingTop: '16px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '4px 8px', fontSize: '11px' }}
                                 formatter={(value: any) => <span className="text-white ml-1">{formatArtistType(value)}</span>}
                             />
                         </PieChart>
