@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, BigInteger, String, Text, ForeignKey, Table, Boolean
+from sqlalchemy import Column, Integer, BigInteger, String, Text, ForeignKey, Table, Boolean, DateTime
 from sqlalchemy.orm import relationship
 from .database import Base
+from datetime import datetime
 
 # Association Tables
 song_artists = Table('song_artists', Base.metadata,
@@ -60,6 +61,11 @@ class User(Base):
     age_range = Column(String)
     last_login = Column(String)
     is_admin = Column(Boolean, default=False)
+    contact_email     = Column(String(255))
+    social_x          = Column(String(500))
+    social_instagram  = Column(String(500))
+    social_facebook   = Column(String(500))
+    about_title       = Column(String(100))
 
     oauth_accounts = relationship("OAuthAccount", back_populates="user", cascade="all, delete-orphan")
 
@@ -180,6 +186,68 @@ class SiteView(Base):
     page_name = Column(String, index=True, nullable=False)
     ip_address = Column(String, nullable=False)
     created_at = Column(String, nullable=False)
+
+class Announcement(Base):
+    __tablename__ = "announcements"
+
+    id         = Column(Integer, primary_key=True, autoincrement=True)
+    title      = Column(String(300), nullable=False)
+    content    = Column(Text, nullable=False)
+    pinned     = Column(Boolean, default=False, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+class RoadmapItem(Base):
+    __tablename__ = "roadmap_items"
+
+    id                = Column(Integer, primary_key=True, autoincrement=True)
+    title             = Column(String(300), nullable=False)
+    description       = Column(Text, nullable=True)
+    status            = Column(String(20), default="planned", nullable=False)  # planned | in-progress | completed
+    display_order     = Column(Integer, default=0, nullable=False)
+    event_date        = Column(String(20), nullable=True)  # YYYY-MM-DD, the date of the milestone
+    created_at        = Column(DateTime, default=datetime.utcnow, nullable=False)
+    title_zh_tw       = Column(String(300), nullable=True)
+    title_ja          = Column(String(300), nullable=True)
+    description_zh_tw = Column(Text, nullable=True)
+    description_ja    = Column(Text, nullable=True)
+
+
+class Report(Base):
+    __tablename__ = "reports"
+
+    id          = Column(Integer, primary_key=True, autoincrement=True)
+    user_id     = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    report_type = Column(String(20), nullable=False)   # bug | feature
+    title       = Column(String(300), nullable=False)
+    description = Column(Text, nullable=True)
+    status      = Column(String(20), default="open", nullable=False)  # open | resolved | closed
+    created_at  = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user    = relationship("User", backref="reports")
+    upvotes = relationship("ReportUpvote", backref="report", cascade="all, delete-orphan")
+
+
+class ReportUpvote(Base):
+    __tablename__ = "report_upvotes"
+
+    report_id  = Column(Integer, ForeignKey("reports.id"), primary_key=True)
+    user_id    = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class Contributor(Base):
+    __tablename__ = "about_contributors"
+
+    id            = Column(Integer, primary_key=True, autoincrement=True)
+    user_id       = Column(Integer, ForeignKey("users.id"), nullable=False, unique=True)
+    role          = Column(String(200), nullable=True)
+    display_order = Column(Integer, default=0, nullable=False)
+    created_at    = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user = relationship("User")
+
 
 class RankingCache(Base):
     __tablename__ = "ranking_cache"

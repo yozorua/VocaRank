@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
-from .routers import songs, artists, rankings, auth, favorites, votes, statistics, playlists, official_lives
+from .routers import songs, artists, rankings, auth, favorites, votes, statistics, playlists, official_lives, about
 
 app = FastAPI(
     title="VocaRank API",
@@ -29,6 +29,7 @@ app.include_router(votes.router)
 app.include_router(statistics.router)
 app.include_router(playlists.router)
 app.include_router(official_lives.router, prefix="/official-lives", tags=["official_lives"])
+app.include_router(about.router, prefix="/about", tags=["about"])
 
 # Mount static files
 static_dir = os.path.join(os.path.dirname(__file__), "static")

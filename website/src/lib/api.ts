@@ -40,6 +40,7 @@ export const fetcher = async (url: string, options: RequestInit = {}) => {
         throw error;
     }
 
+    if (res.status === 204) return null;
     return res.json();
 };
 
@@ -114,3 +115,44 @@ export const getArtistSongs = async (id: number, limit: number = 50, sort_by: st
 export const getArtistSongDates = async (id: number): Promise<{ year: number; count: number }[]> => {
     return fetcher(`/artists/${id}/song-dates`);
 };
+
+// ── About page ────────────────────────────────────────────────────────────────
+
+export const getFounder = () => fetcher('/about/founder');
+export const getAnnouncements = () => fetcher('/about/announcements');
+export const createAnnouncement = (data: { title: string; content: string; pinned: boolean }) =>
+    fetcher('/about/announcements', { method: 'POST', body: JSON.stringify(data) });
+export const updateAnnouncement = (id: number, data: { title?: string; content?: string; pinned?: boolean }) =>
+    fetcher(`/about/announcements/${id}`, { method: 'PATCH', body: JSON.stringify(data) });
+export const deleteAnnouncement = (id: number) =>
+    fetcher(`/about/announcements/${id}`, { method: 'DELETE' });
+
+export const getRoadmap = () => fetcher('/about/roadmap');
+export const createRoadmapItem = (data: { title: string; description?: string; status: string; display_order: number; event_date?: string; title_zh_tw?: string; title_ja?: string; description_zh_tw?: string; description_ja?: string }) =>
+    fetcher('/about/roadmap', { method: 'POST', body: JSON.stringify(data) });
+export const updateRoadmapItem = (id: number, data: { title?: string; description?: string; status?: string; display_order?: number; event_date?: string; title_zh_tw?: string; title_ja?: string; description_zh_tw?: string; description_ja?: string }) =>
+    fetcher(`/about/roadmap/${id}`, { method: 'PATCH', body: JSON.stringify(data) });
+export const deleteRoadmapItem = (id: number) =>
+    fetcher(`/about/roadmap/${id}`, { method: 'DELETE' });
+
+export const getReports = (type?: string) =>
+    fetcher(`/about/reports${type ? `?report_type=${type}` : ''}`);
+export const getMyUpvotes = () => fetcher('/about/reports/me');
+export const createReport = (data: { report_type: string; title: string; description?: string }) =>
+    fetcher('/about/reports', { method: 'POST', body: JSON.stringify(data) });
+export const toggleReportUpvote = (id: number) =>
+    fetcher(`/about/reports/${id}/upvote`, { method: 'POST' });
+export const updateReportStatus = (id: number, status: string) =>
+    fetcher(`/about/reports/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
+export const deleteReport = (id: number) =>
+    fetcher(`/about/reports/${id}`, { method: 'DELETE' });
+export const updateFounder = (data: { contact_email?: string; social_x?: string; social_instagram?: string; social_facebook?: string; about_title?: string }) =>
+    fetcher('/about/founder', { method: 'PATCH', body: JSON.stringify(data) });
+
+export const getContributors = () => fetcher('/about/contributors');
+export const createContributor = (data: { user_id: number; role?: string; display_order?: number }) =>
+    fetcher('/about/contributors', { method: 'POST', body: JSON.stringify(data) });
+export const updateContributor = (id: number, data: { role?: string; display_order?: number }) =>
+    fetcher(`/about/contributors/${id}`, { method: 'PATCH', body: JSON.stringify(data) });
+export const deleteContributor = (id: number) =>
+    fetcher(`/about/contributors/${id}`, { method: 'DELETE' });

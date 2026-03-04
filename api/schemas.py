@@ -267,3 +267,136 @@ class OfficialLiveUpdate(BaseModel):
     slug: Optional[str] = None
     description: Optional[str] = None
     display_order: Optional[int] = None
+
+
+# --- About / Founder Schemas ---
+class FounderOut(BaseModel):
+    id: int
+    name: Optional[str] = None
+    picture_url: Optional[str] = None
+    contact_email: Optional[str] = None
+    social_x: Optional[str] = None
+    social_instagram: Optional[str] = None
+    social_facebook: Optional[str] = None
+    about_title: Optional[str] = None
+
+class FounderUpdate(BaseModel):
+    contact_email: Optional[str] = None
+    social_x: Optional[str] = None
+    social_instagram: Optional[str] = None
+    social_facebook: Optional[str] = None
+    about_title: Optional[str] = None
+
+
+# --- Contributor Schemas ---
+class ContributorOut(BaseModel):
+    id: int
+    user_id: int
+    name: Optional[str] = None
+    picture_url: Optional[str] = None
+    role: Optional[str] = None
+    display_order: int
+
+class ContributorCreate(BaseModel):
+    user_id: int
+    role: Optional[str] = None
+    display_order: int = 0
+
+class ContributorUpdate(BaseModel):
+    role: Optional[str] = None
+    display_order: Optional[int] = None
+
+
+# --- About / Announcement Schemas ---
+class AnnouncementOut(BaseModel):
+    id: int
+    title: str
+    content: str
+    pinned: bool
+    created_at: str
+    updated_at: str
+
+    class Config:
+        orm_mode = True
+
+class AnnouncementCreate(BaseModel):
+    title: str
+    content: str
+    pinned: bool = False
+
+class AnnouncementUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+    pinned: Optional[bool] = None
+
+
+# --- Roadmap Schemas ---
+class RoadmapItemOut(BaseModel):
+    id: int
+    title: str
+    description: Optional[str] = None
+    status: str
+    display_order: int
+    event_date: Optional[str] = None
+    created_at: str
+    title_zh_tw: Optional[str] = None
+    title_ja: Optional[str] = None
+    description_zh_tw: Optional[str] = None
+    description_ja: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+class RoadmapItemCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    status: str = "completed"
+    display_order: int = 0
+    event_date: Optional[str] = None
+    title_zh_tw: Optional[str] = None
+    title_ja: Optional[str] = None
+    description_zh_tw: Optional[str] = None
+    description_ja: Optional[str] = None
+
+class RoadmapItemUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[str] = None
+    display_order: Optional[int] = None
+    event_date: Optional[str] = None
+    title_zh_tw: Optional[str] = None
+    title_ja: Optional[str] = None
+    description_zh_tw: Optional[str] = None
+    description_ja: Optional[str] = None
+
+
+# --- Report Schemas ---
+class ReportUserOut(BaseModel):
+    id: int
+    name: Optional[str] = None
+    picture_url: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+class ReportOut(BaseModel):
+    id: int
+    report_type: str
+    title: str
+    description: Optional[str] = None
+    status: str
+    created_at: str
+    upvote_count: int
+    user_upvoted: bool
+    user: ReportUserOut
+
+    class Config:
+        orm_mode = True
+
+class ReportCreate(BaseModel):
+    report_type: str   # bug | feature
+    title: str
+    description: Optional[str] = None
+
+class ReportStatusUpdate(BaseModel):
+    status: str  # open | resolved | closed

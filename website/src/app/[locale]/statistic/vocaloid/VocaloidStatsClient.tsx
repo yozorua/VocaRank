@@ -228,7 +228,7 @@ export default function VocaloidStatsClient() {
                                 formatter={(value: any, name: any) => [normalizeEngine ? `${value}%` : `${value} ${t('songs')}`, formatArtistType(name)]}
                                 labelFormatter={(label) => `${timeUnit === 'year' ? t('year') : t('month')}: ${label}`}
                             />
-                            <Legend verticalAlign="bottom" wrapperStyle={{ paddingTop: '16px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '4px 12px' }} />
+                            <Legend verticalAlign="bottom" iconSize={8} wrapperStyle={{ paddingTop: '16px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '4px 8px', fontSize: '11px' }} />
                             {Object.keys(ENGINE_COLORS).map(engine => (
                                 <Area
                                     key={engine}

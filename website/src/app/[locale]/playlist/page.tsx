@@ -130,7 +130,7 @@ export default async function PlaylistPage() {
 
                 {/* Browse Playlists with search */}
                 <div className="flex flex-col gap-4">
-                    <h2 className="text-sm font-semibold text-[var(--text-secondary)] tracking-[0.3em] uppercase">
+                    <h2 className="text-sm font-semibold text-[var(--text-secondary)] tracking-[0.3em]">
                         {t('browse')}
                     </h2>
                     <PlaylistSearchSection initialPlaylists={publicPlaylists} />

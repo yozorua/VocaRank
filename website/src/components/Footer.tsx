@@ -19,7 +19,7 @@ export default async function Footer() {
                 </div>
 
                 {/* Dev notice */}
-                <p className="text-xs text-[var(--text-secondary)] opacity-50 max-w-md">{t('footer_dev')}</p>
+                <p className="text-xs text-[var(--text-secondary)] opacity-50 max-w-md md:max-w-xl">{t('footer_dev')}</p>
 
                 {/* Source + contact */}
                 <div className="flex flex-col gap-1.5 text-xs text-[var(--text-secondary)] opacity-60">

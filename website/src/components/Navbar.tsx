@@ -49,6 +49,9 @@ export default function Navbar() {
             <Link href="/search" className="text-xl font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors" onClick={() => setIsOpen(false)}>
                 {t('search', { defaultMessage: 'Search' })}
             </Link>
+            <Link href="/about" className="text-xl font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors" onClick={() => setIsOpen(false)}>
+                {t('about', { defaultMessage: 'About' })}
+            </Link>
             <div className="flex flex-col items-center gap-10 w-full mt-2">
                 <button
                     onClick={() => setIsStatsOpen(!isStatsOpen)}
@@ -144,6 +147,11 @@ export default function Navbar() {
                                 </div>
                             </div>
                         </div>
+
+                        <Link href="/about" className="relative font-bold text-[var(--text-secondary)] hover:text-white transition-colors py-2 text-sm tracking-[0.1em] group">
+                            {t('about', { defaultMessage: 'About' })}
+                            <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--vermilion)] scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></span>
+                        </Link>
 
                         {/* Search Icon */}
                         <Link href="/search" className="p-2 transition-all text-[var(--text-secondary)] hover:text-[var(--vermilion)] group" aria-label={t('search')}>

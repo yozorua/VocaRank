@@ -73,7 +73,7 @@ export default function OfficialLivesSection({ initialLives }: Props) {
                     >
                         <polyline points="6 9 12 15 18 9" />
                     </svg>
-                    <h2 className="text-sm font-semibold text-[var(--text-secondary)] tracking-[0.3em] uppercase group-hover:text-white transition-colors">
+                    <h2 className="text-sm font-semibold text-[var(--text-secondary)] tracking-[0.3em] group-hover:text-white transition-colors">
                         {t('official_lives')}
                     </h2>
                     <span className="text-xs text-[var(--text-secondary)] opacity-40">({lives.length})</span>
