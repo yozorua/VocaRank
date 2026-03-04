@@ -223,6 +223,27 @@ def my_playlists(
     return [_build_playlist_out(pl, db, current_user.id, include_songs=True, preview_only=True) for pl in playlists]
 
 
+# ── GET /playlists/mine/song-check — which of my playlists contain a song ─────
+
+@router.get("/mine/song-check", response_model=list[int])
+def my_playlists_containing_song(
+    song_id: int = Query(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user_from_token),
+):
+    """Returns list of the current user's playlist IDs that contain the given song."""
+    rows = (
+        db.query(models.PlaylistSong.playlist_id)
+        .join(models.Playlist, models.Playlist.id == models.PlaylistSong.playlist_id)
+        .filter(
+            models.Playlist.user_id == current_user.id,
+            models.PlaylistSong.song_id == song_id,
+        )
+        .all()
+    )
+    return [r.playlist_id for r in rows]
+
+
 # ── GET /playlists/favorites — current user's favorited playlists ─────────────
 
 @router.get("/favorites", response_model=list[schemas.PlaylistOut])

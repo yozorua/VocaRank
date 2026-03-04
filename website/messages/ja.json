@@ -104,7 +104,8 @@
     "type": "種別",
     "release_date": "公開日",
     "duration": "再生時間",
-    "original_song": "原曲"
+    "original_song": "原曲",
+    "add_to_playlist": "プレイリストに追加"
   },
   "SongDetailPage": {
     "total_views": "総再生数",

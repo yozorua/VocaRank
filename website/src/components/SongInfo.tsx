@@ -2,6 +2,7 @@ import { SongDetail } from '@/types';
 import { useLocale, useTranslations } from 'next-intl';
 import ViewHistoryChart from './ViewHistoryChart';
 import FavoriteButton from './FavoriteButton';
+import AddToPlaylistButton from './AddToPlaylistButton';
 import MoodVoting from './MoodVoting';
 
 export default function SongInfo({ song }: { song: SongDetail }) {
@@ -59,7 +60,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                         <h1 className="text-3xl lg:text-[2.5rem] font-black mb-6 tracking-[0.05em] text-white leading-none">
                             {displayTitle}
                         </h1>
-                        <div className="flex items-start justify-between gap-4">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
                             <p className="text-lg md:text-xl text-[var(--gold)] font-serif tracking-wider flex items-center flex-wrap">
                                 {song.artists && song.artists.length > 0 ? (
                                     song.artists.map((artist, i) => (
@@ -74,8 +75,10 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                                     <span>{song.artist_string}</span>
                                 )}
                             </p>
-                            <div className="flex-shrink-0 pt-1">
+                            {/* Action buttons — own row on mobile, right-aligned beside artists on sm+ */}
+                            <div className="flex-shrink-0 flex items-center gap-2">
                                 <FavoriteButton id={song.id} type="song" variant="small" />
+                                <AddToPlaylistButton songId={song.id} />
                             </div>
                         </div>
                     </div>
@@ -108,8 +111,8 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                         </div>
 
                         {/* Original Song Cell (Conditional) */}
-                        <div className="border-b border-[var(--hairline)] p-5 flex flex-col justify-center relative group/orig">
-                            <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-secondary)] mb-2 group-hover/orig:text-[var(--vermilion)] transition-colors">
+                        <div className={`border-b border-[var(--hairline)] p-5 flex flex-col justify-center relative ${song.original_song ? 'group/orig' : ''}`}>
+                            <span className={`text-[10px] uppercase tracking-[0.2em] text-[var(--text-secondary)] mb-2 transition-colors ${song.original_song ? 'group-hover/orig:text-[var(--vermilion)]' : ''}`}>
                                 {t('original_song')}
                             </span>
                             {song.original_song ? (
@@ -166,16 +169,6 @@ export default function SongInfo({ song }: { song: SongDetail }) {
 
                 {/* Right: Stats & Actions */}
                 <div className="w-full lg:w-[320px] flex flex-col lg:border-l border-[var(--hairline)] lg:pl-12">
-
-                    {/* Total Views */}
-                    <div className="p-4 md:p-5 border border-[var(--hairline)] bg-transparent mb-8">
-                        <p className="text-[var(--text-secondary)] text-[11px] font-bold tracking-[0.3em] mb-4">
-                            {t('total_views')}
-                        </p>
-                        <p className="text-xl lg:text-2xl font-bold font-mono text-white tracking-widest break-all">
-                            {song.total_views.toLocaleString()}
-                        </p>
-                    </div>
 
                     <div className="flex flex-col gap-6">
                         {/* YouTube Card */}

@@ -100,7 +100,8 @@
     "type": "Type",
     "release_date": "Release Date",
     "duration": "Duration",
-    "original_song": "Original Song"
+    "original_song": "Original Song",
+    "add_to_playlist": "Add to Playlist"
   },
   "SongDetailPage": {
     "total_views": "Total Views",

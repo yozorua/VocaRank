@@ -5,6 +5,7 @@ import ReactPlayer from 'react-player/youtube';
 import { usePlayer } from '@/contexts/PlayerContext';
 import { useRouter } from 'next/navigation';
 import FavoriteButton from '@/components/FavoriteButton';
+import AddToPlaylistButton from '@/components/AddToPlaylistButton';
 import { useTranslations, useLocale } from 'next-intl';
 import { API_BASE_URL } from '@/lib/api';
 import { SongRanking } from '@/types';
@@ -419,7 +420,7 @@ export default function PlayerPage() {
                             {isNicoSong && !isPlaying && (
                                 <div className="absolute inset-0 flex items-end justify-center pb-12 pointer-events-none z-20">
                                     <div className="flex items-center gap-2 bg-black/75 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-white/80 shrink-0"><path d="M8 5v14l11-7z"/></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-white/80 shrink-0"><path d="M8 5v14l11-7z" /></svg>
                                         <span className="text-[12px] text-white/90 font-medium">{t('Player.tap_to_play')}</span>
                                     </div>
                                 </div>
@@ -514,7 +515,8 @@ export default function PlayerPage() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex-shrink-0 flex items-center self-start mt-2 sm:mt-1">
+                                <div className="flex-shrink-0 flex items-center gap-3 self-start sm:mt-1">
+                                    <AddToPlaylistButton songId={currentSong.id} variant="icon" />
                                     <FavoriteButton id={currentSong.id} type="song" variant="icon" />
                                 </div>
                             </div>

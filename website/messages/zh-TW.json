@@ -104,7 +104,8 @@
     "type": "類型",
     "release_date": "發布日期",
     "duration": "時長",
-    "original_song": "原曲"
+    "original_song": "原曲",
+    "add_to_playlist": "加入播放清單"
   },
   "SongDetailPage": {
     "total_views": "總播放數",
