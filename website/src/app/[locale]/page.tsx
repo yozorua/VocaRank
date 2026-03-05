@@ -264,8 +264,8 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
           {/* Signup CTA — only shown when not logged in */}
           <SignupCta />
 
-          {/* Mobile Scroll Indicator */}
-          <div className="md:hidden flex flex-col items-center justify-center mt-12 mb-4 animate-[bounce_2s_infinite]">
+          {/* Scroll Indicator */}
+          <div className="flex flex-col items-center justify-center mt-12 mb-4 animate-[bounce_2s_infinite]">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--text-secondary)] opacity-60">
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
@@ -318,7 +318,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                 })}
               </div>
               <div className="text-right">
-                <Link href="/ranking" className="group inline-flex items-center gap-1 text-[10px] tracking-[0.3em] uppercase text-[var(--text-secondary)] hover:text-[var(--vermilion)] transition-colors">
+                <Link href="/ranking" className="group inline-flex items-center gap-1 text-[12px] tracking-[0.3em] uppercase text-[var(--text-secondary)] hover:text-[var(--vermilion)] transition-colors">
                   <span className="inline-block font-serif opacity-50 group-hover:opacity-100 group-hover:-translate-x-1 transition-all duration-300">〈</span>
                   {t('top_movers_see_all')}
                   <span className="inline-block font-serif opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300">〉</span>
@@ -381,7 +381,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
               <div className="flex-1 flex flex-col gap-4">
                 <h2 className="text-lg font-bold tracking-[0.05em] text-white">{t('about_title')}</h2>
                 <div className="w-12 h-px bg-[var(--vermilion)] opacity-60" />
-                <p className="text-[var(--text-secondary)] leading-loose font-light text-sm md:text-base whitespace-pre-line">{t('about_body')}</p>
+                <p className="text-[var(--text-secondary)] leading-loose font-light text-[0.875rem] whitespace-pre-line">{t('about_body')}</p>
               </div>
             </div>
           </div>

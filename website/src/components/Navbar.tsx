@@ -84,7 +84,7 @@ export default function Navbar() {
 
     return (
         <>
-            <nav className="fixed top-0 w-full h-[var(--header-height)] z-50 border-b border-[var(--hairline)] bg-[var(--bg-dark)]/95 backdrop-blur-sm transition-colors">
+            <nav className="fixed top-0 w-full h-[var(--header-height)] z-50 border-b border-[var(--hairline)] bg-[var(--bg-dark)]/95 backdrop-blur-md shadow-[0_2px_24px_rgba(0,0,0,0.45)] transition-colors">
                 <div className="w-full h-full max-w-[var(--max-width)] mx-auto px-6 md:px-12 flex items-center justify-between relative">
 
                     {/* Decorative Diamond Ends on Border line */}
@@ -95,7 +95,7 @@ export default function Navbar() {
 
                     {/* Logo */}
                     <Link href="/" className="group flex items-center gap-3 z-50 transition-opacity hover:opacity-80" onClick={() => setIsOpen(false)}>
-                        <span className="text-white tracking-[0.3em] font-black uppercase text-sm mt-1">
+                        <span className="text-white tracking-[0.3em] font-black uppercase text-sm mt-1 [text-shadow:0_1px_4px_rgba(0,0,0,0.7)]">
                             VocaRank
                         </span>
                     </Link>
@@ -113,16 +113,16 @@ export default function Navbar() {
 
                     {/* Desktop Links */}
                     <div className="hidden md:flex items-center gap-10">
-                        <Link href="/ranking" className="relative font-bold text-[var(--text-secondary)] hover:text-white transition-colors py-2 text-sm tracking-[0.1em] group">
+                        <Link href="/ranking" className="relative font-bold text-[var(--text-secondary)] hover:text-white transition-colors py-2 text-sm tracking-[0.1em] group [text-shadow:0_1px_4px_rgba(0,0,0,0.7)]">
                             {t('ranking', { defaultMessage: 'Ranking' })}
                             <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--vermilion)] scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></span>
                         </Link>
-                        <Link href="/playlist" className="relative font-bold text-[var(--text-secondary)] hover:text-white transition-colors py-2 text-sm tracking-[0.1em] group">
+                        <Link href="/playlist" className="relative font-bold text-[var(--text-secondary)] hover:text-white transition-colors py-2 text-sm tracking-[0.1em] group [text-shadow:0_1px_4px_rgba(0,0,0,0.7)]">
                             {t('playlist', { defaultMessage: 'Playlist' })}
                             <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--vermilion)] scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></span>
                         </Link>
                         <div className="relative group py-2">
-                            <span className="cursor-pointer font-bold text-[var(--text-secondary)] hover:text-white transition-colors text-sm tracking-[0.1em] flex items-center gap-1 group-hover:text-white">
+                            <span className="cursor-pointer font-bold text-[var(--text-secondary)] hover:text-white transition-colors text-sm tracking-[0.1em] flex items-center gap-1 group-hover:text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.7)]">
                                 {t('statistics', { defaultMessage: 'Statistics' })}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:rotate-180">
                                     <polyline points="6 9 12 15 18 9"></polyline>
@@ -148,7 +148,7 @@ export default function Navbar() {
                             </div>
                         </div>
 
-                        <Link href="/about" className="relative font-bold text-[var(--text-secondary)] hover:text-white transition-colors py-2 text-sm tracking-[0.1em] group">
+                        <Link href="/about" className="relative font-bold text-[var(--text-secondary)] hover:text-white transition-colors py-2 text-sm tracking-[0.1em] group [text-shadow:0_1px_4px_rgba(0,0,0,0.7)]">
                             {t('about', { defaultMessage: 'About' })}
                             <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--vermilion)] scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></span>
                         </Link>
