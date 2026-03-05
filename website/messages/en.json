@@ -200,7 +200,7 @@
     "back_home": "Return to Home"
   },
   "Moods": {
-    "title": "Community Vibe",
+    "title": "Community Votes",
     "already_voted": "You can only vote once per song!",
     "votes_total": "Votes",
     "happy": "Happy",
@@ -243,7 +243,7 @@
   },
   "StatisticVocaloid": {
     "title": "Vocaloid Trends",
-    "description": "Explore historical publishing trends and engine market-share distributions across the VocaRank database",
+    "description": "Explore historical publishing trends and voicebank usages",
     "songs_over_time": "Songs Published Over Time",
     "voicebank_distribution": "Voicebank Usage Ratio",
     "engine_over_time": "Voicebank Usage Ratio Over Time",
