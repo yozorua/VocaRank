@@ -67,6 +67,7 @@ class User(Base):
     social_facebook   = Column(String(500))
     social_discord    = Column(String(500))
     about_title       = Column(String(100))
+    paypal_url        = Column(String(500))
 
     oauth_accounts = relationship("OAuthAccount", back_populates="user", cascade="all, delete-orphan")
 

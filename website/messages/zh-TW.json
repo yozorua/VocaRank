@@ -433,6 +433,11 @@
     "contributor_user_id_label": "使用者 ID",
     "contributor_user_id_placeholder": "輸入使用者 ID...",
     "contributor_role_placeholder": "角色（例如：Logo 設計師）...",
+    "donation_section": "支援 VocaRank",
+    "donation_description": "如果您喜歡 VocaRank 並希望支援其開發，歡迎支持！所有捐款都會用在伺服器維護、網域費用以及網站開發。",
+    "donation_button": "PayPal",
+    "donation_no_link_admin": "尚未設定 PayPal 連結。請在「開發者及貢獻者」區段中編輯以新增連結。",
+    "donation_link_hint": "捐款連結 — 留空則隱藏捐款區段。",
     "navbar": "關於"
   }
 }

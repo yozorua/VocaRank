@@ -280,6 +280,7 @@ class FounderOut(BaseModel):
     social_facebook: Optional[str] = None
     social_discord: Optional[str] = None
     about_title: Optional[str] = None
+    paypal_url: Optional[str] = None
 
 class FounderUpdate(BaseModel):
     contact_email: Optional[str] = None
@@ -288,6 +289,7 @@ class FounderUpdate(BaseModel):
     social_facebook: Optional[str] = None
     social_discord: Optional[str] = None
     about_title: Optional[str] = None
+    paypal_url: Optional[str] = None
 
 
 # --- Contributor Schemas ---

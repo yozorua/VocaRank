@@ -60,6 +60,7 @@ def _founder_dict(u: models.User) -> dict:
         "social_facebook": u.social_facebook,
         "social_discord": u.social_discord,
         "about_title": u.about_title,
+        "paypal_url": u.paypal_url,
     }
 
 
@@ -87,6 +88,8 @@ def update_founder_links(
     founder.social_discord   = data.social_discord    or None
     if data.about_title is not None:
         founder.about_title = data.about_title or None
+    if data.paypal_url is not None:
+        founder.paypal_url = data.paypal_url or None
     db.commit()
     db.refresh(founder)
     return _founder_dict(founder)

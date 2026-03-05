@@ -429,6 +429,11 @@
     "contributor_user_id_label": "User ID",
     "contributor_user_id_placeholder": "Enter user ID...",
     "contributor_role_placeholder": "Role (e.g. Logo Designer)...",
+    "donation_section": "Support VocaRank",
+    "donation_description": "If you enjoy VocaRank and would like to support its development, any contribution is greatly appreciated! All donations will go directly toward server maintenance, domain fees, and ongoing website development.",
+    "donation_button": "PayPal",
+    "donation_no_link_admin": "No PayPal link set. Edit the Developers & Contributors section to add one.",
+    "donation_link_hint": "Donation link — leave empty to hide the donation section.",
     "navbar": "About"
   }
 }

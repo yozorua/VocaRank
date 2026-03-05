@@ -433,6 +433,11 @@
     "contributor_user_id_label": "ユーザーID",
     "contributor_user_id_placeholder": "ユーザーIDを入力...",
     "contributor_role_placeholder": "役割（例：ロゴデザイナー）...",
+    "donation_section": "VocaRankを支援する",
+    "donation_description": "VocaRankを楽しんでいただき、開発をサポートしたいと思っていただけましたら、ぜひご支援をお願いいたします！皆様からのご支援はすべて、サーバー維持費、ドメイン費用、および今後のサイト開発に活用させていただきます。",
+    "donation_button": "PayPal",
+    "donation_no_link_admin": "PayPalリンクが設定されていません。「開発者と貢献者」セクションを編集して追加してください。",
+    "donation_link_hint": "寄付リンク — 空欄にすると寄付セクションが非表示になります。",
     "navbar": "概要"
   }
 }
