@@ -50,7 +50,7 @@ WEB_URL = "http://localhost:3000"
 INTERVAL_SVC = 10   # service health check period (s)
 INTERVAL_SYS = 2    # system metrics refresh period (s)
 INTERVAL_VIS = 15   # visitor table refresh period (s)
-VIS_LIMIT    = 50   # max rows in visitor table
+VIS_LIMIT    = 200   # max rows in visitor table
 
 # ── Utilities ─────────────────────────────────────────────────────────────────
 

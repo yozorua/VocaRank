@@ -8,7 +8,7 @@ const VALID_LOCALES = new Set(['en', 'ja', 'zh-TW']);
 
 // Paths with file extensions that are real Next.js concerns (let pass through)
 // Everything else with a dot is a scanner/bot probe — return 404 immediately
-const REAL_ASSET_RE = /^\/(_next|api|favicon\.ico|sitemap\.xml)/;
+const REAL_ASSET_RE = /^\/(_next|api|favicon\.ico|sitemap\.xml|site\.webmanifest|robots\.txt|apple-touch-icon\.png|favicon-96x96\.png|web-app-manifest-192x192\.png|web-app-manifest-512x512\.png|favicon\.svg)/;
 
 export default function middleware(req: NextRequest): NextResponse {
     const { pathname } = req.nextUrl;

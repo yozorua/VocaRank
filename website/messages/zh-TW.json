@@ -1,6 +1,6 @@
 {
   "Metadata": {
-    "title": "VocaRank - 實時 Vocaloid 熱門歌曲排行榜及社群平台",
+    "title": "VocaRank - 實時 Vocaloid 熱門歌曲排行榜",
     "description": "掌握最新 V 家熱門音樂趨勢！提供即時的 Vocaloid 歌曲排行、聲庫資料統計、自定義的播放清單及音樂播放器，快來探索 V 家的世界吧！"
   },
   "Home": {
@@ -8,9 +8,9 @@
     "subtitle": "掌握 Vocaloid 社群的脈動。即時彙整 YouTube 和 Niconico 的排行榜數據。",
     "cta_ranking": "查看排行榜",
     "cta_search": "搜尋",
-    "cta_signup": "免費建立帳號，儲存最愛、追蹤排行",
+    "cta_signup": "建立帳號，儲存最愛、追蹤排行",
     "stat_songs": "首歌曲",
-    "stat_producers": "位作曲家",
+    "stat_producers": "位創作者",
     "preview_notice": "本站仍在開發中——部分功能可能尚未完成",
     "section_top_movers": "熱門推薦",
     "top_movers_today": "每日精選",
