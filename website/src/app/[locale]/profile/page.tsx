@@ -234,6 +234,7 @@ export default function ProfilePage() {
             if (update) {
                 await update({ picture: updatedProfile.picture_url });
             }
+            router.refresh();
         } catch (error) {
             console.error(error);
             alert("Upload failed. Please try again.");
@@ -271,8 +272,8 @@ export default function ProfilePage() {
                             ✕
                         </button>
 
-                        <p className="text-[10px] font-bold tracking-[0.3em] text-[var(--vermilion)] uppercase mb-2">Avatar</p>
-                        <h3 className="text-xl font-black tracking-widest uppercase mb-2 text-white">{t('upload_title', { defaultMessage: 'Upload Image' })}</h3>
+                        <p className="text-[10px] font-bold tracking-[0.3em] text-[var(--vermilion)] mb-2">{t('avatar_label', { defaultMessage: 'Avatar' })}</p>
+                        <h3 className="text-xl font-black tracking-widest mb-2 text-white">{t('upload_title', { defaultMessage: 'Upload Image' })}</h3>
                         <p className="text-xs text-[var(--text-secondary)] mb-6">{t('avatar_desc', { defaultMessage: 'Max size: 5MB · JPEG or PNG' })}</p>
 
                         <div
@@ -287,7 +288,7 @@ export default function ProfilePage() {
                                 <polyline points="17 8 12 3 7 8" />
                                 <line x1="12" x2="12" y1="3" y2="15" />
                             </svg>
-                            <span className="font-bold text-xs text-[var(--text-secondary)] tracking-[0.2em] group-hover:text-white transition-colors uppercase">Drop or click to select</span>
+                            <span className="font-bold text-xs text-[var(--text-secondary)] tracking-[0.2em] group-hover:text-white transition-colors uppercase">{t('drop_select', { defaultMessage: 'Drop or click to select' })}</span>
                         </div>
                         {uploadError && <p className="text-[var(--vermilion)] text-xs font-bold mt-4 tracking-wide">{uploadError}</p>}
                     </div>
