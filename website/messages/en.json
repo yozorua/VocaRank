@@ -135,7 +135,14 @@
     "no_results": "No songs found.",
     "loading": "Loading...",
     "show_more": "Show More Artists",
-    "show_more_songs": "Show More Songs"
+    "show_more_songs": "Show More Songs",
+    "empty_hint": "Try searching for...",
+    "hint_songs_title": "Songs",
+    "hint_songs_desc": "By title in English, Japanese, or Romaji",
+    "hint_artists_title": "Artists",
+    "hint_artists_desc": "Producers, vocalists, and voicebanks",
+    "hint_id_title": "Song ID",
+    "hint_id_desc": "Look up directly by VocaDB song ID"
   },
   "ArtistPage": {
     "top_songs": "Top Songs",

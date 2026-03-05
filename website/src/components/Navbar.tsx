@@ -1,6 +1,6 @@
 'use client';
 
-import { Link } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
@@ -8,9 +8,12 @@ import AuthButton from './AuthButton';
 
 export default function Navbar() {
     const t = useTranslations('Navbar');
+    const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [isStatsOpen, setIsStatsOpen] = useState(false); // Used for mobile dropdown
     const [mounted, setMounted] = useState(false);
+    const [navSearch, setNavSearch] = useState('');
+    const [navSearchOpen, setNavSearchOpen] = useState(false);
 
     // Required for createPortal to work in SSR (Next.js)
     useEffect(() => { setMounted(true); }, []);
@@ -153,13 +156,48 @@ export default function Navbar() {
                             <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--vermilion)] scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></span>
                         </Link>
 
-                        {/* Search Icon */}
-                        <Link href="/search" className="p-2 transition-all text-[var(--text-secondary)] hover:text-[var(--vermilion)] group" aria-label={t('search')}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                            </svg>
-                        </Link>
+                        {/* Search Icon with animated expand on hover */}
+                        <div
+                            className="flex items-center"
+                            onMouseEnter={() => setNavSearchOpen(true)}
+                            onMouseLeave={() => { if (!navSearch.trim()) setNavSearchOpen(false); }}
+                        >
+                            <form
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    const q = navSearch.trim();
+                                    setNavSearchOpen(false);
+                                    setNavSearch('');
+                                    if (q) {
+                                        router.push(`/search?q=${encodeURIComponent(q)}`);
+                                    } else {
+                                        router.push('/search');
+                                    }
+                                }}
+                                className="flex items-center"
+                            >
+                                <div className={`overflow-hidden transition-all duration-300 ${navSearchOpen ? 'w-36 opacity-100' : 'w-0 opacity-0'}`}>
+                                    <input
+                                        type="text"
+                                        value={navSearch}
+                                        onChange={e => setNavSearch(e.target.value)}
+                                        placeholder={t('search', { defaultMessage: 'Search...' })}
+                                        onBlur={() => { if (!navSearch.trim()) setNavSearchOpen(false); }}
+                                        className="w-full bg-transparent border-b border-white/30 text-white text-sm px-2 py-1 focus:outline-none focus:border-white placeholder:text-white/40 transition-colors"
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    aria-label={t('search')}
+                                    className="p-2 transition-colors text-[var(--text-secondary)] hover:text-white"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <circle cx="11" cy="11" r="8"></circle>
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
 
                         <AuthButton />
                     </div>

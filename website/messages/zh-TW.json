@@ -139,7 +139,14 @@
     "no_results": "找不到歌曲。",
     "loading": "載入中...",
     "show_more": "顯示更多",
-    "show_more_songs": "顯示更多歌曲"
+    "show_more_songs": "顯示更多歌曲",
+    "empty_hint": "試著搜尋...",
+    "hint_songs_title": "歌曲",
+    "hint_songs_desc": "以英文、日文或羅馬字搜尋歌曲名稱",
+    "hint_artists_title": "創作者",
+    "hint_artists_desc": "製作人、歌手與聲音庫",
+    "hint_id_title": "歌曲 ID",
+    "hint_id_desc": "直接以 VocaDB 歌曲 ID 查詢"
   },
   "ArtistPage": {
     "top_songs": "熱門歌曲",

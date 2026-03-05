@@ -42,8 +42,8 @@ export default function LiveSearchInput({ defaultValue, placeholder }: LiveSearc
             setLoading(true);
             try {
                 const [aData, sData] = await Promise.all([
-                    searchArtists(query, 3),
-                    searchSongs(query, 5)
+                    searchArtists(query, 5),
+                    searchSongs(query, 20)
                 ]);
                 setArtists(aData || []);
                 setSongs(sData || []);
@@ -76,6 +76,15 @@ export default function LiveSearchInput({ defaultValue, placeholder }: LiveSearc
             return match ? `https://nicovideo.cdn.nimg.jp/thumbnails/${match[0]}/${match[0]}` : null;
         }
         return null;
+    };
+
+    const formatSongType = (type: string | null | undefined) => {
+        if (!type) return null;
+        if (type === 'Original') return <span className="text-[var(--cyan-subtle)] font-bold uppercase text-[9px] tracking-widest shrink-0">ORIGINAL</span>;
+        if (type === 'Cover') return <span className="text-[#E8954A] font-bold uppercase text-[9px] tracking-widest shrink-0">COVER</span>;
+        if (type === 'Remix') return <span className="text-[var(--gold)] font-bold uppercase text-[9px] tracking-widest shrink-0">REMIX</span>;
+        if (type === 'Remaster') return <span className="text-[#B284BE] font-bold uppercase text-[9px] tracking-widest shrink-0">REMASTER</span>;
+        return <span className="text-[var(--text-secondary)] font-bold uppercase text-[9px] tracking-widest shrink-0">{type.toUpperCase()}</span>;
     };
 
     const getArtistsString = (song: SongRanking) => {
@@ -156,7 +165,11 @@ export default function LiveSearchInput({ defaultValue, placeholder }: LiveSearc
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="text-sm text-white truncate font-bold">{song.name_japanese || song.name_english || song.name_romaji || 'Unknown Song'}</div>
-                                        <div className="text-[10px] text-[var(--text-secondary)] truncate">{getArtistsString(song)}</div>
+                                        <div className="flex items-center gap-1.5 min-w-0">
+                                            {formatSongType(song.song_type)}
+                                            {song.song_type && <span className="text-[var(--text-secondary)] opacity-30 text-[9px] shrink-0">·</span>}
+                                            <span className="text-[10px] text-[var(--text-secondary)] truncate">{getArtistsString(song)}</span>
+                                        </div>
                                     </div>
                                 </button>
                             ))}

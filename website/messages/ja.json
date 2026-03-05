@@ -139,7 +139,14 @@
     "no_results": "曲が見つかりませんでした。",
     "loading": "読み込み中...",
     "show_more": "もっと表示する",
-    "show_more_songs": "さらに曲を表示する"
+    "show_more_songs": "さらに曲を表示する",
+    "empty_hint": "検索してみよう...",
+    "hint_songs_title": "楽曲",
+    "hint_songs_desc": "英語・日本語・ローマ字でタイトル検索",
+    "hint_artists_title": "アーティスト",
+    "hint_artists_desc": "プロデューサー、歌手、ボイスバンク",
+    "hint_id_title": "楽曲 ID",
+    "hint_id_desc": "VocaDB の楽曲 ID で直接検索"
   },
   "ArtistPage": {
     "top_songs": "人気曲",
