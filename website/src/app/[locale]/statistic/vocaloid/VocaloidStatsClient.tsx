@@ -6,7 +6,7 @@ import { API_BASE_URL } from '@/lib/api';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     PieChart, Pie, Cell, Legend, AreaChart, Area,
-    ComposedChart, Line, ReferenceLine, Label
+    ComposedChart, Line, ReferenceLine, Label, ErrorBar
 } from 'recharts';
 import { formatArtistType } from '@/lib/formatArtistType';
 
@@ -89,6 +89,13 @@ export default function VocaloidStatsClient() {
 
         return Object.values(map).sort((a, b) => a.date.localeCompare(b.date));
     }, [engineTimeline, timeUnit]);
+
+    // Attach asymmetric IQR error distances to each range row for the ErrorBar
+    const ratioWithIQR = useMemo(() =>
+        ratioByRange.map((d: any) => ({
+            ...d,
+            median_iqr: [d.median - d.p25, d.p75 - d.median],
+        })), [ratioByRange]);
 
     // Compute normalized (0–100%) version of engine timeline
     const normalizedEngineTimeline = useMemo(() => {
@@ -305,7 +312,7 @@ export default function VocaloidStatsClient() {
                     </div>
                     <div className="h-[420px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
-                            <ComposedChart data={ratioByRange} margin={{ top: 10, right: 50, left: 20, bottom: 40 }}>
+                            <ComposedChart data={ratioWithIQR} margin={{ top: 10, right: 50, left: 20, bottom: 40 }}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="var(--hairline)" vertical={false} />
                                 <XAxis
                                     dataKey="range"
@@ -347,9 +354,7 @@ export default function VocaloidStatsClient() {
                                     itemStyle={{ fontWeight: 'bold' }}
                                     labelStyle={{ color: 'var(--text-secondary)', marginBottom: '2px' }}
                                     formatter={(value: any, name: any) => {
-                                        if (name === 'count' || name === 'order') return null;
-                                        if (name === 'p25') return [`${value}×`, 'P25'];
-                                        if (name === 'p75') return [`${value}×`, 'P75'];
+                                        if (name === 'count' || name === 'order' || name === 'p25' || name === 'p75' || name === 'median_iqr') return null;
                                         return [`${value}×`, name === 'median' ? t('ratio_median_label') : t('ratio_mean_label')];
                                     }}
                                     labelFormatter={(label) => `${t('ratio_total_views')}: ${label}`}
@@ -365,9 +370,9 @@ export default function VocaloidStatsClient() {
                                         </span>
                                     )}
                                 />
-                                <Bar dataKey="median" fill="var(--gold)" fillOpacity={0.75} radius={0} animationDuration={1200} />
-                                <Line dataKey="p75" stroke="var(--vermilion)" strokeWidth={1} strokeDasharray="4 3" strokeOpacity={0.45} dot={false} legendType="none" isAnimationActive={false} />
-                                <Line dataKey="p25" stroke="var(--vermilion)" strokeWidth={1} strokeDasharray="4 3" strokeOpacity={0.45} dot={false} legendType="none" isAnimationActive={false} />
+                                <Bar dataKey="median" fill="var(--gold)" fillOpacity={0.75} radius={0} animationDuration={1200}>
+                                    <ErrorBar dataKey="median_iqr" direction="y" stroke="var(--gold)" strokeWidth={2} width={10} />
+                                </Bar>
                                 <Line dataKey="mean" stroke="var(--vermilion)" strokeWidth={2} dot={{ r: 4, fill: 'var(--vermilion)' }} animationDuration={1200} />
                             </ComposedChart>
                         </ResponsiveContainer>

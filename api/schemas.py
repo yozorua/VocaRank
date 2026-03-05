@@ -278,6 +278,7 @@ class FounderOut(BaseModel):
     social_x: Optional[str] = None
     social_instagram: Optional[str] = None
     social_facebook: Optional[str] = None
+    social_discord: Optional[str] = None
     about_title: Optional[str] = None
 
 class FounderUpdate(BaseModel):
@@ -285,6 +286,7 @@ class FounderUpdate(BaseModel):
     social_x: Optional[str] = None
     social_instagram: Optional[str] = None
     social_facebook: Optional[str] = None
+    social_discord: Optional[str] = None
     about_title: Optional[str] = None
 
 

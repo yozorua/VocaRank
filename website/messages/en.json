@@ -11,7 +11,7 @@
     "cta_signup": "Create a free account — save favourites & track rankings",
     "stat_songs": "Songs",
     "stat_producers": "Producers",
-    "preview_notice": "This site is currently under active development — some features may be incomplete",
+    "preview_notice": "This site is under development — some features may be incomplete",
     "section_top_movers": "Top Picks",
     "top_movers_today": "Daily Highlights",
     "top_movers_daily": "↑ View Gain",
@@ -257,7 +257,7 @@
     "songs": "songs",
     "caption": "Covers Original, Remix, Remaster, and Cover songs that feature at least one synthesizer vocalist — VOCALOID, UTAU, CeVIO, Synthesizer V, Neutrino, VoiSona, or other voice synthesizers. Data sourced from the VocaRank database, synchronized with VocaDB.",
     "view_ratio_title": "YouTube vs NicoNico View Ratio",
-    "view_ratio_caption": "YouTube-to-NicoNico view ratio (median and mean) grouped by total view count range, for vocaloid songs with valid view counts on both platforms.",
+    "view_ratio_caption": "YouTube-to-NicoNico view ratio grouped by total view count range, for vocaloid songs with valid view counts on both platforms. Each bar shows the median ratio; the error bar spans P25–P75, meaning the middle 50% of songs in that range fall within those whiskers. The red line shows the mean.",
     "ratio_mean_label": "Mean",
     "ratio_median_label": "Median",
     "ratio_songs_in_range": "Songs",
@@ -357,7 +357,7 @@
     "footer_source": "Song and artist data powered by <vocadb>VocaDB</vocadb>. View counts collected from YouTube & Niconico.",
     "footer_contact": "Contact",
     "homepage_views": "Views",
-    "footer_dev": "This site is currently under active development — some features may be incomplete."
+    "footer_dev": "This site is under development — some features may be incomplete."
   },
   "Song": {
     "comments": "Comments",

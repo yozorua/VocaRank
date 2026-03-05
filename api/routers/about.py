@@ -58,6 +58,7 @@ def _founder_dict(u: models.User) -> dict:
         "social_x": u.social_x,
         "social_instagram": u.social_instagram,
         "social_facebook": u.social_facebook,
+        "social_discord": u.social_discord,
         "about_title": u.about_title,
     }
 
@@ -83,6 +84,7 @@ def update_founder_links(
     founder.social_x         = data.social_x         or None
     founder.social_instagram = data.social_instagram  or None
     founder.social_facebook  = data.social_facebook   or None
+    founder.social_discord   = data.social_discord    or None
     if data.about_title is not None:
         founder.about_title = data.about_title or None
     db.commit()

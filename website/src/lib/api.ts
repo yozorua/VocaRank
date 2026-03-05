@@ -146,7 +146,7 @@ export const updateReportStatus = (id: number, status: string) =>
     fetcher(`/about/reports/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
 export const deleteReport = (id: number) =>
     fetcher(`/about/reports/${id}`, { method: 'DELETE' });
-export const updateFounder = (data: { contact_email?: string; social_x?: string; social_instagram?: string; social_facebook?: string; about_title?: string }) =>
+export const updateFounder = (data: { contact_email?: string; social_x?: string; social_instagram?: string; social_facebook?: string; social_discord?: string; about_title?: string }) =>
     fetcher('/about/founder', { method: 'PATCH', body: JSON.stringify(data) });
 
 export const getContributors = () => fetcher('/about/contributors');

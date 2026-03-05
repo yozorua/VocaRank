@@ -11,7 +11,7 @@
     "cta_signup": "無料登録でお気に入り・ランキングを活用しよう",
     "stat_songs": "曲",
     "stat_producers": "プロデューサー",
-    "preview_notice": "このサイトは現在開発中です — 一部の機能は未完成の場合があります",
+    "preview_notice": "このサイトは開発中です — 一部の機能は未完成の場合があります",
     "section_top_movers": "ピックアップ",
     "top_movers_today": "デイリーハイライト",
     "top_movers_daily": "↑ 再生増加数",
@@ -261,7 +261,7 @@
     "songs": "曲",
     "caption": "オリジナル曲・リミックス・リマスター・カバーのうち、VOCALOID・UTAU・CeVIO・Synthesizer V・Neutrino・VoiSona などの合成音声ボーカルを少なくとも一人含む楽曲が対象です。データは VocaRank データベースから取得され、VocaDB と同期しています。",
     "view_ratio_title": "YouTube vs ニコニコ 再生数比率",
-    "view_ratio_caption": "両プラットフォームで有効な再生数を持つボカロ曲を総再生数の範囲別に分類し、YouTube 対 ニコニコ 再生数比率の中央値と平均値を示します。",
+    "view_ratio_caption": "両プラットフォームで有効な再生数を持つボカロ曲を総再生数の範囲別に分類し、YouTube 対 ニコニコ 再生数比率を示します。各バーは中央値を表し、エラーバーは P25–P75 の範囲、すなわちその区間の中間 50% の楽曲が収まる幅を示します。赤い折れ線は平均値です。",
     "ratio_mean_label": "平均値",
     "ratio_median_label": "中央値",
     "ratio_songs_in_range": "曲数",
@@ -361,7 +361,7 @@
     "footer_source": "楽曲・アーティストデータは <vocadb>VocaDB</vocadb> の提供によるものです。再生数は YouTube と ニコニコ から収集しています。",
     "footer_contact": "お問い合わせ",
     "homepage_views": "ビュー",
-    "footer_dev": "このサイトは現在開発中です。一部の機能が不完全な場合があります。"
+    "footer_dev": "このサイトは開発中です。一部の機能が不完全な場合があります。"
   },
   "Song": {
     "comments": "コメント",
