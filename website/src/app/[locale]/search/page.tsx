@@ -55,8 +55,8 @@ export default async function SearchPage({ searchParams, params }: SearchPagePro
     };
 
     return (
-        <div className="max-w-[var(--max-width)] mx-auto px-6 py-6 md:py-8">
-            <div className="mb-4 md:mb-6 pt-2">
+        <div className="max-w-[var(--max-width)] mx-auto px-6 py-2 md:py-2">
+            <div className="mb-4 md:mb-4 pt-2">
                 <h1 className="text-2xl md:text-3xl font-bold mb-2">{t('title')}</h1>
                 <p className="text-[var(--text-secondary)] text-sm md:text-base">{t('description')}</p>
             </div>
