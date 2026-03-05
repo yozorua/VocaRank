@@ -227,7 +227,7 @@
   "GraphPage": {
     "loading": "読み込み中...",
     "search": "検索",
-    "search_placeholder": "クリエイター、曲を検索...",
+    "search_placeholder": "ボカロP、ボイスバンクを検索...",
     "node_size_weight": "ノードサイズの重み",
     "weight_views": "総再生数（人気度）",
     "weight_pagerank": "コラボレーション（中心性）",

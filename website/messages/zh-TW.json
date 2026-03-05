@@ -227,7 +227,7 @@
   "GraphPage": {
     "loading": "載入中...",
     "search": "搜尋",
-    "search_placeholder": "搜尋創作者、作品…",
+    "search_placeholder": "搜尋作曲者、聲庫…",
     "node_size_weight": "節點大小權重",
     "weight_views": "總播放數 (受歡迎程度)",
     "weight_pagerank": "合作 (中心性)",
