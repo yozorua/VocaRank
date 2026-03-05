@@ -109,21 +109,21 @@ export default function VocaloidStatsClient() {
     return (
         <div className="flex flex-col gap-10">
             {/* Timeline Bar Chart */}
-            <div className="bg-[var(--bg-dark)]/50 border border-[var(--hairline-strong)] rounded-2xl p-6 shadow-xl">
+            <div className="bg-[var(--bg-dark)]/50 border border-[var(--hairline-strong)] p-6">
                 <div className="flex items-center justify-between mb-6 border-b border-[var(--hairline)] pb-4">
-                    <h2 className="text-xl font-bold text-white border-l-2 border-[var(--vermilion)] pl-3">
+                    <h2 className="text-base font-bold text-white border-l-2 border-[var(--vermilion)] pl-3">
                         {t('songs_over_time')}
                     </h2>
-                    <div className="flex gap-1 bg-black/40 p-1 rounded-lg border border-[var(--hairline)]">
+                    <div className="flex border border-[var(--hairline-strong)]">
                         <button
                             onClick={() => setTimeUnit('year')}
-                            className={`px-2 py-1 md:px-4 md:py-1.5 text-xs md:text-sm font-bold rounded-md transition-colors ${timeUnit === 'year' ? 'bg-[var(--vermilion)] text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-white'}`}
+                            className={`px-3 py-1.5 text-xs font-bold transition-colors ${timeUnit === 'year' ? 'bg-[var(--vermilion)] text-white' : 'text-[var(--text-secondary)] hover:text-white'}`}
                         >
                             {t('switch_year')}
                         </button>
                         <button
                             onClick={() => setTimeUnit('month')}
-                            className={`px-2 py-1 md:px-4 md:py-1.5 text-xs md:text-sm font-bold rounded-md transition-colors ${timeUnit === 'month' ? 'bg-[var(--vermilion)] text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-white'}`}
+                            className={`px-3 py-1.5 text-xs font-bold transition-colors border-l border-[var(--hairline-strong)] ${timeUnit === 'month' ? 'bg-[var(--vermilion)] text-white' : 'text-[var(--text-secondary)] hover:text-white'}`}
                         >
                             {t('switch_month')}
                         </button>
@@ -152,7 +152,7 @@ export default function VocaloidStatsClient() {
                                 contentStyle={{
                                     backgroundColor: 'var(--bg-dark)',
                                     borderColor: 'var(--hairline-strong)',
-                                    borderRadius: '8px',
+                                    borderRadius: 0,
                                     padding: '6px 10px',
                                     fontSize: '12px'
                                 }}
@@ -164,7 +164,7 @@ export default function VocaloidStatsClient() {
                             <Bar
                                 dataKey="count"
                                 fill="var(--vermilion)"
-                                radius={[4, 4, 0, 0]}
+                                radius={0}
                                 animationDuration={1500}
                                 animationEasing="ease-out"
                             />
@@ -174,21 +174,21 @@ export default function VocaloidStatsClient() {
             </div>
 
             {/* Stacked Engine Area Chart */}
-            <div className="bg-[var(--bg-dark)]/50 border border-[var(--hairline-strong)] rounded-2xl p-6 shadow-xl">
+            <div className="bg-[var(--bg-dark)]/50 border border-[var(--hairline-strong)] p-6">
                 <div className="flex items-center justify-between mb-6 border-b border-[var(--hairline)] pb-4">
-                    <h2 className="text-xl font-bold text-white border-l-2 border-[#5680E9] pl-3">
+                    <h2 className="text-base font-bold text-white border-l-2 border-[#5680E9] pl-3">
                         {t('engine_over_time')}
                     </h2>
-                    <div className="flex gap-1 bg-black/40 p-1 rounded-lg border border-[var(--hairline)]">
+                    <div className="flex border border-[var(--hairline-strong)]">
                         <button
                             onClick={() => setNormalizeEngine(false)}
-                            className={`px-2 py-1 md:px-3 md:py-1.5 text-xs md:text-sm font-bold rounded-md transition-colors ${!normalizeEngine ? 'bg-[#5680E9] text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-white'}`}
+                            className={`px-3 py-1.5 text-xs font-bold transition-colors ${!normalizeEngine ? 'bg-[#5680E9] text-white' : 'text-[var(--text-secondary)] hover:text-white'}`}
                         >
                             {t('switch_count')}
                         </button>
                         <button
                             onClick={() => setNormalizeEngine(true)}
-                            className={`px-2 py-1 md:px-3 md:py-1.5 text-xs md:text-sm font-bold rounded-md transition-colors ${normalizeEngine ? 'bg-[#5680E9] text-white shadow-md' : 'text-[var(--text-secondary)] hover:text-white'}`}
+                            className={`px-3 py-1.5 text-xs font-bold transition-colors border-l border-[var(--hairline-strong)] ${normalizeEngine ? 'bg-[#5680E9] text-white' : 'text-[var(--text-secondary)] hover:text-white'}`}
                         >
                             {t('switch_percent')}
                         </button>
@@ -219,7 +219,7 @@ export default function VocaloidStatsClient() {
                                 contentStyle={{
                                     backgroundColor: 'var(--bg-dark)',
                                     borderColor: 'var(--hairline-strong)',
-                                    borderRadius: '8px',
+                                    borderRadius: 0,
                                     padding: '6px 10px',
                                     fontSize: '12px'
                                 }}
@@ -228,7 +228,7 @@ export default function VocaloidStatsClient() {
                                 formatter={(value: any, name: any) => [normalizeEngine ? `${value}%` : `${value} ${t('songs')}`, formatArtistType(name)]}
                                 labelFormatter={(label) => `${timeUnit === 'year' ? t('year') : t('month')}: ${label}`}
                             />
-                            <Legend verticalAlign="bottom" iconSize={8} wrapperStyle={{ paddingTop: '16px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '4px 8px', fontSize: '11px' }} />
+                            <Legend verticalAlign="bottom" iconSize={8} wrapperStyle={{ paddingTop: '16px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '4px 8px', fontSize: 'clamp(11px, 1vw, 13px)' }} />
                             {Object.keys(ENGINE_COLORS).map(engine => (
                                 <Area
                                     key={engine}
@@ -246,8 +246,8 @@ export default function VocaloidStatsClient() {
             </div>
 
             {/* Distribution Pie Chart */}
-            <div className="bg-[var(--bg-dark)]/50 border border-[var(--hairline-strong)] rounded-2xl p-6 shadow-xl mb-12">
-                <h2 className="text-xl font-bold mb-6 text-white border-l-2 border-[#39C5BB] pl-3">
+            <div className="bg-[var(--bg-dark)]/50 border border-[var(--hairline-strong)] p-6 mb-12">
+                <h2 className="text-base font-bold mb-6 text-white border-l-2 border-[#39C5BB] pl-3">
                     {t('voicebank_distribution')}
                 </h2>
                 <div className="h-[400px] w-full flex justify-center">
@@ -271,7 +271,7 @@ export default function VocaloidStatsClient() {
                                 contentStyle={{
                                     backgroundColor: 'var(--bg-dark)',
                                     borderColor: 'var(--hairline-strong)',
-                                    borderRadius: '8px',
+                                    borderRadius: 0,
                                     color: '#fff',
                                     padding: '6px 10px',
                                     fontSize: '12px'
@@ -283,7 +283,7 @@ export default function VocaloidStatsClient() {
                                 verticalAlign="bottom"
                                 iconType="circle"
                                 iconSize={8}
-                                wrapperStyle={{ paddingTop: '16px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '4px 8px', fontSize: '11px' }}
+                                wrapperStyle={{ paddingTop: '16px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '4px 8px', fontSize: 'clamp(11px, 1vw, 13px)' }}
                                 formatter={(value: any) => <span className="text-white ml-1">{formatArtistType(value)}</span>}
                             />
                         </PieChart>

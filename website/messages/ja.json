@@ -122,7 +122,7 @@
     "profile_settings": "マイプロフィール",
     "statistics": "統計",
     "statistics_producer_network": "ボカロPのネットワーク",
-    "statistics_vocalist_network": "ボイスバンクのネットワーク",
+    "statistics_vocalist_network": "歌声合成ソフトのネットワーク",
     "statistics_vocaloid": "ボーカロイドの統計",
     "playlist": "プレイリスト",
     "about": "概要"
@@ -217,7 +217,7 @@
   "Graph": {
     "title": "ボカロPのネットワーク",
     "description": "コラボレーションによるボカロPのネットワークを探索する。",
-    "caption": "各ノードは Vocaloid プロデューサーを表します。エッジは少なくとも一曲で共同制作したプロデューサー同士を結んでいます。ノードのサイズは選択した重み（総再生数またはコラボ中心性）によって決まります。"
+    "caption": "各ノードはプロデューサーを表します。エッジは少なくとも一曲で共同制作したプロデューサー同士を結んでいます。ノードのサイズは選択した重み（総再生数またはコラボ中心性）によって決まります。"
   },
   "GraphVocalist": {
     "title": "歌声合成ソフトのネットワーク",

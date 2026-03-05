@@ -215,9 +215,9 @@
     "no_favorites": "沒有找到最愛"
   },
   "Graph": {
-    "title": "VOCALOID 作曲家關係圖",
-    "description": "探索基於 VOCALOID 作曲家合作關係建立的人際網絡。",
-    "caption": "每個節點代表一位 Vocaloid 製作人，連線代表雙方曾合作同一首歌曲。節點大小由所選權重決定（總觀看次數或合作中心性）。"
+    "title": "Vocaloid 創作者關係圖",
+    "description": "探索基於 Vocaloid 創作者合作關係建立的人際網絡。",
+    "caption": "每個節點代表一位 Vocaloid 創作者，連線代表雙方曾合作同一首歌曲。節點大小由所選權重決定（總觀看次數或合作中心性）。"
   },
   "GraphVocalist": {
     "title": "虛擬歌手關係圖",
@@ -238,7 +238,7 @@
   },
   "StatisticVocaloid": {
     "title": "Vocaloid 趨勢",
-    "description": "瀏覽虛擬歌手的歷史發布趨勢與各知名聲庫引擎的市場結構比例。",
+    "description": "瀏覽虛擬歌手的歷史發布趨勢與各知名聲庫引擎的使用比例。",
     "songs_over_time": "歷年合成音軌發表首數",
     "voicebank_distribution": "聲庫使用比例",
     "engine_over_time": "聲庫使用比例時間軸",

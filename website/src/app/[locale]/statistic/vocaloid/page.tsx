@@ -17,9 +17,10 @@ export default async function VocaloidStatisticPage() {
 
     return (
         <main className="min-h-screen py-6 md:py-8 px-4 md:px-6 w-full max-w-5xl mx-auto flex flex-col gap-8">
-            <div className="pt-2">
-                <h1 className="text-2xl md:text-3xl font-bold mb-2">{t('title')}</h1>
-                <p className="text-[var(--text-secondary)] text-sm md:text-base">
+            <div className="pb-6 border-b border-[var(--hairline-strong)]">
+                <p className="text-[10px] font-bold tracking-[0.35em] text-[var(--vermilion)] uppercase mb-2">Statistics</p>
+                <h1 className="text-2xl md:text-3xl font-black tracking-tight mb-2">{t('title')}</h1>
+                <p className="text-[var(--text-secondary)] text-sm">
                     {t('description')}
                 </p>
             </div>
