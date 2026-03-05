@@ -797,8 +797,8 @@ export default function AboutClient({ founder: initialFounder, initialAnnounceme
                                                         </div>
                                                     )}
                                                     <div className="min-w-0">
-                                                        <div className="text-sm font-semibold text-white truncate">{c.name ?? `User #${c.user_id}`}</div>
                                                         {c.role && <div className="text-[11px] text-[var(--text-secondary)] truncate">{c.role}</div>}
+                                                        <div className="text-sm font-semibold text-white truncate">{c.name ?? `User #${c.user_id}`}</div>
                                                     </div>
                                                     {isAdmin && (
                                                         <div className="flex gap-2 ml-2 opacity-0 group-hover/contrib:opacity-100 transition-opacity flex-shrink-0">
