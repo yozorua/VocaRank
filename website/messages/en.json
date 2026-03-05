@@ -253,9 +253,15 @@
     "switch_month": "Monthly",
     "switch_count": "Count",
     "switch_percent": "Ratio %",
-    "song_count": "Published Tracks",
+    "song_count": "Published Songs",
     "songs": "songs",
-    "caption": "Covers Original, Remix, Remaster, and Cover songs that feature at least one synthesizer vocalist — VOCALOID, UTAU, CeVIO, Synthesizer V, Neutrino, VoiSona, or other voice synthesizers. Data sourced from the VocaRank database, synchronized with VocaDB."
+    "caption": "Covers Original, Remix, Remaster, and Cover songs that feature at least one synthesizer vocalist — VOCALOID, UTAU, CeVIO, Synthesizer V, Neutrino, VoiSona, or other voice synthesizers. Data sourced from the VocaRank database, synchronized with VocaDB.",
+    "view_ratio_title": "YouTube vs NicoNico View Ratio",
+    "view_ratio_caption": "YouTube-to-NicoNico view ratio (median and mean) grouped by total view count range, for vocaloid songs with valid view counts on both platforms.",
+    "ratio_mean_label": "Mean",
+    "ratio_median_label": "Median",
+    "ratio_songs_in_range": "Songs",
+    "ratio_total_views": "Total Views"
   },
   "Player": {
     "up_next": "Up Next",

@@ -257,9 +257,15 @@
     "switch_month": "按月顯示",
     "switch_count": "數量",
     "switch_percent": "比例 %",
-    "song_count": "發布軌道數量",
+    "song_count": "發布歌曲數量",
     "songs": "首",
-    "caption": "收錄歌曲類型包含原創曲、Remix、Remaster 及翻唱，且須含至少一位合成聲樂角色（VOCALOID、UTAU、CeVIO、Synthesizer V、Neutrino、VoiSona 或其他聲音合成器）。資料來自 VocaRank 資料庫，與 VocaDB 同步。"
+    "caption": "收錄歌曲類型包含原創曲、Remix、Remaster 及翻唱，且須含至少一位合成聲樂角色（VOCALOID、UTAU、CeVIO、Synthesizer V、Neutrino、VoiSona 或其他聲音合成器）。資料來自 VocaRank 資料庫，與 VocaDB 同步。",
+    "view_ratio_title": "YouTube vs NicoNico 播放數比例",
+    "view_ratio_caption": "針對同時擁有 YouTube 與 NicoNico 有效播放數的 Vocaloid 歌曲，按總播放數範圍分組，呈現 YouTube 對 NicoNico 播放數比值的中位數與平均數。",
+    "ratio_mean_label": "平均",
+    "ratio_median_label": "中位數",
+    "ratio_songs_in_range": "首數",
+    "ratio_total_views": "總播放數"
   },
   "Player": {
     "up_next": "接下來播放",

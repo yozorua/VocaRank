@@ -69,6 +69,51 @@ _SQL_DISTRIBUTION = """
     ORDER BY count DESC
 """
 
+_SQL_RATIO_BY_RANGE = """
+    WITH vocaloid_songs AS (
+        SELECT DISTINCT s.id,
+               s.youtube_views::float / s.niconico_views AS ratio,
+               (s.youtube_views + s.niconico_views) AS total_views
+        FROM songs s
+        JOIN song_artists sa ON s.id = sa.song_id
+        JOIN artists a ON sa.artist_id = a.id
+        WHERE s.song_type IN ('Original', 'Remaster', 'Remix', 'Cover')
+          AND a.artist_type IN ('Vocaloid', 'UTAU', 'CeVIO', 'SynthesizerV', 'Neutrino', 'VoiSona', 'OtherVoiceSynthesizer')
+          AND s.youtube_views IS NOT NULL AND s.youtube_views > 0
+          AND s.niconico_views IS NOT NULL AND s.niconico_views > 0
+    ),
+    bucketed AS (
+        SELECT
+            CASE
+                WHEN total_views < 10000      THEN '<10K'
+                WHEN total_views < 100000     THEN '10K–100K'
+                WHEN total_views < 1000000    THEN '100K–1M'
+                WHEN total_views < 10000000   THEN '1M–10M'
+                ELSE '>10M'
+            END AS range,
+            CASE
+                WHEN total_views < 10000      THEN 0
+                WHEN total_views < 100000     THEN 1
+                WHEN total_views < 1000000    THEN 2
+                WHEN total_views < 10000000   THEN 3
+                ELSE 4
+            END AS ord,
+            ratio
+        FROM vocaloid_songs
+    )
+    SELECT
+        range,
+        ord,
+        ROUND(AVG(ratio)::numeric, 2)                                          AS mean_ratio,
+        ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY ratio)::numeric, 2)  AS median_ratio,
+        ROUND(PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY ratio)::numeric, 2)  AS p25_ratio,
+        ROUND(PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY ratio)::numeric, 2) AS p75_ratio,
+        COUNT(*)                                                                AS count
+    FROM bucketed
+    GROUP BY range, ord
+    ORDER BY ord
+"""
+
 
 # ──────────────────────────────────────────────
 #  Data builders
@@ -99,6 +144,14 @@ def build_engine_over_time(db: Session) -> list:
 def build_distribution(db: Session) -> list:
     rows = db.execute(text(_SQL_DISTRIBUTION)).fetchall()
     return [{"name": r[0], "value": r[1]} for r in rows]
+
+
+def build_ratio_by_range(db: Session) -> list:
+    rows = db.execute(text(_SQL_RATIO_BY_RANGE)).fetchall()
+    return [
+        {"range": r[0], "order": r[1], "mean": float(r[2]), "median": float(r[3]), "p25": float(r[4]), "p75": float(r[5]), "count": r[6]}
+        for r in rows
+    ]
 
 
 # ──────────────────────────────────────────────
@@ -144,6 +197,11 @@ def calculate_all():
         distribution = build_distribution(db)
         save_statistic_cache(db, "vocaloid_stats:distribution", distribution)
         log_message("INFO", f"  → {len(distribution)} distribution entries stored.")
+
+        log_message("INFO", "Computing: YouTube vs NicoNico ratio by total views range")
+        ratio_by_range = build_ratio_by_range(db)
+        save_statistic_cache(db, "vocaloid_stats:view-ratio-by-range", ratio_by_range)
+        log_message("INFO", f"  → {len(ratio_by_range)} view range buckets stored.")
 
         log_message("SUCCESS", "Vocaloid statistics cache committed to statistic_cache table.")
     except Exception as e:

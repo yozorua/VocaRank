@@ -210,6 +210,25 @@ def get_vocaloids_engine_over_time(db: Session = Depends(get_db)):
     return result
 
 
+@router.get("/vocaloids/view-ratio-by-range")
+def get_vocaloids_view_ratio_by_range(db: Session = Depends(get_db)):
+    """
+    Returns YouTube/NicoNico ratio stats (mean, median, count) grouped by total views range.
+    Reads from statistic_cache (pre-computed by calculate_vocaloid_stats_cache.py).
+    """
+    with cache_lock:
+        if "view-ratio-by-range" in STATS_CACHE:
+            return STATS_CACHE["view-ratio-by-range"]
+
+    cached = _load_statistic_cache(db, "vocaloid_stats:view-ratio-by-range")
+    if cached is not None:
+        with cache_lock:
+            STATS_CACHE["view-ratio-by-range"] = cached
+        return cached
+
+    return []
+
+
 @router.get("/vocaloids/distribution")
 def get_vocaloids_distribution(db: Session = Depends(get_db)):
     """

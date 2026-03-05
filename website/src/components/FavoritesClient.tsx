@@ -68,7 +68,7 @@ export default function FavoritesClient() {
     }
 
     return (
-        <div className="w-full max-w-5xl mx-auto flex flex-col gap-8">
+        <div className="w-full max-w-5xl mx-auto flex flex-col">
             {/* Header row */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-6 md:mb-8 border-b border-[var(--hairline-strong)] pb-0">
                 <div className="mb-4 md:mb-4 pt-2">

@@ -5,7 +5,8 @@ import { useTranslations } from 'next-intl';
 import { API_BASE_URL } from '@/lib/api';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    PieChart, Pie, Cell, Legend, AreaChart, Area
+    PieChart, Pie, Cell, Legend, AreaChart, Area,
+    ComposedChart, Line, ReferenceLine, Label
 } from 'recharts';
 import { formatArtistType } from '@/lib/formatArtistType';
 
@@ -15,6 +16,7 @@ export default function VocaloidStatsClient() {
     const [timeline, setTimeline] = useState<any[]>([]);
     const [engineTimeline, setEngineTimeline] = useState<any[]>([]);
     const [distribution, setDistribution] = useState<any[]>([]);
+    const [ratioByRange, setRatioByRange] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [timeUnit, setTimeUnit] = useState<'year' | 'month'>('year');
     const [normalizeEngine, setNormalizeEngine] = useState(false);
@@ -22,10 +24,11 @@ export default function VocaloidStatsClient() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const [timeRes, distRes, engineTimeRes] = await Promise.all([
+                const [timeRes, distRes, engineTimeRes, ratioRangeRes] = await Promise.all([
                     fetch(`${API_BASE_URL}/statistics/vocaloids/over-time`),
                     fetch(`${API_BASE_URL}/statistics/vocaloids/distribution`),
-                    fetch(`${API_BASE_URL}/statistics/vocaloids/engine-over-time`)
+                    fetch(`${API_BASE_URL}/statistics/vocaloids/engine-over-time`),
+                    fetch(`${API_BASE_URL}/statistics/vocaloids/view-ratio-by-range`),
                 ]);
 
                 if (timeRes.ok && distRes.ok && engineTimeRes.ok) {
@@ -36,6 +39,7 @@ export default function VocaloidStatsClient() {
                     setDistribution(distData);
                     setEngineTimeline(await engineTimeRes.json());
                 }
+                if (ratioRangeRes.ok) setRatioByRange(await ratioRangeRes.json());
             } catch (err) {
                 console.error("Failed to fetch vocaloid stats", err);
             } finally {
@@ -246,7 +250,7 @@ export default function VocaloidStatsClient() {
             </div>
 
             {/* Distribution Pie Chart */}
-            <div className="bg-[var(--bg-dark)]/50 border border-[var(--hairline-strong)] p-6 mb-12">
+            <div className="bg-[var(--bg-dark)]/50 border border-[var(--hairline-strong)] p-6">
                 <h2 className="text-base font-bold mb-6 text-white border-l-2 border-[#39C5BB] pl-3">
                     {t('voicebank_distribution')}
                 </h2>
@@ -290,6 +294,89 @@ export default function VocaloidStatsClient() {
                     </ResponsiveContainer>
                 </div>
             </div>
+
+            {/* YouTube vs NicoNico View Ratio by Total Views Range */}
+            {ratioByRange.length > 0 && (
+                <div className="bg-[var(--bg-dark)]/50 border border-[var(--hairline-strong)] p-6 mb-12">
+                    <div className="mb-6 border-b border-[var(--hairline)] pb-4">
+                        <h2 className="text-base font-bold text-white border-l-2 border-[var(--gold)] pl-3">
+                            {t('view_ratio_title')}
+                        </h2>
+                    </div>
+                    <div className="h-[420px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <ComposedChart data={ratioByRange} margin={{ top: 10, right: 50, left: 20, bottom: 40 }}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="var(--hairline)" vertical={false} />
+                                <XAxis
+                                    dataKey="range"
+                                    stroke="#888"
+                                    tick={{ fill: '#888', fontSize: 12 }}
+                                    tickMargin={10}
+                                    label={{ value: t('ratio_total_views'), position: 'insideBottom', offset: -16, fill: '#888', fontSize: 12 }}
+                                />
+                                <YAxis
+                                    stroke="#888"
+                                    tick={{ fill: '#888', fontSize: 12 }}
+                                    tickFormatter={(v: number) => `${v}×`}
+                                    width={55}
+                                >
+                                    <Label
+                                        value="YouTube / NicoNico (×)"
+                                        angle={-90}
+                                        position="insideLeft"
+                                        style={{ textAnchor: 'middle', fill: '#888', fontSize: 11 }}
+                                    />
+                                </YAxis>
+                                <ReferenceLine
+                                    y={10}
+                                    stroke="var(--vermilion)"
+                                    strokeDasharray="6 3"
+                                    strokeOpacity={0.6}
+                                    label={{ value: '10×', position: 'right', fill: 'var(--vermilion)', fontSize: 11 }}
+                                />
+                                <ReferenceLine
+                                    y={1}
+                                    stroke="#888"
+                                    strokeDasharray="6 3"
+                                    strokeOpacity={0.5}
+                                    label={{ value: '1×', position: 'right', fill: '#888', fontSize: 11 }}
+                                />
+                                <Tooltip
+                                    cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                                    contentStyle={{ backgroundColor: 'var(--bg-dark)', borderColor: 'var(--hairline-strong)', borderRadius: 0, padding: '6px 10px', fontSize: '12px' }}
+                                    itemStyle={{ fontWeight: 'bold' }}
+                                    labelStyle={{ color: 'var(--text-secondary)', marginBottom: '2px' }}
+                                    formatter={(value: any, name: any) => {
+                                        if (name === 'count' || name === 'order') return null;
+                                        if (name === 'p25') return [`${value}×`, 'P25'];
+                                        if (name === 'p75') return [`${value}×`, 'P75'];
+                                        return [`${value}×`, name === 'median' ? t('ratio_median_label') : t('ratio_mean_label')];
+                                    }}
+                                    labelFormatter={(label) => `${t('ratio_total_views')}: ${label}`}
+                                />
+                                <Legend
+                                    verticalAlign="top"
+                                    align="right"
+                                    iconSize={8}
+                                    wrapperStyle={{ paddingBottom: '12px', fontSize: '12px' }}
+                                    formatter={(value) => (
+                                        <span style={{ color: '#fff' }}>
+                                            {value === 'median' ? t('ratio_median_label') : t('ratio_mean_label')}
+                                        </span>
+                                    )}
+                                />
+                                <Bar dataKey="median" fill="var(--gold)" fillOpacity={0.75} radius={0} animationDuration={1200} />
+                                <Line dataKey="p75" stroke="var(--vermilion)" strokeWidth={1} strokeDasharray="4 3" strokeOpacity={0.45} dot={false} legendType="none" isAnimationActive={false} />
+                                <Line dataKey="p25" stroke="var(--vermilion)" strokeWidth={1} strokeDasharray="4 3" strokeOpacity={0.45} dot={false} legendType="none" isAnimationActive={false} />
+                                <Line dataKey="mean" stroke="var(--vermilion)" strokeWidth={2} dot={{ r: 4, fill: 'var(--vermilion)' }} animationDuration={1200} />
+                            </ComposedChart>
+                        </ResponsiveContainer>
+                    </div>
+                    <p className="text-xs text-[var(--text-secondary)] mt-4 leading-relaxed">
+                        {t('view_ratio_caption')}
+                    </p>
+                </div>
+            )}
         </div>
     );
 }
