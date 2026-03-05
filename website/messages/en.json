@@ -82,7 +82,7 @@
   },
   "RankingPage": {
     "title": "Song Rankings",
-    "description": "Discover the most popular Vocaloid songs right now.",
+    "description": "Discover the most popular Vocaloid songs right now",
     "daily": "Daily",
     "weekly": "Weekly",
     "monthly": "Monthly",
@@ -221,12 +221,12 @@
   },
   "Graph": {
     "title": "Network of Vocaloid Producers",
-    "description": "Explore the network of Vocaloid producers based on their collaborations.",
+    "description": "Explore the network of Vocaloid producers based on their collaborations",
     "caption": "Each node represents a Vocaloid producer. Edges connect producers who have collaborated on at least one song together. Node size is determined by the selected weight metric (total views or collaboration centrality)."
   },
   "GraphVocalist": {
     "title": "Network of Vocaloid Voicebanks",
-    "description": "Explore the multi-synth collaboration network where two voicebanks appear together in the same song.",
+    "description": "Explore the multi-synth collaboration network where two voicebanks appear together in the same song",
     "caption": "Each node represents a synthesizer voicebank. Edges connect voicebanks that appear together in at least one song. Node size is determined by the selected weight metric."
   },
   "GraphPage": {
@@ -243,7 +243,7 @@
   },
   "StatisticVocaloid": {
     "title": "Vocaloid Trends",
-    "description": "Explore historical publishing trends and engine market-share distributions across the VocaRank database.",
+    "description": "Explore historical publishing trends and engine market-share distributions across the VocaRank database",
     "songs_over_time": "Songs Published Over Time",
     "voicebank_distribution": "Voicebank Usage Ratio",
     "engine_over_time": "Voicebank Usage Ratio Over Time",
@@ -283,7 +283,7 @@
   },
   "Playlist": {
     "title": "Playlists",
-    "description": "Explore and create your own Vocaloid playlists.",
+    "description": "Explore and create your own Vocaloid playlists",
     "browse": "Browse Playlists",
     "mine": "My Playlists",
     "create": "Create Playlist",

@@ -86,7 +86,7 @@
   },
   "RankingPage": {
     "title": "歌曲排行榜",
-    "description": "探索當下最熱門的 Vocaloid 歌曲。",
+    "description": "探索當下最熱門的 Vocaloid 歌曲",
     "daily": "本日",
     "weekly": "本週",
     "monthly": "本月",
@@ -225,12 +225,12 @@
   },
   "Graph": {
     "title": "Vocaloid 創作者關係圖",
-    "description": "探索基於 Vocaloid 創作者合作關係建立的人際網絡。",
+    "description": "探索基於 Vocaloid 創作者合作關係建立的關係圖",
     "caption": "每個節點代表一位 Vocaloid 創作者，連線代表雙方曾合作同一首歌曲。節點大小由所選權重決定（總觀看次數或合作中心性）。"
   },
   "GraphVocalist": {
     "title": "虛擬歌手關係圖",
-    "description": "探索虛擬歌手之間的關係。",
+    "description": "探索虛擬歌手之間的關係",
     "caption": "每個節點代表一個虛擬歌手，連線代表兩個虛擬歌手曾共同出現於同一首歌曲中。節點大小由所選權重決定。"
   },
   "GraphPage": {
@@ -247,7 +247,7 @@
   },
   "StatisticVocaloid": {
     "title": "Vocaloid 趨勢",
-    "description": "瀏覽歌曲發布歷史與各知名人聲合成引擎的使用率",
+    "description": "瀏覽歌曲發布歷史與人聲合成引擎的使用率",
     "songs_over_time": "歷年 Vocaloid 歌曲發表數",
     "voicebank_distribution": "聲庫使用率",
     "engine_over_time": "聲庫使用率的變化趨勢",
@@ -287,7 +287,7 @@
   },
   "Playlist": {
     "title": "播放清單",
-    "description": "探索並建立屬於您的 Vocaloid 播放清單。",
+    "description": "探索並建立 Vocaloid 播放清單",
     "browse": "瀏覽播放清單",
     "mine": "我的播放清單",
     "create": "建立播放清單",
