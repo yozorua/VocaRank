@@ -68,6 +68,13 @@ export default function PlayerPage() {
     // This preserves iOS WebKit's autoplay activation on the player element across song transitions.
     const lastYoutubeIdRef = useRef<string | undefined>(undefined);
     const premuteVolumeRef = useRef<number>(0.5);
+    // Live-value refs for use inside event handlers that must not go stale
+    const isPlayingRef = useRef(isPlaying);
+    const currentSongRef = useRef(currentSong);
+
+    // Keep refs in sync with latest render values so event handlers never go stale
+    isPlayingRef.current = isPlaying;
+    currentSongRef.current = currentSong;
 
     useEffect(() => {
         setIsMounted(true);
@@ -230,6 +237,28 @@ export default function PlayerPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [togglePlay, setVolume, volume]);
 
+    // When the tab becomes visible again, Chrome may have paused the YouTube iframe.
+    // onPause (below) skips setIsPlaying(false) when document.hidden is true, so isPlaying
+    // stays true in context — but the actual YouTube player is paused and needs to be resumed.
+    // Register once with [] deps; read live state via refs to avoid stale closures.
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (!document.hidden && isPlayingRef.current && !!currentSongRef.current?.youtube_id) {
+                const ytPlayer = playerRef.current?.getInternalPlayer() as any;
+                if (ytPlayer?.playVideo) {
+                    ytPlayer.playVideo();
+                } else {
+                    // Fallback: toggle the prop to force react-player to re-sync
+                    setIsPlaying(false);
+                    requestAnimationFrame(() => setIsPlaying(true));
+                }
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // intentionally empty — refs provide live values
+
     const handleDuration = useCallback((d: number) => {
         setDuration(d);
     }, []);
@@ -384,7 +413,13 @@ export default function PlayerPage() {
                                         onPlay={() => {
                                             setIsPlaying(true);
                                         }}
-                                        onPause={() => { if (!isNicoSong) setIsPlaying(false); }}
+                                        onPause={() => {
+                                            // Ignore pause events fired by Chrome when the tab is hidden —
+                                            // those are background throttle pauses, not user actions.
+                                            if (!isNicoSong && !document.hidden) {
+                                                setIsPlaying(false);
+                                            }
+                                        }}
                                         onEnded={loopMode === 'song' ? undefined : nextSong}
                                         width="100%"
                                         height="100%"
