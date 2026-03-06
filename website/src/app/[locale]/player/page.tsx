@@ -63,18 +63,9 @@ export default function PlayerPage() {
     const NICO_PLAYER_ID = 'vocarank-player';
     const NICO_ORIGIN = 'https://embed.nicovideo.jp';
     const ignoreNextNicoPause = useRef(false);
+    const isChangingSong = useRef(false);
     const nicoHasPlayed = useRef(false); // guard against spurious status=4 before video actually plays
-    // Track last YouTube ID so ReactPlayer stays mounted (with a URL) even during Niconico songs.
-    // This preserves iOS WebKit's autoplay activation on the player element across song transitions.
-    const lastYoutubeIdRef = useRef<string | undefined>(undefined);
     const premuteVolumeRef = useRef<number>(0.5);
-    // Live-value refs for use inside event handlers that must not go stale
-    const isPlayingRef = useRef(isPlaying);
-    const currentSongRef = useRef(currentSong);
-
-    // Keep refs in sync with latest render values so event handlers never go stale
-    isPlayingRef.current = isPlaying;
-    currentSongRef.current = currentSong;
 
     useEffect(() => {
         setIsMounted(true);
@@ -182,21 +173,6 @@ export default function PlayerPage() {
 
     const handleReady = useCallback(() => {
         if (!currentSong) return;
-
-        // iOS autoplay trick: muted video can autoplay even without a user gesture.
-        // We mute, play, then immediately unmute — unMute() succeeds when the page was
-        // opened from a recent user gesture (e.g. tapping "Play All" in a playlist).
-        const isYouTubeSong = !!currentSong.youtube_id;
-        if (isPlaying && isYouTubeSong) {
-            const ytPlayer = playerRef.current?.getInternalPlayer() as any;
-            if (ytPlayer?.mute && ytPlayer?.playVideo && ytPlayer?.unMute) {
-                ytPlayer.mute();
-                ytPlayer.playVideo();
-                // requestAnimationFrame keeps us within the gesture propagation window
-                requestAnimationFrame(() => ytPlayer.unMute());
-            }
-        }
-
         const savedKey = `vocarank_progress_${currentSong.id}`;
         const saved = localStorage.getItem(savedKey);
         if (saved && savedProgress === null) {
@@ -208,7 +184,7 @@ export default function PlayerPage() {
             playerRef.current.seekTo(savedProgress, 'seconds');
             setSavedProgress(null);
         }
-    }, [currentSong, savedProgress, isPlaying]);
+    }, [currentSong, savedProgress]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -237,28 +213,6 @@ export default function PlayerPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [togglePlay, setVolume, volume]);
 
-    // When the tab becomes visible again, Chrome may have paused the YouTube iframe.
-    // onPause (below) skips setIsPlaying(false) when document.hidden is true, so isPlaying
-    // stays true in context — but the actual YouTube player is paused and needs to be resumed.
-    // Register once with [] deps; read live state via refs to avoid stale closures.
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (!document.hidden && isPlayingRef.current && !!currentSongRef.current?.youtube_id) {
-                const ytPlayer = playerRef.current?.getInternalPlayer() as any;
-                if (ytPlayer?.playVideo) {
-                    ytPlayer.playVideo();
-                } else {
-                    // Fallback: toggle the prop to force react-player to re-sync
-                    setIsPlaying(false);
-                    requestAnimationFrame(() => setIsPlaying(true));
-                }
-            }
-        };
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); // intentionally empty — refs provide live values
-
     const handleDuration = useCallback((d: number) => {
         setDuration(d);
     }, []);
@@ -280,25 +234,16 @@ export default function PlayerPage() {
 
     const isNicoSong = !currentSong?.youtube_id && !!currentSong?.niconico_id;
 
-    // Stable YouTube URL: use current song's ID if available, else fall back to last known YouTube ID.
-    // This lets ReactPlayer stay mounted with a valid URL even while a Niconico song is playing.
-    const youtubeId = currentSong?.youtube_id ?? lastYoutubeIdRef.current;
-    const youtubeUrl = youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : null;
-
-    // Reset NicoNico state on song change
+    // Reset NicoNico state on song change; guard isChangingSong to suppress YouTube's onPause on unmount
     useEffect(() => {
+        isChangingSong.current = true;
         nicoHasPlayed.current = false;
         setNicoProgress(0);
         setNicoDuration(0);
         setNicoReady(false);
+        const t = setTimeout(() => { isChangingSong.current = false; }, 600);
+        return () => clearTimeout(t);
     }, [currentSong?.id]);
-
-    // Keep lastYoutubeIdRef up-to-date so ReactPlayer has a URL even when a Niconico song is active
-    useEffect(() => {
-        if (currentSong?.youtube_id) {
-            lastYoutubeIdRef.current = currentSong.youtube_id;
-        }
-    }, [currentSong?.youtube_id]);
 
     // NicoNico postMessage listener
     useEffect(() => {
@@ -396,43 +341,30 @@ export default function PlayerPage() {
                         {/* Video Container with Overlaid Protection Shield */}
                         <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-[var(--hairline-strong)] bg-black group shrink-0">
 
-                            {/* YouTube: ALWAYS in DOM — hidden but never unmounted during Niconico songs.
-                                Keeping the element alive preserves iOS WebKit's autoplay activation, so
-                                transitioning Niconico → YouTube plays without requiring a new user gesture. */}
-                            {youtubeUrl && (
-                                <div className={`absolute inset-0${isNicoSong ? ' hidden' : ''}`}>
-                                    <ReactPlayer
-                                        ref={playerRef}
-                                        url={youtubeUrl}
-                                        playing={isPlaying && !isNicoSong}
-                                        volume={volume}
-                                        loop={loopMode === 'song'}
-                                        onProgress={handleProgress as any}
-                                        onDuration={handleDuration}
-                                        onReady={handleReady}
-                                        onPlay={() => {
-                                            setIsPlaying(true);
-                                        }}
-                                        onPause={() => {
-                                            // Ignore pause events fired by Chrome when the tab is hidden —
-                                            // those are background throttle pauses, not user actions.
-                                            if (!isNicoSong && !document.hidden) {
-                                                setIsPlaying(false);
-                                            }
-                                        }}
-                                        onEnded={loopMode === 'song' ? undefined : nextSong}
-                                        width="100%"
-                                        height="100%"
-                                        config={{
-                                            playerVars: {
-                                                showinfo: 0 as any, controls: 0 as any, autoplay: 1 as any, playsinline: 1 as any,
-                                                disablekb: 1 as any, fs: 0 as any, iv_load_policy: 3 as any, rel: 0 as any, modestbranding: 1 as any
-                                            }
-                                        }}
-                                    />
-                                </div>
-                            )}
-                            {isNicoSong && (
+                            {!isNicoSong ? (
+                                <ReactPlayer
+                                    ref={playerRef}
+                                    url={`https://www.youtube.com/watch?v=${currentSong.youtube_id}`}
+                                    playing={isPlaying}
+                                    volume={volume}
+                                    loop={loopMode === 'song'}
+                                    onProgress={handleProgress as any}
+                                    onDuration={handleDuration}
+                                    onReady={handleReady}
+                                    onPlay={() => setIsPlaying(true)}
+                                    onPause={() => { if (!isChangingSong.current) setIsPlaying(false); }}
+                                    onEnded={loopMode === 'song' ? undefined : nextSong}
+                                    width="100%"
+                                    height="100%"
+                                    className="absolute inset-0"
+                                    config={{
+                                        playerVars: {
+                                            showinfo: 0 as any, controls: 0 as any, autoplay: 1 as any, playsinline: 1 as any,
+                                            disablekb: 1 as any, fs: 0 as any, iv_load_policy: 3 as any, rel: 0 as any, modestbranding: 1 as any
+                                        }
+                                    }}
+                                />
+                            ) : (
                                 <iframe
                                     ref={nicoIframeRef}
                                     key={currentSong.niconico_id}
