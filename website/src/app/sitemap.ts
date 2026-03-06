@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://vocarank.live';
 const API = process.env.API_URL_INTERNAL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-const LOCALES = ['en', 'ja', 'zh-TW'];
+const LOCALES = ['en', 'ja', 'zh-TW', 'ar'];
 
 function localeUrls(path: string, priority = 0.8): MetadataRoute.Sitemap[number] {
     return {

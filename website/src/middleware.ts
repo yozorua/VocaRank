@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const intlMiddleware = createMiddleware(routing);
 
-const VALID_LOCALES = new Set(['en', 'ja', 'zh-TW']);
+const VALID_LOCALES = new Set(['en', 'ja', 'zh-TW', 'ar']);
 
 // Paths with file extensions that are real Next.js concerns (let pass through)
 // Everything else with a dot is a scanner/bot probe — return 404 immediately

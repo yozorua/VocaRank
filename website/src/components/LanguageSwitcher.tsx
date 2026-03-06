@@ -8,6 +8,7 @@ const languages = [
     { code: 'en', label: 'EN', full: 'English' },
     { code: 'zh-TW', label: '繁中', full: '繁體中文' },
     { code: 'ja', label: '日本語', full: '日本語' },
+    { code: 'ar', label: 'العربية', full: 'العربية' },
 ];
 
 export default function LanguageSwitcher() {
