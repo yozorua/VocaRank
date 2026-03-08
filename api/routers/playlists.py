@@ -191,7 +191,10 @@ def count_playlists(
     query: Optional[str] = Query(None),
     db: Session = Depends(get_db),
 ):
-    q = db.query(models.Playlist).filter(models.Playlist.is_public == 1)
+    q = db.query(models.Playlist).filter(
+        models.Playlist.is_public == 1,
+        models.Playlist.live_id == None,  # exclude official live playlists
+    )
     if query:
         q = q.filter(models.Playlist.title.ilike(f"%{query}%"))
     return {"total": q.count()}
@@ -207,7 +210,10 @@ def list_playlists(
     db: Session = Depends(get_db),
 ):
     offset = (page - 1) * per_page
-    q = db.query(models.Playlist).filter(models.Playlist.is_public == 1)
+    q = db.query(models.Playlist).filter(
+        models.Playlist.is_public == 1,
+        models.Playlist.live_id == None,  # exclude official live playlists
+    )
     if query:
         q = q.filter(models.Playlist.title.ilike(f"%{query}%"))
     playlists = (

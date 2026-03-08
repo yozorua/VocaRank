@@ -253,6 +253,33 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                                 </p>
                             </div>
                         </a>
+
+                        {/* VocaDB Card */}
+                        <a
+                            href={`https://vocadb.net/S/${song.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="relative p-4 md:p-5 flex items-center justify-between border border-[var(--hairline)] hover:border-[var(--gold)]/60 hover:bg-[var(--gold)]/5 bg-transparent transition-all duration-300 group/vdb"
+                        >
+                            <div className="w-full">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <p className="text-[10px] uppercase font-bold text-[var(--text-secondary)] group-hover/vdb:text-[var(--gold)] transition-colors tracking-[0.2em] leading-none">
+                                        VocaDB
+                                    </p>
+                                    {/* VocaDB logo-style icon */}
+                                    <div className="text-[var(--text-secondary)] group-hover/vdb:text-[var(--gold)] transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                            <polyline points="15 3 21 3 21 9" />
+                                            <line x1="10" y1="14" x2="21" y2="3" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <p className="text-xl lg:text-2xl font-bold font-mono text-white tracking-widest break-all">
+                                    ID {song.id}
+                                </p>
+                            </div>
+                        </a>
                     </div>
                 </div>
             </div>

@@ -14,6 +14,7 @@ export default function Navbar() {
     const [mounted, setMounted] = useState(false);
     const [navSearch, setNavSearch] = useState('');
     const [navSearchOpen, setNavSearchOpen] = useState(false);
+    const [navSearchFocused, setNavSearchFocused] = useState(false);
 
     // Required for createPortal to work in SSR (Next.js)
     useEffect(() => { setMounted(true); }, []);
@@ -160,13 +161,14 @@ export default function Navbar() {
                         <div
                             className="flex items-center"
                             onMouseEnter={() => setNavSearchOpen(true)}
-                            onMouseLeave={() => { if (!navSearch.trim()) setNavSearchOpen(false); }}
+                            onMouseLeave={() => { if (!navSearchFocused && !navSearch.trim()) setNavSearchOpen(false); }}
                         >
                             <form
                                 onSubmit={(e) => {
                                     e.preventDefault();
                                     const q = navSearch.trim();
                                     setNavSearchOpen(false);
+                                    setNavSearchFocused(false);
                                     setNavSearch('');
                                     if (q) {
                                         router.push(`/search?q=${encodeURIComponent(q)}`);
@@ -182,7 +184,8 @@ export default function Navbar() {
                                         value={navSearch}
                                         onChange={e => setNavSearch(e.target.value)}
                                         placeholder={t('search', { defaultMessage: 'Search...' })}
-                                        onBlur={() => { if (!navSearch.trim()) setNavSearchOpen(false); }}
+                                        onFocus={() => setNavSearchFocused(true)}
+                                        onBlur={() => { setNavSearchFocused(false); if (!navSearch.trim()) setNavSearchOpen(false); }}
                                         className="w-full bg-transparent border-b border-white/30 text-white text-sm px-2 py-1 focus:outline-none focus:border-white placeholder:text-white/40 transition-colors"
                                     />
                                 </div>
