@@ -233,12 +233,16 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
           {/* Stat strip — bigger text */}
           {stats && (
-            <p className="text-xs text-[var(--text-secondary)] tracking-[0.35em] animate-fade-in-up px-6"
+            <div className="flex flex-wrap items-center justify-center text-xs text-[var(--text-secondary)] tracking-[0.35em] animate-fade-in-up px-6"
               style={{ animationDelay: '120ms' }}>
-              <StatNumber value={stats.vocaloid_songs} suffix={t('stat_songs')} />
+              <span dir="auto" className="flex items-center">
+                <StatNumber value={stats.vocaloid_songs} suffix={t('stat_songs')} />
+              </span>
               <span className="mx-3 opacity-30">·</span>
-              <StatNumber value={stats.vocaloid_producers} suffix={t('stat_producers')} />
-            </p>
+              <span dir="auto" className="flex items-center">
+                <StatNumber value={stats.vocaloid_producers} suffix={t('stat_producers')} />
+              </span>
+            </div>
           )}
 
           {/* CTA Buttons — spaced away from stat strip */}

@@ -45,10 +45,10 @@ export default function StatNumber({ value, suffix, duration = 1600 }: Props) {
     }, [value, duration]);
 
     return (
-        <span ref={ref}>
-            {new Intl.NumberFormat('en-US').format(display)}
-            {' '}
-            {suffix}
+        <span ref={ref} dir="auto" className="inline-flex items-center">
+            <bdi>{new Intl.NumberFormat('en-US').format(display)}</bdi>
+            <span className="mx-1"></span>
+            <bdi>{suffix}</bdi>
         </span>
     );
 }
