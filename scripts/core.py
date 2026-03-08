@@ -14,8 +14,9 @@ YOUTUBE_API_URL = "https://www.googleapis.com/youtube/v3/videos"
 NICONICO_API_URL = "https://snapshot.search.nicovideo.jp/api/v2/snapshot/video/contents/search"
 USER_AGENT = "VocaRank/1.0"
 SYNTH_TYPES = (
-    'Vocaloid', 'UTAU', 'CeVIO', 'SynthesizerV', 'NEUTRINO', 
-    'AIVOICE', 'VOICEVOX', 'NewType', 'Voiceroid', 'ACEVirtualSinger'
+    'Vocaloid', 'UTAU', 'CeVIO', 'SynthesizerV', 'NEUTRINO',
+    'AIVOICE', 'VOICEVOX', 'NewType', 'Voiceroid', 'ACEVirtualSinger',
+    'VoiSona', 'OtherVoiceSynthesizer'
 )
 
 

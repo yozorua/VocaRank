@@ -91,6 +91,7 @@
     "sort_total": "Total Views",
     "sort_youtube": "YouTube Ranking",
     "sort_niconico": "Niconico Ranking",
+    "ranking_method_hint": "Daily, Weekly, and Monthly rankings are based on view count gains over the selected period. Only songs of type Original, Remaster, and Remix are counted, and must use a voice synthesizer: VOCALOID, UTAU, Synthesizer V, CeVIO, VoiSona, NEUTRINO, AIVOICE, VOICEVOX, VOICEROID, NewType, ACEVirtualSinger.",
     "unstable_hint": "Statistics for this period may be incomplete while data is still being collected.",
     "custom_apply_prompt": "Configure filters above and click Apply"
   },

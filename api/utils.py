@@ -5,9 +5,16 @@ import json
 
 
 SYNTH_TYPES = (
-    'Vocaloid', 'UTAU', 'CeVIO', 'SynthesizerV', 'NEUTRINO', 
-    'AIVOICE', 'VOICEVOX', 'NewType', 'Voiceroid', 'ACEVirtualSinger'
+    'Vocaloid', 'UTAU', 'CeVIO', 'SynthesizerV', 'NEUTRINO',
+    'AIVOICE', 'VOICEVOX', 'NewType', 'Voiceroid', 'ACEVirtualSinger',
+    'VoiSona', 'OtherVoiceSynthesizer'
 )
+
+# Stricter set used for the vocaloid_only rankings filter.
+# OtherVoiceSynthesizer is intentionally excluded — it's a catch-all that
+# includes non-vocaloid tools (e.g. Delay Lama) that shouldn't appear in
+# vocaloid-only rankings.
+RANKING_SYNTH_TYPES = tuple(t for t in SYNTH_TYPES if t != 'OtherVoiceSynthesizer')
 
 def extract_pvs(pv_data_json: str):
     """Parses PV data and returns (youtube_id, niconico_id, niconico_thumb_url)."""

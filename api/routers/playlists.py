@@ -84,8 +84,7 @@ def _artist_string(song: models.Song) -> str:
     return " · ".join(
         a.name_default or a.name_english or ""
         for a in song.artists
-        if a.artist_type not in ("Vocaloid", "UTAU", "OtherVoiceSynthesizer",
-                                  "CoverArtist", "Animator")
+        if a.artist_type not in (*SYNTH_TYPES, "CoverArtist", "Animator")
     ) or "Unknown"
 
 def _songwriter_string(song: models.Song) -> str:
@@ -93,8 +92,7 @@ def _songwriter_string(song: models.Song) -> str:
     names = [
         a.name_default or a.name_english or ""
         for a in song.artists
-        if a.artist_type not in ("Vocaloid", "UTAU", "OtherVoiceSynthesizer",
-                                  "CoverArtist", "Animator")
+        if a.artist_type not in (*SYNTH_TYPES, "CoverArtist", "Animator")
     ]
     return " · ".join(names) or "Unknown"
 
@@ -102,7 +100,7 @@ def _vocalist_string(song: models.Song) -> Optional[str]:
     names = [
         a.name_default or a.name_english or ""
         for a in song.artists
-        if a.artist_type in ("Vocaloid", "UTAU", "OtherVoiceSynthesizer")
+        if a.artist_type in SYNTH_TYPES
     ]
     return " · ".join(names) if names else None
 

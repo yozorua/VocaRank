@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from api.database import SessionLocal, engine
 from api.models import Base, RankingCache
-from api.utils import SYNTH_TYPES, extract_pvs, get_artists_for_songs
+from api.utils import SYNTH_TYPES, RANKING_SYNTH_TYPES, extract_pvs, get_artists_for_songs
 import api.schemas as schemas
 from .core import log_message
 
@@ -90,7 +90,7 @@ def get_gain_ranking(db: Session, days_ago: int, limit: int, song_type: str, voc
             JOIN artists a ON sa.artist_id = a.id 
             WHERE sa.song_id = s.id AND a.artist_type IN :synth_types
         )"""
-        params["synth_types"] = list(SYNTH_TYPES)
+        params["synth_types"] = list(RANKING_SYNTH_TYPES)
 
     query_str += f" ORDER BY {order_clause} LIMIT :limit"
     sql = text(query_str)
@@ -161,7 +161,7 @@ def get_total_ranking(db: Session, limit: int, song_type: str, vocaloid_only: bo
             JOIN artists a ON sa.artist_id = a.id 
             WHERE sa.song_id = s.id AND a.artist_type IN :synth_types
         )"""
-        params["synth_types"] = list(SYNTH_TYPES)
+        params["synth_types"] = list(RANKING_SYNTH_TYPES)
 
     query_str += f" ORDER BY {order_clause} LIMIT :limit"
     sql = text(query_str)

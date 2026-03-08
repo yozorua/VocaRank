@@ -95,6 +95,7 @@
     "sort_total": "合計再生数",
     "sort_youtube": "YouTubeランキング",
     "sort_niconico": "ニコニコランキング",
+    "ranking_method_hint": "日間・週間・月間ランキングは、選択した期間の再生数増加数をもとに算出されます。曲種がOriginal・Remaster・Remixであり、かつ以下の音声合成エンジンを使用している楽曲のみが対象です：VOCALOID、UTAU、Synthesizer V、CeVIO、VoiSona、NEUTRINO、AIVOICE、VOICEVOX、VOICEROID、NewType、ACEVirtualSinger。",
     "unstable_hint": "この期間の統計データはまだ収集中のため、結果が不完全な場合があります。",
     "custom_apply_prompt": "上のフィルターを設定して適用ボタンを押してください"
   },

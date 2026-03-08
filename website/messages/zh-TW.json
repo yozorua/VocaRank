@@ -95,6 +95,7 @@
     "sort_total": "總觀看數",
     "sort_youtube": "YouTube 排行",
     "sort_niconico": "Niconico 排行",
+    "ranking_method_hint": "日榜、週榜及月榜依據所選期間的觀看數增長計算。僅計算歌曲類型為Original、Remaster及Remix，且必須使用聲音合成器：VOCALOID、UTAU、Synthesizer V、CeVIO、VoiSona、NEUTRINO、AIVOICE、VOICEVOX、VOICEROID、NewType、ACEVirtualSinger。",
     "unstable_hint": "此期間的統計數據仍在收集中，結果可能不完整。",
     "custom_apply_prompt": "請設定上方篩選條件後按下套用"
   },

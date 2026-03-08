@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 from ..database import get_db
 from .. import schemas
-from ..utils import SYNTH_TYPES, extract_pvs, get_artists_for_songs
+from ..utils import SYNTH_TYPES, RANKING_SYNTH_TYPES, extract_pvs, get_artists_for_songs
 from ..models import RankingCache
 from typing import List, Optional, Dict
 import datetime
@@ -102,7 +102,7 @@ def get_gain_ranking(
             JOIN artists a ON sa.artist_id = a.id 
             WHERE sa.song_id = s.id AND a.artist_type IN :synth_types
         )"""
-        params["synth_types"] = list(SYNTH_TYPES)
+        params["synth_types"] = list(RANKING_SYNTH_TYPES)
 
     query_str += f" ORDER BY {order_clause} LIMIT :limit"
     
@@ -254,7 +254,7 @@ def get_total_ranking(
             JOIN artists a ON sa.artist_id = a.id 
             WHERE sa.song_id = s.id AND a.artist_type IN :synth_types
         )"""
-        params["synth_types"] = list(SYNTH_TYPES)
+        params["synth_types"] = list(RANKING_SYNTH_TYPES)
 
     query_str += f" ORDER BY {order_clause} LIMIT :limit"
     
@@ -360,7 +360,7 @@ def get_custom_ranking(
             JOIN artists a ON sa.artist_id = a.id 
             WHERE sa.song_id = s.id AND a.artist_type IN :synth_types
         )"""
-        params["synth_types"] = list(SYNTH_TYPES)
+        params["synth_types"] = list(RANKING_SYNTH_TYPES)
 
     if publish_date_start:
         query_str += " AND DATE(s.publish_date) >= DATE(:publish_date_start)"

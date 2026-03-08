@@ -142,7 +142,21 @@ function RankingContent() {
         <div className="max-w-[var(--max-width)] mx-auto px-6 py-2 md:py-2">
             <div className="mb-4 md:mb-4 pt-2">
                 <h1 className="text-2xl md:text-3xl font-bold mb-2">{t('title')}</h1>
-                <p className="text-[var(--text-secondary)] text-sm md:text-base">{t('description')}</p>
+                <div className="flex items-center gap-2">
+                    <p className="text-[var(--text-secondary)] text-sm md:text-base">{t('description')}</p>
+                    <div className="relative group shrink-0">
+                        <span className="text-[var(--text-secondary)] opacity-60 hover:opacity-100 transition-opacity cursor-default">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                        </span>
+                        <div className="absolute left-0 top-6 z-50 hidden group-hover:block w-72 max-w-[calc(100vw-3rem)] p-3 text-xs text-[var(--text-secondary)] leading-relaxed bg-[#0f0f0f] border border-[var(--hairline-strong)] shadow-xl">
+                            {t('ranking_method_hint')}
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-6 md:mb-8 border-b border-[var(--hairline-strong)] pb-0">
