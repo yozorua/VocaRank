@@ -74,6 +74,7 @@ class SongDetail(SongBase):
     vocaloid_string: str
     artists: List[ArtistTiny] = []
     vocalists: List[ArtistTiny] = []
+    other_vocalists: List[ArtistTiny] = []
     youtube_id: Optional[str] = None
     niconico_id: Optional[str] = None
     niconico_thumb_url: Optional[str] = None
@@ -119,6 +120,7 @@ class SongRanking(BaseModel):
     vocaloid_string: str # Legacy string
     artists: List[ArtistTiny] = [] # Structured data
     vocalists: List[ArtistTiny] = [] # Structured data
+    other_vocalists: List[ArtistTiny] = [] # Real human vocalists
 
 # --- Auth Schemas ---
 class UserBase(BaseModel):

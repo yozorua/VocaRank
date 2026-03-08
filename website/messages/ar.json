@@ -98,6 +98,7 @@
   "SongDetail": {
     "total_views": "إجمالي المشاهدات",
     "vocalist": "المغني",
+    "other_vocalist": "مغنٍّ آخر",
     "type": "نوع الأغنية",
     "release_date": "تاريخ الإصدار",
     "duration": "المدة",

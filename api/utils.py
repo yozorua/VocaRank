@@ -38,7 +38,7 @@ def extract_pvs(pv_data_json: str):
 def get_artists_for_songs(db: Session, song_ids: List[int]) -> Dict[int, Dict[str, List[Dict]]]:
     """
     Fetches artist details grouped by role (Producer vs Vocalist) for songs.
-    Returns: {song_id: {'producers': [ArtistTiny], 'vocalists': [ArtistTiny]}}
+    Returns: {song_id: {'producers': [ArtistTiny], 'vocalists': [ArtistTiny], 'other_vocalists': [ArtistTiny]}}
     """
     if not song_ids:
         return {}
@@ -63,28 +63,31 @@ def get_artists_for_songs(db: Session, song_ids: List[int]) -> Dict[int, Dict[st
         
     for sid, aid, name, atype, thumb in results:
         if sid not in artist_map:
-            artist_map[sid] = {'producers': [], 'vocalists': [], 'others': []}
-            
+            artist_map[sid] = {'producers': [], 'vocalists': [], 'other_vocalists': [], 'others': []}
+
         artist_obj = {'id': aid, 'name': name, 'artist_type': atype, 'picture_url_thumb': thumb}
-        
+
         if atype in ('Producer', 'Circle', 'OtherGroup'):
             artist_map[sid]['producers'].append(artist_obj)
         elif is_vocalist(atype):
             artist_map[sid]['vocalists'].append(artist_obj)
+        elif atype == 'OtherVocalist':
+            artist_map[sid]['other_vocalists'].append(artist_obj)
         else:
             artist_map[sid]['others'].append(artist_obj)
-            
+
     # Post-process: If no producers, try to use 'others' (e.g. Animator, Illustrator, etc.)
     # This prevents "Unknown" when we have some artist info but strict type matching failed
     final_map = {}
     for sid, data in artist_map.items():
         producers = data['producers']
         vocalists = data['vocalists']
-        
+        other_vocalists = data['other_vocalists']
+
         if not producers and data['others']:
              # Use others as fallback for producers
              producers = data['others']
-             
-        final_map[sid] = {'producers': producers, 'vocalists': vocalists}
+
+        final_map[sid] = {'producers': producers, 'vocalists': vocalists, 'other_vocalists': other_vocalists}
              
     return final_map

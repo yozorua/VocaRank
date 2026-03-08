@@ -102,6 +102,7 @@
   "SongDetail": {
     "total_views": "総再生数",
     "vocalist": "ボーカル",
+    "other_vocalist": "その他のボーカル",
     "type": "種別",
     "release_date": "公開日",
     "duration": "再生時間",

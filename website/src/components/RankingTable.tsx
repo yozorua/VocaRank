@@ -406,13 +406,13 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                                     {renderArtistList(song.artists)}
                                                 </div>
                                             </div>
-                                            {song.vocalists && song.vocalists.length > 0 && (
+                                            {(song.vocalists?.length > 0 || song.other_vocalists?.length > 0) && (
                                                 <div className="text-[11px] text-[var(--text-secondary)] flex items-center gap-2 min-w-0 w-full">
                                                     <div className="w-[72px] flex-shrink-0 text-[9px] uppercase tracking-widest text-white/40">
                                                         VOCALS
                                                     </div>
                                                     <div className="flex items-center gap-2 line-clamp-1 truncate min-w-0 flex-1">
-                                                        {renderArtistList(song.vocalists)}
+                                                        {renderArtistList([...(song.vocalists ?? []), ...(song.other_vocalists ?? [])])}
                                                     </div>
                                                 </div>
                                             )}

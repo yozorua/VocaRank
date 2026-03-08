@@ -120,6 +120,7 @@ export default function PlayerPage() {
                             publish_date: null,
                             artists: s.artists ?? [],
                             vocalists: s.vocalists ?? [],
+                            other_vocalists: s.other_vocalists ?? [],
                         }));
 
                     let targetSong = valid[0];

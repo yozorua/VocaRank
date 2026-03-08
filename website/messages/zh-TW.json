@@ -102,6 +102,7 @@
   "SongDetail": {
     "total_views": "總觀看數",
     "vocalist": "主唱",
+    "other_vocalist": "其他歌手",
     "type": "類型",
     "release_date": "發布日期",
     "duration": "時長",

@@ -43,6 +43,7 @@ export interface SongRanking {
     vocaloid_string: string;
     artists: ArtistTiny[];
     vocalists: ArtistTiny[];
+    other_vocalists: ArtistTiny[];
 }
 
 export interface SongDetail extends SongRanking {

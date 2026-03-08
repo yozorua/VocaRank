@@ -161,6 +161,37 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                         </div>
                     </div>
 
+                    {/* Other Vocalist List */}
+                    {song.other_vocalists && song.other_vocalists.length > 0 && (
+                        <div className="mt-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-secondary)] flex items-center gap-3">
+                                    {t('other_vocalist')}
+                                </span>
+                            </div>
+                            <div className="flex flex-wrap gap-4">
+                                {song.other_vocalists.map((artist) => (
+                                    <a
+                                        key={artist.id}
+                                        href={`/artist/${artist.id}`}
+                                        className="group inline-flex w-max items-center gap-3 pr-4 border border-[var(--hairline)] hover:border-[var(--vermilion)] transition-all bg-[var(--bg-dark)]"
+                                    >
+                                        <div className="w-8 h-8 overflow-hidden bg-[var(--hairline)] flex items-center justify-center shrink-0">
+                                            {artist.picture_url_thumb ? (
+                                                <img src={artist.picture_url_thumb} alt={artist.name} className="w-full h-full object-cover object-top grayscale-[10%] group-hover:grayscale-0 transition-all" />
+                                            ) : (
+                                                <span className="text-[10px] font-serif text-[var(--text-secondary)]">{artist.name.charAt(0)}</span>
+                                            )}
+                                        </div>
+                                        <span className="text-sm font-bold text-[var(--text-secondary)] group-hover:text-white transition-colors tracking-widest">
+                                            {artist.name}
+                                        </span>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Interactive Actions */}
                     <div className="mt-10 pt-8 border-t border-[var(--hairline)]">
                         <MoodVoting songId={song.id} initialVotes={song.mood_votes} />

@@ -98,6 +98,7 @@
   "SongDetail": {
     "total_views": "Total Views",
     "vocalist": "Vocalist",
+    "other_vocalist": "Other Vocalist",
     "type": "Type",
     "release_date": "Release Date",
     "duration": "Duration",

@@ -193,10 +193,11 @@ def get_song(song_id: int, db: Session = Depends(get_db)):
         
     # Enrich with artist data
     artist_map = get_artists_for_songs(db, [song_id])
-    am = artist_map.get(song_id, {'producers': [], 'vocalists': []})
-    
+    am = artist_map.get(song_id, {'producers': [], 'vocalists': [], 'other_vocalists': []})
+
     producers = am.get('producers', [])
     vocalists = am.get('vocalists', [])
+    other_vocalists = am.get('other_vocalists', [])
     
     artist_string = ", ".join([p['name'] for p in producers]) if producers else "Unknown"
     vocaloid_string = ", ".join([v['name'] for v in vocalists]) if vocalists else "Unknown"
@@ -242,6 +243,7 @@ def get_song(song_id: int, db: Session = Depends(get_db)):
         vocaloid_string=vocaloid_string,
         artists=producers,
         vocalists=vocalists,
+        other_vocalists=other_vocalists,
         youtube_id=yt_id,
         niconico_id=nico_id,
         niconico_thumb_url=nico_thumb,
