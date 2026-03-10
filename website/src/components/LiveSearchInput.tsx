@@ -43,7 +43,7 @@ export default function LiveSearchInput({ defaultValue, placeholder }: LiveSearc
             try {
                 const [aData, sData] = await Promise.all([
                     searchArtists(query, 5),
-                    searchSongs(query, 20)
+                    searchSongs(query, { limit: 20 })
                 ]);
                 setArtists(aData || []);
                 setSongs(sData || []);

@@ -7,14 +7,16 @@ import { Link } from '@/i18n/navigation';
 import RankingTable from '@/components/RankingTable';
 import { searchSongs, searchArtists } from '@/lib/api';
 import { formatArtistType } from '@/lib/formatArtistType';
+import type { AdvancedFilters } from '@/components/AdvancedSearchFilters';
 
 interface SearchResultsClientProps {
     query: string;
+    filters: AdvancedFilters;
     initialSongs: SongRanking[];
     initialArtists: Artist[];
 }
 
-export default function SearchResultsClient({ query, initialSongs, initialArtists }: SearchResultsClientProps) {
+export default function SearchResultsClient({ query, filters, initialSongs, initialArtists }: SearchResultsClientProps) {
     const t = useTranslations('SearchPage');
     const locale = useLocale();
 
@@ -42,7 +44,14 @@ export default function SearchResultsClient({ query, initialSongs, initialArtist
         // Next limits: 20 -> 100 -> 200 -> 300...
         const nextLimit = songLimit === 20 ? 100 : songLimit + 100;
         try {
-            const moreSongs = await searchSongs(query, nextLimit);
+            const moreSongs = await searchSongs(query, {
+                limit: nextLimit,
+                vocalist_ids: filters.vocalist_ids || undefined,
+                vocalist_exclusive: filters.vocalist_exclusive || undefined,
+                sort_by: filters.sort_by,
+                publish_date_start: filters.publish_date_start || undefined,
+                publish_date_end: filters.publish_date_end || undefined,
+            });
             setSongs(moreSongs);
             setSongLimit(nextLimit);
             setHasMoreSongs(moreSongs.length >= nextLimit);
@@ -86,6 +95,7 @@ export default function SearchResultsClient({ query, initialSongs, initialArtist
                                 <Link
                                     key={artist.id}
                                     href={`/artist/${artist.id}`}
+                                    target="_blank"
                                     className="p-6 border border-[var(--hairline)] hover:border-[var(--vermilion)] transition-colors flex flex-col items-center text-center gap-5 group bg-[var(--bg-dark)]"
                                 >
                                     <div className="w-24 h-24 overflow-hidden bg-[var(--hairline)] flex items-center justify-center shrink-0">
@@ -134,7 +144,7 @@ export default function SearchResultsClient({ query, initialSongs, initialArtist
                         {t('songs', { defaultMessage: 'Songs' })}
                         <div className="h-px flex-1 bg-[var(--hairline)]"></div>
                     </h2>
-                    <RankingTable songs={songs} mode="total" showRank={false} showShowMore={false} forceShowAll={true} />
+                    <RankingTable songs={songs} mode="total" showRank={false} showShowMore={false} forceShowAll={true} openInNewTab={true} />
 
                     {hasMoreSongs && (
                         <div className="mt-8 flex justify-center pb-8">

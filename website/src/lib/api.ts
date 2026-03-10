@@ -75,6 +75,7 @@ export const getCustomRankings = async (
     viewsMin?: number,
     viewsMax?: number,
     artistIds?: string,
+    artistExclusive?: boolean,
     sortBy?: string
 ): Promise<SongRanking[]> => {
     const params = new URLSearchParams();
@@ -87,6 +88,7 @@ export const getCustomRankings = async (
     if (viewsMin !== undefined) params.append('views_min', viewsMin.toString());
     if (viewsMax !== undefined) params.append('views_max', viewsMax.toString());
     if (artistIds) params.append('artist_ids', artistIds);
+    if (artistExclusive) params.append('artist_exclusive', 'true');
     if (sortBy) params.append('sort_by', sortBy);
 
     return fetcher(`/rankings/custom?${params.toString()}`);
@@ -96,8 +98,40 @@ export const getSong = async (id: number): Promise<SongDetail> => {
     return fetcher(`/songs/${id}`);
 };
 
-export const searchSongs = async (query: string, limit: number = 20, vocaloid_only: boolean = true): Promise<SongRanking[]> => {
-    return fetcher(`/songs/search?query=${encodeURIComponent(query)}&limit=${limit}&vocaloid_only=${vocaloid_only}`);
+export interface SearchSongsFilters {
+    limit?: number;
+    vocaloid_only?: boolean;
+    songwriter_type?: string;
+    vocalist_ids?: string;
+    vocalist_exclusive?: boolean;
+    song_type?: string;
+    sort_by?: string;
+    publish_date_start?: string;
+    publish_date_end?: string;
+}
+
+export const searchSongs = async (query: string, filters: SearchSongsFilters = {}): Promise<SongRanking[]> => {
+    const {
+        limit = 20,
+        vocaloid_only = true,
+        vocalist_ids,
+        vocalist_exclusive,
+        song_type,
+        sort_by,
+        publish_date_start,
+        publish_date_end,
+    } = filters;
+    const params = new URLSearchParams();
+    params.append('query', query);
+    params.append('limit', limit.toString());
+    params.append('vocaloid_only', vocaloid_only.toString());
+    if (vocalist_ids) params.append('vocalist_ids', vocalist_ids);
+    if (vocalist_exclusive) params.append('vocalist_exclusive', 'true');
+    if (song_type) params.append('song_type', song_type);
+    if (sort_by) params.append('sort_by', sort_by);
+    if (publish_date_start) params.append('publish_date_start', publish_date_start);
+    if (publish_date_end) params.append('publish_date_end', publish_date_end);
+    return fetcher(`/songs/search?${params.toString()}`);
 };
 
 export const searchArtists = async (query: string, limit: number = 10): Promise<Artist[]> => {

@@ -29,13 +29,14 @@ function RankingContent() {
         viewsMin: sp.get('views_min') || '',
         viewsMax: sp.get('views_max') || '',
         artistIds: sp.get('artist_ids') || '',
+        artistExclusive: sp.get('artist_exclusive') === 'true',
         viewsSort: sp.get('views_sort') || 'total',
     };
 
     // Cache key incorporates all custom filters if mode is custom
     const getCacheKey = () => {
         if (mode === 'custom') {
-            return `custom:${currentFilters.songType}:${currentFilters.publishDateStart}:${currentFilters.publishDateEnd}:${currentFilters.viewsMin}:${currentFilters.viewsMax}:${currentFilters.artistIds}:${currentFilters.viewsSort}`;
+            return `custom:${currentFilters.songType}:${currentFilters.publishDateStart}:${currentFilters.publishDateEnd}:${currentFilters.viewsMin}:${currentFilters.viewsMax}:${currentFilters.artistIds}:${currentFilters.artistExclusive}:${currentFilters.viewsSort}`;
         }
         return `${mode}:${sort}`;
     };
@@ -85,6 +86,7 @@ function RankingContent() {
                 vMin,
                 vMax,
                 currentFilters.artistIds,
+                currentFilters.artistExclusive,
                 currentFilters.viewsSort || 'total'
             );
         } else {
@@ -119,6 +121,7 @@ function RankingContent() {
         if (filters.viewsMin) params.set('views_min', filters.viewsMin);
         if (filters.viewsMax) params.set('views_max', filters.viewsMax);
         if (filters.artistIds) params.set('artist_ids', filters.artistIds);
+        if (filters.artistExclusive) params.set('artist_exclusive', 'true');
         if (filters.viewsSort && filters.viewsSort !== 'total') params.set('views_sort', filters.viewsSort);
 
         router.push(`/ranking?${params.toString()}`);
@@ -147,9 +150,9 @@ function RankingContent() {
                     <div className="relative group shrink-0">
                         <span className="text-[var(--text-secondary)] opacity-60 hover:opacity-100 transition-opacity cursor-default">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10"/>
-                                <line x1="12" y1="8" x2="12" y2="12"/>
-                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
                             </svg>
                         </span>
                         <div className="absolute left-0 top-6 z-50 hidden group-hover:block w-72 max-w-[calc(100vw-3rem)] p-3 text-xs text-[var(--text-secondary)] leading-relaxed bg-[#0f0f0f] border border-[var(--hairline-strong)] shadow-xl">
@@ -175,9 +178,9 @@ function RankingContent() {
                             {tab.unstable && (
                                 <span title={t('unstable_hint')} className="shrink-0 text-[var(--text-secondary)] opacity-60 hover:opacity-100 transition-opacity">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <line x1="12" y1="8" x2="12" y2="12"/>
-                                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                        <circle cx="12" cy="12" r="10" />
+                                        <line x1="12" y1="8" x2="12" y2="12" />
+                                        <line x1="12" y1="16" x2="12.01" y2="16" />
                                     </svg>
                                 </span>
                             )}

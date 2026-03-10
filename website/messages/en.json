@@ -65,7 +65,7 @@
     "years": "years"
   },
   "CustomRanking": {
-    "title": "Custom Ranking Parameters",
+    "title": "Custom Ranking",
     "search_artist_placeholder": "Search for an artist/voicebank to require...",
     "label_song_types": "Song Types",
     "label_min_views": "Min Views",
@@ -78,7 +78,8 @@
     "placeholder_max_views": "Total views",
     "label_sort_by": "Sort By",
     "sort_total": "Total Views",
-    "sort_niconico": "NicoNico"
+    "sort_niconico": "NicoNico",
+    "filter_artist_exclusive": "Exclusive (only these artists/vocalists)"
   },
   "RankingPage": {
     "title": "Song Rankings",
@@ -144,7 +145,22 @@
     "hint_artists_title": "Artists",
     "hint_artists_desc": "Producers, vocalists, and voicebanks",
     "hint_id_title": "Song ID",
-    "hint_id_desc": "Look up directly by VocaDB song ID"
+    "hint_id_desc": "Look up directly by VocaDB song ID",
+    "advanced_search": "Advanced Search",
+    "filter_vocalist": "Artist/Vocalist",
+    "filter_vocalist_placeholder": "Search for an artist or vocalist...",
+    "filter_vocalist_exclusive": "Exclusive (only these artists/vocalists)",
+    "filter_song_type": "Song Type",
+    "filter_type_all": "All",
+    "filter_sort": "Sort By",
+    "filter_sort_views": "Total Views",
+    "filter_sort_date": "Publish Date",
+    "filter_date_from": "From",
+    "filter_date_to": "To",
+    "filter_apply": "Apply Filters",
+    "filter_reset": "Reset",
+    "filter_active": "{count} filter(s) active",
+    "filters_applied": "Filtered"
   },
   "ArtistPage": {
     "top_songs": "Top Songs",

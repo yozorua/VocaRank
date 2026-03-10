@@ -69,7 +69,7 @@
     "years": "年"
   },
   "CustomRanking": {
-    "title": "カスタムランキングパラメータ",
+    "title": "カスタムランキング",
     "search_artist_placeholder": "検索してアーティスト/音声ライブラリを追加...",
     "label_song_types": "曲のタイプ",
     "label_min_views": "最小再生数",
@@ -82,7 +82,8 @@
     "placeholder_max_views": "合計再生数",
     "label_sort_by": "並び順",
     "sort_total": "合計再生数",
-    "sort_niconico": "ニコニコ"
+    "sort_niconico": "ニコニコ",
+    "filter_artist_exclusive": "専用（これらのアーティストのみ）"
   },
   "RankingPage": {
     "title": "楽曲ランキング",
@@ -148,7 +149,22 @@
     "hint_artists_title": "アーティスト",
     "hint_artists_desc": "プロデューサー、歌手、ボイスバンク",
     "hint_id_title": "楽曲 ID",
-    "hint_id_desc": "VocaDB の楽曲 ID で直接検索"
+    "hint_id_desc": "VocaDB の楽曲 ID で直接検索",
+    "advanced_search": "詳細検索",
+    "filter_vocalist": "アーティスト/ボーカル",
+    "filter_vocalist_placeholder": "アーティストやボーカルを検索...",
+    "filter_vocalist_exclusive": "専用（これらのアーティストのみ）",
+    "filter_song_type": "曲種",
+    "filter_type_all": "すべて",
+    "filter_sort": "並び順",
+    "filter_sort_views": "総再生数",
+    "filter_sort_date": "投稿日",
+    "filter_date_from": "開始日",
+    "filter_date_to": "終了日",
+    "filter_apply": "フィルターを適用",
+    "filter_reset": "リセット",
+    "filter_active": "{count}件のフィルター適用中",
+    "filters_applied": "フィルター適用"
   },
   "ArtistPage": {
     "top_songs": "人気曲",

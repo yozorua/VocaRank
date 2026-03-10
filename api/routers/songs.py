@@ -13,16 +13,21 @@ router = APIRouter(
 
 @router.get("/search", response_model=List[schemas.SongRanking])
 def search_songs(
-    query: str = Query(..., min_length=1, description="Search keyword for song title"),
+    query: Optional[str] = Query(None, description="Search keyword for song title"),
     limit: int = 20,
     song_type: Optional[str] = Query(None, description="Filter by song type (e.g. Original)"),
     vocaloid_only: bool = Query(True, description="Filter for SynthV/Vocaloid songs only"),
     sort_by: str = Query('total_views', enum=['total_views', 'publish_date'], description="Sort by metric"),
+    vocalist_ids: Optional[str] = Query(None, description="Comma-separated vocalist artist IDs to require"),
+    vocalist_exclusive: bool = Query(False, description="If true, songs must have ONLY the specified vocalists (no other synth vocalists)"),
+    publish_date_start: Optional[str] = Query(None, description="Start publish date (YYYY-MM-DD)"),
+    publish_date_end: Optional[str] = Query(None, description="End publish date (YYYY-MM-DD)"),
     db: Session = Depends(get_db)
 ):
     """
     Search songs by name (English, Japanese, or Romaji).
     Returns rich metadata similar to rankings.
+    Supports advanced filters: vocalist filtering (inclusive or exclusive), date range, song type.
     """
     
     from ..utils import SYNTH_TYPES
@@ -41,26 +46,29 @@ def search_songs(
             s.song_type,
             s.publish_date
         FROM songs s
-        WHERE (
+        WHERE 1=1
+    """
+    
+    params: dict = {"limit": limit}
+
+    if query:
+        sql_query += """ AND (
             s.name_english ILIKE :keyword OR 
             s.name_japanese ILIKE :keyword OR 
             s.name_romaji ILIKE :keyword
-        )
-    """
-    
-    # Build base params
-    params: dict = {"keyword": f"%{query}%", "limit": limit}
+        )"""
+        params["keyword"] = f"%{query}%"
 
-    # If query is purely numeric, also match by song ID
-    try:
-        song_id_val = int(query)
-        sql_query = sql_query.replace(
-            "WHERE (",
-            "WHERE (s.id = :song_id OR "
-        )
-        params["song_id"] = song_id_val
-    except ValueError:
-        pass
+        # If query is purely numeric, also match by song ID
+        try:
+            song_id_val = int(query)
+            sql_query = sql_query.replace(
+                "AND (",
+                "AND (s.id = :song_id OR "
+            )
+            params["song_id"] = song_id_val
+        except ValueError:
+            pass
     
     if song_type:
         sql_query += " AND s.song_type = :song_type"
@@ -73,7 +81,42 @@ def search_songs(
             WHERE sa.song_id = s.id AND a.artist_type IN :synth_types
         )"""
         params["synth_types"] = list(SYNTH_TYPES)
-        
+
+    # Parse vocalist IDs
+    vocalist_id_list: list[int] = []
+    if vocalist_ids:
+        vocalist_id_list = [int(x.strip()) for x in vocalist_ids.split(',') if x.strip().isdigit()]
+
+    if vocalist_id_list:
+        # Each vocalist must be present on the song
+        for idx, v_id in enumerate(vocalist_id_list):
+            sql_query += f""" AND EXISTS (
+                SELECT 1 FROM song_artists sav{idx}
+                JOIN artists av{idx} ON sav{idx}.artist_id = av{idx}.id
+                WHERE sav{idx}.song_id = s.id AND sav{idx}.artist_id = :req_vocalist_{idx}
+            )"""
+            params[f"req_vocalist_{idx}"] = v_id
+
+        if vocalist_exclusive:
+            # No other synth vocalists besides the specified IDs may appear
+            sql_query += """ AND NOT EXISTS (
+                SELECT 1 FROM song_artists saex
+                JOIN artists aex ON saex.artist_id = aex.id
+                WHERE saex.song_id = s.id
+                  AND aex.artist_type IN :synth_types_excl
+                  AND saex.artist_id NOT IN :excl_vocalist_ids
+            )"""
+            params["synth_types_excl"] = list(SYNTH_TYPES)
+            params["excl_vocalist_ids"] = vocalist_id_list
+
+    if publish_date_start:
+        sql_query += " AND DATE(s.publish_date) >= DATE(:publish_date_start)"
+        params["publish_date_start"] = publish_date_start
+
+    if publish_date_end:
+        sql_query += " AND DATE(s.publish_date) <= DATE(:publish_date_end)"
+        params["publish_date_end"] = publish_date_end
+
     if sort_by == 'total_views':
         sql_query += " ORDER BY total_views DESC"
     elif sort_by == 'publish_date':
@@ -85,6 +128,10 @@ def search_songs(
     
     if "synth_types" in params:
         sql = sql.bindparams(bindparam('synth_types', expanding=True))
+    if "synth_types_excl" in params:
+        sql = sql.bindparams(bindparam('synth_types_excl', expanding=True))
+    if "excl_vocalist_ids" in params:
+        sql = sql.bindparams(bindparam('excl_vocalist_ids', expanding=True))
         
     results = db.execute(sql, params).fetchall()
     

@@ -12,6 +12,7 @@ export interface CustomFilters {
     viewsMin: string;
     viewsMax: string;
     artistIds: string;
+    artistExclusive?: boolean;
     viewsSort: string;
 }
 
@@ -34,6 +35,7 @@ export default function CustomRankingFilters({ initialFilters, onApply }: Custom
 
     // We visually hold the selected artists as objects to render their names/avatars
     const [selectedArtists, setSelectedArtists] = useState<Artist[]>([]);
+    const [artistExclusive, setArtistExclusive] = useState<boolean>(initialFilters.artistExclusive || false);
 
     const allTypes = ['Original', 'Remaster', 'Remix', 'Cover'];
 
@@ -63,14 +65,15 @@ export default function CustomRankingFilters({ initialFilters, onApply }: Custom
             viewsMin,
             viewsMax,
             artistIds: selectedArtists.map(a => a.id).join(','),
+            artistExclusive,
             viewsSort,
         });
     };
 
     return (
         <div className="bg-black/20 border border-[var(--hairline-strong)] p-6 mb-8 mt-4 animate-fade-in-up">
-            <h2 className="text-[var(--vermilion)] text-xs font-bold tracking-[0.2em] uppercase mb-6 flex items-center gap-3">
-                <div className="w-8 h-px bg-[var(--vermilion)]"></div>
+            <h2 className="text-[var(--gold)] text-xs font-bold tracking-[0.2em] uppercase mb-6 flex items-center gap-3">
+                <div className="w-8 h-px bg-[var(--gold)]"></div>
                 {t('title') || "Custom Ranking Parameters"}
             </h2>
 
@@ -103,25 +106,42 @@ export default function CustomRankingFilters({ initialFilters, onApply }: Custom
                         <MiniArtistSearch onSelect={handleAddArtist} />
 
                         {selectedArtists.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-3">
-                                {selectedArtists.map(artist => (
-                                    <div key={artist.id} className="flex items-center gap-2 bg-white/5 border border-white/20 pl-1 pr-3 py-1 rounded-full group">
-                                        <div className="w-5 h-5 rounded-full overflow-hidden bg-black flex-shrink-0">
-                                            {artist.picture_url_thumb ? (
-                                                <img src={artist.picture_url_thumb} alt="" className="w-full h-full object-cover object-top" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-[8px]">👤</div>
-                                            )}
+                            <div className="flex flex-col gap-3 mt-3">
+                                <div className="flex flex-wrap gap-2">
+                                    {selectedArtists.map(artist => (
+                                        <div key={artist.id} className="flex items-center gap-2 bg-white/5 border border-white/20 pl-1 pr-3 py-1 rounded-full group">
+                                            <div className="w-5 h-5 rounded-full overflow-hidden bg-black flex-shrink-0">
+                                                {artist.picture_url_thumb ? (
+                                                    <img src={artist.picture_url_thumb} alt="" className="w-full h-full object-cover object-top" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-[8px]">👤</div>
+                                                )}
+                                            </div>
+                                            <span className="text-xs font-bold text-white">{artist.name_default}</span>
+                                            <button
+                                                onClick={() => handleRemoveArtist(artist.id)}
+                                                className="text-gray-400 hover:text-white ml-1 font-bold"
+                                            >
+                                                ×
+                                            </button>
                                         </div>
-                                        <span className="text-xs font-bold text-white">{artist.name_default}</span>
-                                        <button
-                                            onClick={() => handleRemoveArtist(artist.id)}
-                                            className="text-gray-400 hover:text-white ml-1 font-bold"
-                                        >
-                                            ×
-                                        </button>
+                                    ))}
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setArtistExclusive(!artistExclusive)}
+                                    className="flex items-center gap-2.5 group w-max"
+                                >
+                                    <div className={`w-8 h-4 rounded-full transition-colors relative shrink-0 ${artistExclusive ? 'bg-[var(--vermilion)]' : 'bg-[var(--hairline-strong)]'
+                                        }`}>
+                                        <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-transform ${artistExclusive ? 'translate-x-4' : 'translate-x-0.5'
+                                            }`} />
                                     </div>
-                                ))}
+                                    <span className={`text-[11px] tracking-wide transition-colors ${artistExclusive ? 'text-white' : 'text-[var(--text-secondary)] group-hover:text-white'
+                                        }`}>
+                                        {t('filter_artist_exclusive') || "Exclusive (only these vocalists)"}
+                                    </span>
+                                </button>
                             </div>
                         )}
                     </div>

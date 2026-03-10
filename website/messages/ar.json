@@ -65,7 +65,7 @@
     "years": "السنوات"
   },
   "CustomRanking": {
-    "title": "معايير الترتيب المخصصة",
+    "title": "الترتيب المخصص",
     "search_artist_placeholder": "ابحث عن فنان أو بنك صوتي محدد...",
     "label_song_types": "أنواع الأغاني",
     "label_min_views": "الحد الأدنى للمشاهدات",
@@ -78,7 +78,8 @@
     "placeholder_max_views": "إجمالي المشاهدات",
     "label_sort_by": "الفرز حسب",
     "sort_total": "إجمالي المشاهدات",
-    "sort_niconico": "نيكونيكو"
+    "sort_niconico": "نيكونيكو",
+    "filter_artist_exclusive": "حصري (هؤلاء الفنانون فقط)"
   },
   "RankingPage": {
     "title": "ترتيب الأغاني",
@@ -144,7 +145,22 @@
     "hint_artists_title": "فنانون",
     "hint_artists_desc": "منتجون موسيقيون، مغنوون، أو بنوك صوتية",
     "hint_id_title": "رقم تعريف الأغنية (ID)",
-    "hint_id_desc": "ابحث مباشرة عن طريق رقم تعريف الأغنية في VocaDB"
+    "hint_id_desc": "ابحث مباشرة عن طريق رقم تعريف الأغنية في VocaDB",
+    "advanced_search": "بحث متقدم",
+    "filter_vocalist": "الفنان/المغني",
+    "filter_vocalist_placeholder": "ابحث عن فنان أو مغنٍّ...",
+    "filter_vocalist_exclusive": "حصري (هؤلاء الفنانون فقط)",
+    "filter_song_type": "نوع الأغنية",
+    "filter_type_all": "الكل",
+    "filter_sort": "الترتيب حسب",
+    "filter_sort_views": "إجمالي المشاهدات",
+    "filter_sort_date": "تاريخ النشر",
+    "filter_date_from": "من",
+    "filter_date_to": "إلى",
+    "filter_apply": "تطبيق الفلاتر",
+    "filter_reset": "إعادة تعيين",
+    "filter_active": "{count} فلتر نشط",
+    "filters_applied": "مُصفّى"
   },
   "ArtistPage": {
     "top_songs": "أبرز الأغاني",

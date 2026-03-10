@@ -317,6 +317,7 @@ def get_custom_ranking(
     views_min: Optional[int] = Query(None, description="Minimum total views"),
     views_max: Optional[int] = Query(None, description="Maximum total views"),
     artist_ids: Optional[str] = Query(None, description="Comma-separated required artist IDs"),
+    artist_exclusive: bool = Query(False, description="If true, allows no other synth vocalists than the ones provided in artist_ids"),
     sort_by: str = Query('total', description="Sort by: total, youtube, or niconico"),
     db: Session = Depends(get_db)
 ):
@@ -380,12 +381,24 @@ def get_custom_ranking(
         
     if artist_ids:
         artist_id_list = [int(x.strip()) for x in artist_ids.split(',') if x.strip().isdigit()]
-        for idx, a_id in enumerate(artist_id_list):
-            query_str += f""" AND EXISTS (
-                SELECT 1 FROM song_artists sa{idx}
-                WHERE sa{idx}.song_id = s.id AND sa{idx}.artist_id = :req_artist_{idx}
-            )"""
-            params[f"req_artist_{idx}"] = a_id
+        if artist_id_list:
+            for idx, a_id in enumerate(artist_id_list):
+                query_str += f""" AND EXISTS (
+                    SELECT 1 FROM song_artists sa{idx}
+                    WHERE sa{idx}.song_id = s.id AND sa{idx}.artist_id = :req_artist_{idx}
+                )"""
+                params[f"req_artist_{idx}"] = a_id
+                
+            if artist_exclusive:
+                query_str += """ AND NOT EXISTS (
+                    SELECT 1 FROM song_artists sa_ex
+                    JOIN artists a_ex ON sa_ex.artist_id = a_ex.id
+                    WHERE sa_ex.song_id = s.id 
+                      AND a_ex.artist_type IN :exclusive_synth_types
+                      AND a_ex.id NOT IN :exclusive_allowed_ids
+                )"""
+                params["exclusive_synth_types"] = list(RANKING_SYNTH_TYPES)
+                params["exclusive_allowed_ids"] = tuple(artist_id_list)
 
     query_str += f" ORDER BY {order_clause} LIMIT :limit"
     
@@ -395,6 +408,10 @@ def get_custom_ranking(
         sql = sql.bindparams(bindparam('song_types', expanding=True))
     if "synth_types" in params:
         sql = sql.bindparams(bindparam('synth_types', expanding=True))
+    if "exclusive_synth_types" in params:
+        sql = sql.bindparams(bindparam('exclusive_synth_types', expanding=True))
+    if "exclusive_allowed_ids" in params:
+        sql = sql.bindparams(bindparam('exclusive_allowed_ids', expanding=True))
         
     result = db.execute(sql, params).fetchall()
 

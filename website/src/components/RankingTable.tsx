@@ -14,6 +14,7 @@ interface RankingTableProps {
     showRank?: boolean;
     showShowMore?: boolean;
     forceShowAll?: boolean;
+    openInNewTab?: boolean;
 }
 
 import NoThumbnail from './NoThumbnail';
@@ -78,7 +79,7 @@ function ThumbnailWithFallback({ song, className }: { song: SongRanking, classNa
     );
 }
 
-export default function RankingTable({ songs, mode, sort = 'total', showRank = true, showShowMore = true, forceShowAll = false }: RankingTableProps) {
+export default function RankingTable({ songs, mode, sort = 'total', showRank = true, showShowMore = true, forceShowAll = false, openInNewTab = false }: RankingTableProps) {
     const t = useTranslations('RankingTable');
     const locale = useLocale();
     const router = useRouter();
@@ -135,6 +136,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                     <span key={artist.id} className="flex items-center">
                         <Link
                             href={`/artist/${artist.id}`}
+                            target={openInNewTab ? "_blank" : undefined}
                             className="text-gray-400 hover:text-white transition-colors"
                             onClick={(e) => e.stopPropagation()}
                         >
@@ -283,7 +285,8 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                         e.stopPropagation();
                                         playSong(song, displayedSongs);
                                     } else {
-                                        router.push(`/song/${song.id}`);
+                                        if (openInNewTab) window.open(`/${locale}/song/${song.id}`, '_blank');
+                                        else router.push(`/song/${song.id}`);
                                     }
                                 }}>
                                     <ThumbnailWithFallback song={song} className="w-full h-full object-cover grayscale-[30%] group-hover/thumb:grayscale-0 transition-all duration-500" />
@@ -296,7 +299,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
 
                                 {/* Info */}
                                 <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                    <Link href={`/song/${song.id}`} className="font-bold text-sm text-white line-clamp-1 leading-relaxed mb-1 hover:text-[var(--gold)] transition-colors tracking-wide block">
+                                    <Link target={openInNewTab ? "_blank" : undefined} href={`/song/${song.id}`} className="font-bold text-sm text-white line-clamp-1 leading-relaxed mb-1 hover:text-[var(--gold)] transition-colors tracking-wide block">
                                         {getSongName(song)}
                                     </Link>
                                     <div className="text-[11px] text-[var(--text-secondary)] flex flex-wrap items-center gap-2 min-w-0">
@@ -381,7 +384,8 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                                     e.stopPropagation();
                                                     playSong(song, displayedSongs);
                                                 } else {
-                                                    router.push(`/song/${song.id}`);
+                                                    if (openInNewTab) window.open(`/${locale}/song/${song.id}`, '_blank');
+                                                    else router.push(`/song/${song.id}`);
                                                 }
                                             }}
                                         >
@@ -394,7 +398,7 @@ export default function RankingTable({ songs, mode, sort = 'total', showRank = t
                                         </div>
                                     </td>
                                     <td className="py-4 pl-2 pr-4 text-ellipsis overflow-hidden">
-                                        <Link href={`/song/${song.id}`} className="font-bold text-white text-base mb-1.5 line-clamp-1 hover:text-[var(--gold)] transition-colors tracking-wide w-full block" title={getSongName(song) ?? ""}>
+                                        <Link target={openInNewTab ? "_blank" : undefined} href={`/song/${song.id}`} className="font-bold text-white text-base mb-1.5 line-clamp-1 hover:text-[var(--gold)] transition-colors tracking-wide w-full block" title={getSongName(song) ?? ""}>
                                             {getSongName(song)}
                                         </Link>
                                         <div className="flex flex-col gap-1.5 w-full">

@@ -2,6 +2,7 @@
 
 import { useLocale } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useTransition, useState, useEffect, useRef } from 'react';
 
 const languages = [
@@ -15,6 +16,7 @@ export default function LanguageSwitcher() {
     const locale = useLocale();
     const router = useRouter();
     const pathname = usePathname();
+    const searchParams = useSearchParams();
     const [isPending, startTransition] = useTransition();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -24,7 +26,7 @@ export default function LanguageSwitcher() {
     const onSelect = (nextLocale: string) => {
         setIsOpen(false);
         startTransition(() => {
-            router.replace(pathname, { locale: nextLocale });
+            router.replace(`${pathname}?${searchParams.toString()}`, { locale: nextLocale });
         });
     };
 

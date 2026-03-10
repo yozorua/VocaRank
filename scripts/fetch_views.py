@@ -133,8 +133,8 @@ def main():
         query += f" AND id = {args.id}"
         keys = os.getenv("YOUTUBE_KEYS_GENERAL", "").split(",")
     elif args.mode == 'popular':
-        log_message("INFO", "Mode: POPULAR (>=100K YouTube Views)")
-        query += " AND youtube_views >= 100000"
+        log_message("INFO", "Mode: POPULAR (>=100K YouTube Views or released in last 30 days)")
+        query += " AND (youtube_views >= 100000 OR publish_date::date >= CURRENT_DATE - INTERVAL '30 days')"
         pop_keys = os.getenv("YOUTUBE_KEYS_POPULAR") or os.getenv("YOUTUBE_KEY_POPULAR")
         keys = pop_keys.split(",") if pop_keys else os.getenv("YOUTUBE_KEYS_GENERAL", "").split(",")
     else:

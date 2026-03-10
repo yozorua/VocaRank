@@ -69,7 +69,7 @@
     "years": "年份"
   },
   "CustomRanking": {
-    "title": "自訂排行榜參數",
+    "title": "自訂排行榜",
     "search_artist_placeholder": "搜尋想加入的創作者/聲庫...",
     "label_song_types": "歌曲類型",
     "label_min_views": "最低觀看數",
@@ -82,7 +82,8 @@
     "placeholder_max_views": "總觀看數",
     "label_sort_by": "排序依據",
     "sort_total": "總觀看數",
-    "sort_niconico": "Niconico"
+    "sort_niconico": "Niconico",
+    "filter_artist_exclusive": "專屬（僅限此創作者/歌手）"
   },
   "RankingPage": {
     "title": "歌曲排行榜",
@@ -148,7 +149,22 @@
     "hint_artists_title": "創作者",
     "hint_artists_desc": "製作人、歌手與聲音庫",
     "hint_id_title": "歌曲 ID",
-    "hint_id_desc": "直接以 VocaDB 歌曲 ID 查詢"
+    "hint_id_desc": "直接以 VocaDB 歌曲 ID 查詢",
+    "advanced_search": "進階搜尋",
+    "filter_vocalist": "創作者/歌手",
+    "filter_vocalist_placeholder": "搜尋創作者或歌手...",
+    "filter_vocalist_exclusive": "專屬（僅限此創作者/歌手）",
+    "filter_song_type": "歌曲類型",
+    "filter_type_all": "全部",
+    "filter_sort": "排序依據",
+    "filter_sort_views": "總觀看數",
+    "filter_sort_date": "發布日期",
+    "filter_date_from": "從",
+    "filter_date_to": "至",
+    "filter_apply": "套用篩選",
+    "filter_reset": "重設",
+    "filter_active": "已套用 {count} 個篩選",
+    "filters_applied": "已篩選"
   },
   "ArtistPage": {
     "top_songs": "熱門歌曲",
