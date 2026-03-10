@@ -55,7 +55,7 @@ export default function AddSongToPlaylist({ playlistId, placeholder, addLabel, a
         setDebounce(setTimeout(async () => {
             setLoading(true);
             try {
-                const res = await fetch(`${API_BASE_URL}/songs/search?query=${encodeURIComponent(q)}&limit=20&vocaloid_only=false`);
+                const res = await fetch(`${API_BASE_URL}/songs/search?query=${encodeURIComponent(q.trim())}&limit=20&vocaloid_only=false`);
                 if (res.ok) setResults(await res.json());
             } finally {
                 setLoading(false);

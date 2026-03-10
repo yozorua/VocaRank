@@ -40,7 +40,7 @@ export default function MiniArtistSearch({ onSelect }: MiniArtistSearchProps) {
         const debounceId = setTimeout(async () => {
             setLoading(true);
             try {
-                const data = await searchArtists(query, 5);
+                const data = await searchArtists(query.trim(), 5);
                 setResults(data);
                 setIsOpen(true);
             } catch (err) {

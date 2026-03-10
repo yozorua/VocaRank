@@ -21,7 +21,7 @@ export default function SearchPageInputClient({ defaultValue, placeholder }: Pro
         const debounceId = setTimeout(() => {
             const params = new URLSearchParams(searchParams.toString());
             if (query.trim()) {
-                params.set('q', query);
+                params.set('q', query.trim());
             } else {
                 params.delete('q');
             }

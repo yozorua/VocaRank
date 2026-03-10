@@ -208,7 +208,7 @@ export default function NewPlaylistPage() {
         setDebounceTimer(setTimeout(async () => {
             setSearching(true);
             try {
-                const res = await fetch(`${API_BASE_URL}/songs/search?query=${encodeURIComponent(q)}&limit=8&vocaloid_only=true`);
+                const res = await fetch(`${API_BASE_URL}/songs/search?query=${encodeURIComponent(q.trim())}&limit=8&vocaloid_only=true`);
                 if (res.ok) setResults(await res.json());
             } finally {
                 setSearching(false);

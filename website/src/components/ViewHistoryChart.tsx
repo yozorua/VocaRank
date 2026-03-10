@@ -261,7 +261,7 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory, publ
                         className="absolute pointer-events-none border border-[var(--hairline-strong)] bg-[#1a1b1f] px-3 py-2 text-xs -translate-x-1/2 -translate-y-full -mt-2 whitespace-nowrap"
                         style={{ left: `${(hoveredPoint.x / W) * 100}%`, top: `${(hoveredPoint.y / H) * 100}%` }}
                     >
-                        <div className="text-[var(--text-secondary)] tracking-widest mb-0.5">{hoveredPoint.date.slice(0, 16).replace('T', ' ')}</div>
+                        <div className="text-[var(--text-secondary)] tracking-widest mb-0.5">{hoveredPoint.date.slice(0, 16).replace('T', ' ')} (UTC)</div>
                         <div className="font-mono font-bold" style={{ color: lineColor }}>
                             {hoveredPoint.source} · {hoveredPoint.views.toLocaleString()}
                         </div>
