@@ -268,7 +268,7 @@ def main():
                             baseline = pre_correction_views if pre_correction_views is not None else up['temp_yt_views'].get(new_primary, 0)
                             try:
                                 cursor.execute(
-                                    "UPDATE daily_snapshots SET youtube_views = %s WHERE song_id = %s AND date::date < CURRENT_DATE",
+                                    "UPDATE daily_snapshots SET youtube_views = %s WHERE song_id = %s AND date::date <= CURRENT_DATE",
                                     (baseline, sid)
                                 )
                                 log_message("INFO", f"Song {sid}: Backfilled daily_snapshots to {baseline} to prevent ranking jump")
@@ -296,6 +296,17 @@ def main():
                 if new_val != up['nico_views']:
                     total_nico_updates += 1
                     batch_nico_updates += 1
+                if up['nico_views'] == 0 and new_val > 0:
+                    try:
+                        cursor.execute(
+                            "UPDATE daily_snapshots SET niconico_views = %s WHERE song_id = %s AND date::date <= CURRENT_DATE AND niconico_views = 0",
+                            (new_val, sid)
+                        )
+                        if cursor.rowcount > 0:
+                            log_message("INFO", f"Song {sid}: New NicoNico PV ({up['nico_id']}) — backfilled {cursor.rowcount} zero-view snapshots to {new_val} to prevent ranking jump")
+                    except Exception as e:
+                        log_message("WARNING", f"Song {sid}: Failed to backfill new-PV snapshots: {e}")
+                        conn.rollback()
                 new_hist = update_history(up['nico_hist'], new_val)
                 updates_sql.append("niconico_views=%s")
                 updates_sql.append("niconico_history=%s")
@@ -306,6 +317,20 @@ def main():
                 if new_val != up['yt_views']:
                     total_yt_updates += 1
                     batch_yt_updates += 1
+                # Backfill if a YouTube PV was newly added to a song that had no YouTube views before.
+                # This prevents a fake ranking jump when VocaDB links a YouTube PV to a previously
+                # NicoNico-only (or view-less) song.
+                if up['yt_views'] == 0 and new_val > 0:
+                    try:
+                        cursor.execute(
+                            "UPDATE daily_snapshots SET youtube_views = %s WHERE song_id = %s AND date::date <= CURRENT_DATE AND youtube_views = 0",
+                            (new_val, sid)
+                        )
+                        if cursor.rowcount > 0:
+                            log_message("INFO", f"Song {sid}: New YouTube PV ({up['yt_id']}) — backfilled {cursor.rowcount} zero-view snapshots to {new_val} to prevent ranking jump")
+                    except Exception as e:
+                        log_message("WARNING", f"Song {sid}: Failed to backfill new-PV snapshots: {e}")
+                        conn.rollback()
                 new_hist = update_history(up['yt_hist'], new_val)
                 updates_sql.append("youtube_views=%s")
                 updates_sql.append("youtube_history=%s")
