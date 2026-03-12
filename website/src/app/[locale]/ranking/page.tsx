@@ -142,7 +142,7 @@ function RankingContent() {
     ];
 
     return (
-        <div className="max-w-[var(--max-width)] mx-auto px-6 py-2 md:py-2">
+        <div className="max-w-[var(--max-width)] mx-auto px-6 py-6">
             <div className="mb-4 md:mb-4 pt-2">
                 <h1 className="text-2xl md:text-3xl font-bold mb-2">{t('title')}</h1>
                 <div className="flex items-center gap-2">

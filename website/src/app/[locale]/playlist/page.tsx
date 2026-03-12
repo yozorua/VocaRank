@@ -92,7 +92,7 @@ export default async function PlaylistPage() {
 
     return (
         <div className="min-h-screen">
-            <div className="max-w-[var(--max-width)] mx-auto px-6 md:px-12 pt-4 pb-16 flex flex-col gap-8">
+            <div className="max-w-[var(--max-width)] mx-auto px-6 pt-6 pb-16 flex flex-col gap-8">
 
                 {/* Header */}
                 <div className="mb-2 flex items-start justify-between gap-4">

@@ -112,8 +112,24 @@
     "type": "نوع الأغنية",
     "release_date": "تاريخ الإصدار"
   },
+  "TrendingPage": {
+    "title": "Trend",
+    "description": "Recently published Vocaloid songs, ranked by views · Updated daily",
+    "sort_by": "Sort By",
+    "sort_total": "Total Views",
+    "sort_youtube": "YouTube",
+    "sort_niconico": "NicoNico",
+    "chart_label": "Chart",
+    "no_songs": "No new songs found in the last 14 days.",
+    "time_today": "Today",
+    "time_yesterday": "Yesterday",
+    "time_days_ago": "{count}d ago",
+    "meta_title": "Trend — VocaRank",
+    "meta_description": "Discover the hottest new Vocaloid songs from the last 14 days, ranked by views."
+  },
   "Navbar": {
     "ranking": "الترتيب",
+    "trending": "Trend",
     "search": "بحث",
     "login": "تسجيل الدخول",
     "logout": "تسجيل الخروج",

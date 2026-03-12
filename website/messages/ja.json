@@ -116,8 +116,24 @@
     "type": "タイプ",
     "release_date": "公開日"
   },
+  "TrendingPage": {
+    "title": "急上昇中",
+    "description": "最近公開された人気のボカロ新曲",
+    "sort_by": "並び替え",
+    "sort_total": "総再生数",
+    "sort_youtube": "YouTube",
+    "sort_niconico": "ニコニコ",
+    "chart_label": "チャート",
+    "no_songs": "直近14日間に新曲は見つかりませんでした。",
+    "time_today": "今日",
+    "time_yesterday": "昨日",
+    "time_days_ago": "{count}日前",
+    "meta_title": "急上昇中 — VocaRank",
+    "meta_description": "直近14日間に公開された話題のボカロ新曲をランキングで発見しよう。"
+  },
   "Navbar": {
     "ranking": "ランキング",
+    "trending": "急上昇中",
     "search": "検索",
     "login": "ログイン",
     "logout": "ログアウト",

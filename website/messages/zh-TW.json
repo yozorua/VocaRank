@@ -1,7 +1,7 @@
 {
   "Metadata": {
     "title": "VocaRank - 實時 Vocaloid 熱門歌曲排行榜",
-    "description": "掌握最新 V 家熱門音樂趨勢！提供即時的 Vocaloid 歌曲排行、聲庫資料統計、自定義的播放清單及音樂播放器，快來探索 V 家的世界吧！"
+    "description": "掌握最新 V 家熱門音樂趨勢！提供即時的 Vocaloid 歌曲排行、聲庫資料統計、自定義的播放清單及音樂播放器，快來探索 V 家的音樂吧！"
   },
   "Home": {
     "badge": "VOCALOID ANALYTICS",
@@ -116,8 +116,24 @@
     "type": "類型",
     "release_date": "發布日期"
   },
+  "TrendingPage": {
+    "title": "熱門新曲",
+    "description": "近期發布的 Vocaloid 熱門歌曲",
+    "sort_by": "排序",
+    "sort_total": "總觀看數",
+    "sort_youtube": "YouTube",
+    "sort_niconico": "NicoNico",
+    "chart_label": "排行",
+    "no_songs": "最近 14 天內找不到新歌。",
+    "time_today": "今天",
+    "time_yesterday": "昨天",
+    "time_days_ago": "{count} 天前",
+    "meta_title": "熱門新曲 — VocaRank",
+    "meta_description": "探索近期發布的 Vocaloid 熱門歌曲。"
+  },
   "Navbar": {
     "ranking": "排行榜",
+    "trending": "熱門新曲",
     "search": "搜尋",
     "login": "登入",
     "logout": "登出",

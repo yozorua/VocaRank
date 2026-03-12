@@ -47,6 +47,9 @@ export default function Navbar() {
             <Link href="/ranking" className="text-xl font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors" onClick={() => setIsOpen(false)}>
                 {t('ranking')}
             </Link>
+            <Link href="/trending" className="text-xl font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors" onClick={() => setIsOpen(false)}>
+                {t('trending')}
+            </Link>
             <Link href="/playlist" className="text-xl font-medium tracking-[0.2em] text-white hover:text-[var(--vermilion)] transition-colors" onClick={() => setIsOpen(false)}>
                 {t('playlist', { defaultMessage: 'Playlist' })}
             </Link>
@@ -119,6 +122,10 @@ export default function Navbar() {
                     <div className="hidden md:flex items-center gap-10">
                         <Link href="/ranking" className="relative font-bold text-[var(--text-secondary)] hover:text-white transition-colors py-2 text-sm tracking-[0.1em] group [text-shadow:0_1px_4px_rgba(0,0,0,0.7)]">
                             {t('ranking', { defaultMessage: 'Ranking' })}
+                            <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--vermilion)] scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></span>
+                        </Link>
+                        <Link href="/trending" className="relative font-bold text-[var(--text-secondary)] hover:text-white transition-colors py-2 text-sm tracking-[0.1em] group [text-shadow:0_1px_4px_rgba(0,0,0,0.7)]">
+                            {t('trending', { defaultMessage: 'New Wave' })}
                             <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--vermilion)] scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></span>
                         </Link>
                         <Link href="/playlist" className="relative font-bold text-[var(--text-secondary)] hover:text-white transition-colors py-2 text-sm tracking-[0.1em] group [text-shadow:0_1px_4px_rgba(0,0,0,0.7)]">
