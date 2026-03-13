@@ -268,7 +268,7 @@ def get_song(song_id: int, db: Session = Depends(get_db)):
 
     from sqlalchemy import func
     counts = db.query(models.SongVote.vote_type, func.count(models.SongVote.id)).filter_by(song_id=song_id).group_by(models.SongVote.vote_type).all()
-    mood_votes = {"happy": 0, "sad": 0, "love": 0, "hype": 0, "chill": 0, "emotional": 0}
+    mood_votes = {"joyful": 0, "depressed": 0, "love": 0, "chaos": 0, "chill": 0, "emotional": 0}
     for vt, c in counts:
         if vt in mood_votes:
             mood_votes[vt] = c

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { API_BASE_URL } from '@/lib/api';
 
-const MOODS = ['happy', 'sad', 'love', 'chaos', 'chill', 'emotional'];
+const MOODS = ['joyful', 'depressed', 'love', 'chaos', 'chill', 'emotional'];
 
 export default function MoodVoting({ songId, initialVotes }: { songId: number, initialVotes?: Record<string, number> }) {
     const t = useTranslations('Moods');

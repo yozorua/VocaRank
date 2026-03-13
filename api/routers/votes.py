@@ -10,7 +10,7 @@ router = APIRouter(
     tags=["votes"],
 )
 
-VALID_MOODS = ["happy", "sad", "love", "chaos", "chill", "emotional"]
+VALID_MOODS = ["joyful", "depressed", "love", "chaos", "chill", "emotional"]
 
 @router.post("/song/{song_id}")
 def submit_vote(song_id: int, vote_in: schemas.SongVoteCreate, request: Request, db: Session = Depends(get_db)):

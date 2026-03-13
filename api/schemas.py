@@ -82,7 +82,7 @@ class SongDetail(SongBase):
     niconico_history: Optional[List[dict]] = None
     
     is_favorite: Optional[bool] = False
-    mood_votes: Optional[dict] = {"happy": 0, "sad": 0, "love": 0, "hype": 0, "chill": 0, "emotional": 0}
+    mood_votes: Optional[dict] = {"joyful": 0, "depressed": 0, "love": 0, "chaos": 0, "chill": 0, "emotional": 0}
 
     @validator('youtube_history', 'niconico_history', pre=True)
     def parse_history(cls, v):
