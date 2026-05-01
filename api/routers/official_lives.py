@@ -6,7 +6,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from ..database import get_db
 from .. import models, schemas
@@ -50,6 +50,7 @@ def _build_live_out(live: models.OfficialLive) -> schemas.OfficialLiveOut:
 def list_lives(db: Session = Depends(get_db)):
     lives = (
         db.query(models.OfficialLive)
+        .options(selectinload(models.OfficialLive.playlists))
         .order_by(models.OfficialLive.display_order.asc(), models.OfficialLive.created_at.asc())
         .all()
     )

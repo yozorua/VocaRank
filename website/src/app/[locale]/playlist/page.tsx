@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { getTranslations, getLocale } from 'next-intl/server';
 import type { Metadata } from 'next';
 
@@ -10,6 +11,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         openGraph: { title: t('title'), description: t('description') },
     };
 }
+
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { Link } from '@/i18n/navigation';
@@ -76,25 +78,93 @@ async function fetchOfficialLives() {
     }
 }
 
+// ── Skeleton shown while a section is streaming in ───────────────────────────
+
+function SectionSkeleton() {
+    return (
+        <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-4">
+                <div className="h-4 w-32 bg-[var(--hairline)] animate-pulse" />
+                <div className="flex-1 h-px bg-[var(--hairline)]" />
+            </div>
+        </div>
+    );
+}
+
+function BrowseSkeleton() {
+    return (
+        <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-4">
+                <div className="h-4 w-36 bg-[var(--hairline)] animate-pulse" />
+                <div className="flex-1 h-px bg-[var(--hairline)]" />
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="aspect-square bg-[var(--hairline)] animate-pulse" />
+                ))}
+            </div>
+        </div>
+    );
+}
+
+// ── Async server sub-components (each streamed independently) ─────────────────
+
+async function FavoritedSection({ token }: { token: string }) {
+    const t = await getTranslations('Playlist');
+    const playlists = await fetchFavoritePlaylists(token);
+    return (
+        <CollapsiblePlaylistSection
+            label={t('favorited')}
+            storageKey="playlist_section_favorited"
+            playlists={playlists}
+            defaultOpen={true}
+        />
+    );
+}
+
+async function MyPlaylistsSection({ token }: { token: string }) {
+    const t = await getTranslations('Playlist');
+    const playlists = await fetchMyPlaylists(token);
+    return (
+        <CollapsiblePlaylistSection
+            label={t('mine')}
+            storageKey="playlist_section_mine"
+            playlists={playlists}
+            defaultOpen={true}
+        />
+    );
+}
+
+async function LivesSection() {
+    const lives = await fetchOfficialLives();
+    return <OfficialLivesSection initialLives={lives} />;
+}
+
+async function BrowseSection() {
+    const t = await getTranslations('Playlist');
+    const [playlists, count] = await Promise.all([fetchPublicPlaylists(), fetchPublicPlaylistCount()]);
+    return (
+        <PlaylistSearchSection
+            initialPlaylists={playlists}
+            initialTotal={count}
+            browseLabel={t('browse')}
+        />
+    );
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+
 export default async function PlaylistPage() {
     const t = await getTranslations('Playlist');
     const locale = await getLocale();
     const session = await getServerSession(authOptions);
     const apiToken = session?.apiToken as string | undefined;
 
-    const [publicPlaylists, publicPlaylistCount, myPlaylists, favoritedPlaylists, officialLives] = await Promise.all([
-        fetchPublicPlaylists(),
-        fetchPublicPlaylistCount(),
-        apiToken ? fetchMyPlaylists(apiToken) : Promise.resolve([]),
-        apiToken ? fetchFavoritePlaylists(apiToken) : Promise.resolve([]),
-        fetchOfficialLives(),
-    ]);
-
     return (
         <div className="min-h-screen">
             <div className="max-w-[var(--max-width)] mx-auto px-6 pt-6 pb-16 flex flex-col gap-8">
 
-                {/* Header */}
+                {/* Header — renders immediately, no data dependency */}
                 <div className="mb-2 flex items-start justify-between gap-4">
                     <div>
                         <h1 className="text-2xl md:text-3xl font-bold mb-1">{t('title')}</h1>
@@ -121,32 +191,30 @@ export default async function PlaylistPage() {
                     )}
                 </div>
 
-                {/* Favorited Playlists — collapsible, default open */}
-                <CollapsiblePlaylistSection
-                    label={t('favorited')}
-                    storageKey="playlist_section_favorited"
-                    playlists={favoritedPlaylists}
-                    defaultOpen={true}
-                />
+                {/* Personal sections — stream in independently */}
+                {apiToken && (
+                    <>
+                        <Suspense fallback={<SectionSkeleton />}>
+                            <FavoritedSection token={apiToken} />
+                        </Suspense>
+                        <Suspense fallback={<SectionSkeleton />}>
+                            <MyPlaylistsSection token={apiToken} />
+                        </Suspense>
+                    </>
+                )}
 
-                {/* My Playlists — collapsible, default open */}
-                <CollapsiblePlaylistSection
-                    label={t('mine')}
-                    storageKey="playlist_section_mine"
-                    playlists={myPlaylists}
-                    defaultOpen={true}
-                />
-
-                {/* Official Lives — client component so admin controls & modals work */}
-                <OfficialLivesSection initialLives={officialLives} />
+                {/* Official lives — streams in */}
+                <Suspense fallback={<SectionSkeleton />}>
+                    <LivesSection />
+                </Suspense>
 
                 {/* Separator */}
                 <div className="border-t border-[var(--hairline)]" />
 
-                {/* Browse Playlists with search */}
-                <div className="flex flex-col gap-4">
-                    <PlaylistSearchSection initialPlaylists={publicPlaylists} initialTotal={publicPlaylistCount} browseLabel={t('browse')} />
-                </div>
+                {/* Public browse — streams in */}
+                <Suspense fallback={<BrowseSkeleton />}>
+                    <BrowseSection />
+                </Suspense>
 
             </div>
         </div>

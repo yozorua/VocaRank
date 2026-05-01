@@ -6,7 +6,8 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Query, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.orm import Session
+from sqlalchemy import func, text
+from sqlalchemy.orm import Session, selectinload
 import jwt
 
 from ..database import get_db
@@ -106,35 +107,62 @@ def _vocalist_string(song: models.Song) -> Optional[str]:
 
 def _build_song_out(ps: models.PlaylistSong) -> schemas.PlaylistSongOut:
     song = ps.song
+
+    # Parse pv_data once and extract all PV fields in one pass
+    try:
+        pvs = json.loads(song.pv_data or "[]")
+    except Exception:
+        pvs = []
+    yt_id = nico_id = nico_thumb = None
+    for pv in pvs:
+        svc = pv.get("service")
+        if svc == "Youtube" and yt_id is None:
+            yt_id = pv.get("pvId")
+        elif svc == "NicoNicoDouga" and nico_id is None:
+            nico_id = pv.get("pvId")
+            nico_thumb = pv.get("thumbUrl")
+        if yt_id and nico_id:
+            break
+
+    # Iterate artists once; compute all derived strings in the same loop
     producers, vocalists, others = [], [], []
+    artist_names, vocalist_names = [], []
     for a in song.artists:
+        name = a.name_default or a.name_english or ""
         obj = schemas.ArtistTiny(
             id=a.id,
-            name=a.name_default or a.name_english or '',
+            name=name,
             artist_type=a.artist_type,
-            picture_url_thumb=getattr(a, 'picture_url_thumb', None),
+            picture_url_thumb=getattr(a, "picture_url_thumb", None),
         )
-        if a.artist_type in ('Producer', 'Circle', 'OtherGroup'):
+        if a.artist_type in ("Producer", "Circle", "OtherGroup"):
             producers.append(obj)
+            artist_names.append(name)
         elif a.artist_type in SYNTH_TYPES:
             vocalists.append(obj)
-        else:
+            vocalist_names.append(name)
+        elif a.artist_type not in ("CoverArtist", "Animator"):
             others.append(obj)
+            artist_names.append(name)
     if not producers and others:
         producers = others
+
+    artist_str = " · ".join(artist_names) or "Unknown"
+    vocalist_str = " · ".join(vocalist_names) if vocalist_names else None
+
     return schemas.PlaylistSongOut(
         song_id=song.id,
         position=ps.position,
         name_english=song.name_english,
         name_japanese=song.name_japanese,
         name_romaji=song.name_romaji,
-        youtube_id=_youtube_id(song),
-        niconico_id=_niconico_id(song),
-        niconico_thumb_url=_niconico_thumb(song),
-        artist_string=_artist_string(song),
-        songwriter_string=_songwriter_string(song),
-        vocalist_string=_vocalist_string(song),
-        song_type=getattr(song, 'song_type', None),
+        youtube_id=yt_id,
+        niconico_id=nico_id,
+        niconico_thumb_url=nico_thumb,
+        artist_string=artist_str,
+        songwriter_string=artist_str,
+        vocalist_string=vocalist_str,
+        song_type=getattr(song, "song_type", None),
         artists=producers,
         vocalists=vocalists,
     )
@@ -184,6 +212,125 @@ def _optional_user(token: str = Depends(lambda: None), db: Session = Depends(get
     return None  # public endpoints override via separate dep
 
 
+def _detail_opts():
+    """Full eager-load for single-playlist endpoints (detail, mutations)."""
+    return [
+        selectinload(models.Playlist.user),
+        selectinload(models.Playlist.favorites),
+        selectinload(models.Playlist.songs)
+            .selectinload(models.PlaylistSong.song)
+            .selectinload(models.Song.artists),
+    ]
+
+
+def _list_opts():
+    """Lightweight eager-load for listing endpoints — songs are fetched separately."""
+    return [
+        selectinload(models.Playlist.user),
+        selectinload(models.Playlist.favorites),
+    ]
+
+
+def _build_listing_response(
+    db: Session,
+    playlists: list,
+    current_user_id: Optional[int] = None,
+) -> list:
+    """Build lightweight listing responses.
+
+    Uses SQL aggregation for song_count/total_duration and a window function to
+    retrieve only the top-4 preview songs per playlist — avoids loading every song
+    in every playlist just to display a card.
+    """
+    if not playlists:
+        return []
+
+    playlist_ids = [pl.id for pl in playlists]
+    ids_sql = ",".join(str(i) for i in playlist_ids)
+
+    # Aggregate song count and total duration in one query
+    agg_rows = (
+        db.query(
+            models.PlaylistSong.playlist_id,
+            func.count(models.PlaylistSong.song_id).label("cnt"),
+            func.sum(models.Song.length_seconds).label("dur"),
+        )
+        .join(models.Song, models.Song.id == models.PlaylistSong.song_id)
+        .filter(models.PlaylistSong.playlist_id.in_(playlist_ids))
+        .group_by(models.PlaylistSong.playlist_id)
+        .all()
+    )
+    stats = {r.playlist_id: (r.cnt, r.dur) for r in agg_rows}
+
+    # Fetch the first 4 songs per playlist via a window function — no artist join
+    # needed since PlaylistCard only uses youtube_id / niconico_thumb_url for the mosaic
+    preview_rows = db.execute(text(f"""
+        SELECT playlist_id, song_id, position, name_english, name_japanese, pv_data
+        FROM (
+            SELECT ps.playlist_id, ps.song_id, ps.position,
+                   s.name_english, s.name_japanese, s.pv_data,
+                   ROW_NUMBER() OVER (PARTITION BY ps.playlist_id ORDER BY ps.position) AS rn
+            FROM playlist_songs ps
+            JOIN songs s ON s.id = ps.song_id
+            WHERE ps.playlist_id IN ({ids_sql})
+        ) t
+        WHERE rn <= 4
+    """)).fetchall()
+
+    preview_map: dict = {}
+    for row in preview_rows:
+        pid = row.playlist_id
+        if pid not in preview_map:
+            preview_map[pid] = []
+        preview_map[pid].append(row)
+
+    result = []
+    for pl in playlists:
+        pid = pl.id
+        cnt, dur = stats.get(pid, (0, None))
+        fav_count = len(pl.favorites)
+        is_fav = any(f.user_id == current_user_id for f in pl.favorites) if current_user_id else False
+
+        songs_out = []
+        for row in preview_map.get(pid, []):
+            try:
+                pvs = json.loads(row.pv_data or "[]")
+            except Exception:
+                pvs = []
+            yt_id = next((p.get("pvId") for p in pvs if p.get("service") == "Youtube"), None)
+            nico_thumb = next((p.get("thumbUrl") for p in pvs if p.get("service") == "NicoNicoDouga"), None)
+            songs_out.append(schemas.PlaylistSongOut(
+                song_id=row.song_id,
+                position=row.position,
+                name_english=row.name_english,
+                name_japanese=row.name_japanese,
+                youtube_id=yt_id,
+                niconico_thumb_url=nico_thumb,
+            ))
+
+        result.append(schemas.PlaylistOut(
+            id=pl.id,
+            user_id=pl.user_id,
+            title=pl.title,
+            description=pl.description,
+            cover_url=pl.cover_url,
+            is_public=pl.is_public,
+            created_at=pl.created_at,
+            updated_at=pl.updated_at,
+            song_count=cnt or 0,
+            total_duration_seconds=dur,
+            favorite_count=fav_count,
+            is_favorited=is_fav,
+            owner=schemas.PlaylistOwner(
+                id=pl.user.id,
+                name=pl.user.name,
+                picture_url=pl.user.picture_url,
+            ),
+            songs=songs_out,
+        ))
+    return result
+
+
 # ── GET /playlists/count — total public playlist count ────────────────────────
 
 @router.get("/count")
@@ -217,11 +364,12 @@ def list_playlists(
     if query:
         q = q.filter(models.Playlist.title.ilike(f"%{query}%"))
     playlists = (
-        q.order_by(models.Playlist.created_at.desc())
+        q.options(*_list_opts())
+        .order_by(models.Playlist.created_at.desc())
         .offset(offset).limit(per_page)
         .all()
     )
-    return [_build_playlist_out(pl, db, preview_only=True, include_songs=True) for pl in playlists]
+    return _build_listing_response(db, playlists)
 
 
 # ── GET /playlists/mine — current user's playlists ────────────────────────────
@@ -233,11 +381,12 @@ def my_playlists(
 ):
     playlists = (
         db.query(models.Playlist)
+        .options(*_list_opts())
         .filter(models.Playlist.user_id == current_user.id)
         .order_by(models.Playlist.created_at.desc())
         .all()
     )
-    return [_build_playlist_out(pl, db, current_user.id, include_songs=True, preview_only=True) for pl in playlists]
+    return _build_listing_response(db, playlists, current_user.id)
 
 
 # ── GET /playlists/mine/song-check — which of my playlists contain a song ─────
@@ -278,11 +427,12 @@ def my_favorite_playlists(
         return []
     playlists = (
         db.query(models.Playlist)
+        .options(*_list_opts())
         .filter(models.Playlist.id.in_(playlist_ids))
         .order_by(models.Playlist.updated_at.desc())
         .all()
     )
-    return [_build_playlist_out(pl, db, current_user.id, include_songs=True, preview_only=True) for pl in playlists]
+    return _build_listing_response(db, playlists, current_user.id)
 
 
 # ── GET /playlists/{id} — playlist detail ────────────────────────────────────
@@ -293,11 +443,15 @@ def get_playlist(
     db: Session = Depends(get_db),
     current_user: models.User | None = Depends(get_optional_user),
 ):
-    pl = db.query(models.Playlist).filter(models.Playlist.id == playlist_id).first()
+    pl = (
+        db.query(models.Playlist)
+        .options(*_detail_opts())
+        .filter(models.Playlist.id == playlist_id)
+        .first()
+    )
     if not pl:
         raise HTTPException(status_code=404, detail="Playlist not found")
     if not pl.is_public:
-        # Only the owner can see private playlists
         if not current_user or current_user.id != pl.user_id:
             raise HTTPException(status_code=403, detail="This playlist is private")
     uid = current_user.id if current_user else None
@@ -353,7 +507,7 @@ def update_playlist(
         pl.live_id = data.live_id if data.live_id > 0 else None
     pl.updated_at = datetime.utcnow().isoformat()
     db.commit()
-    db.refresh(pl)
+    pl = db.query(models.Playlist).options(*_detail_opts()).filter(models.Playlist.id == playlist_id).first()
     return _build_playlist_out(pl, db, current_user.id, include_songs=True)
 
 
@@ -405,7 +559,7 @@ def add_song(
     db.add(ps)
     pl.updated_at = datetime.utcnow().isoformat()
     db.commit()
-    db.refresh(pl)
+    pl = db.query(models.Playlist).options(*_detail_opts()).filter(models.Playlist.id == playlist_id).first()
     return _build_playlist_out(pl, db, current_user.id, include_songs=True)
 
 
@@ -429,7 +583,7 @@ def remove_song(
         db.delete(ps)
         pl.updated_at = datetime.utcnow().isoformat()
         db.commit()
-        db.refresh(pl)
+    pl = db.query(models.Playlist).options(*_detail_opts()).filter(models.Playlist.id == playlist_id).first()
     return _build_playlist_out(pl, db, current_user.id, include_songs=True)
 
 
@@ -459,7 +613,7 @@ def reorder_songs(
             ps.position = pos
     pl.updated_at = datetime.utcnow().isoformat()
     db.commit()
-    db.refresh(pl)
+    pl = db.query(models.Playlist).options(*_detail_opts()).filter(models.Playlist.id == playlist_id).first()
     return _build_playlist_out(pl, db, current_user.id, include_songs=True)
 
 

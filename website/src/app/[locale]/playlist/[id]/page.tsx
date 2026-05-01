@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
@@ -44,7 +45,10 @@ type Playlist = {
     owner?: { id: number; name?: string | null; picture_url?: string | null };
 };
 
-async function fetchPlaylist(id: string, token?: string): Promise<Playlist | null> {
+// cache() deduplicates calls with identical arguments within the same request —
+// both generateMetadata and the page component call this with the same token,
+// so the 300-song playlist is only fetched once.
+const fetchPlaylist = cache(async (id: string, token?: string): Promise<Playlist | null> => {
     try {
         const headers: Record<string, string> = {};
         if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -54,12 +58,14 @@ async function fetchPlaylist(id: string, token?: string): Promise<Playlist | nul
     } catch {
         return null;
     }
-}
+});
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string; locale: string }> }): Promise<Metadata> {
     const { id } = await params;
     try {
-        const pl = await fetchPlaylist(id);
+        const session = await getServerSession(authOptions);
+        const apiToken = session?.apiToken as string | undefined;
+        const pl = await fetchPlaylist(id, apiToken);
         if (!pl || !pl.is_public) return {};
         return {
             title: pl.title,

@@ -22,7 +22,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/google")
 GOOGLE_CLIENT_ID = os.getenv("AUTH_GOOGLE_ID")
 JWT_SECRET = os.getenv("JWT_SECRET")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 7 days validity
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30  # 30 days — matches NextAuth session lifetime
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()

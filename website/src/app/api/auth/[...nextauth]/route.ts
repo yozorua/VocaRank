@@ -20,6 +20,19 @@ export const authOptions: AuthOptions = {
                 if (session.picture) token.picture = session.picture;
             }
 
+            // Detect and evict expired FastAPI tokens so the session correctly
+            // reflects that the user needs to sign in again (happens when the
+            // NextAuth session outlives the stored API JWT).
+            if (token.apiToken && !account) {
+                try {
+                    const [, payload64] = (token.apiToken as string).split('.');
+                    const { exp } = JSON.parse(Buffer.from(payload64, 'base64url').toString());
+                    if (typeof exp === 'number' && exp * 1000 < Date.now()) {
+                        delete (token as any).apiToken;
+                    }
+                } catch { /* ignore malformed token */ }
+            }
+
             // When user first signs in, send Google token to our backend
             if (account && account.provider === "google" && account.id_token) {
                 try {
