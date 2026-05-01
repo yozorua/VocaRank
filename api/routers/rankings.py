@@ -5,6 +5,7 @@ from ..database import get_db
 from .. import schemas
 from ..utils import SYNTH_TYPES, RANKING_SYNTH_TYPES, extract_pvs, get_artists_for_songs
 from ..models import RankingCache
+from ..cache import custom_ranking_cache, cache_lock
 from typing import List, Optional, Dict
 import datetime
 import json
@@ -321,7 +322,13 @@ def get_custom_ranking(
     sort_by: str = Query('total', description="Sort by: total, youtube, or niconico"),
     db: Session = Depends(get_db)
 ):
-    # No caching for custom queries to save memory, as they are highly variable
+    cache_key = (limit, song_type, vocaloid_only, publish_date_start, publish_date_end,
+                 views_min, views_max, artist_ids, artist_exclusive, sort_by)
+    with cache_lock:
+        cached = custom_ranking_cache.get(cache_key)
+        if cached is not None:
+            return cached
+
     sort_map = {
         'youtube': 's.youtube_views DESC',
         'niconico': 's.niconico_views DESC',
@@ -364,11 +371,11 @@ def get_custom_ranking(
         params["synth_types"] = list(RANKING_SYNTH_TYPES)
 
     if publish_date_start:
-        query_str += " AND DATE(s.publish_date) >= DATE(:publish_date_start)"
+        query_str += " AND s.publish_date >= :publish_date_start"
         params["publish_date_start"] = publish_date_start
-        
+
     if publish_date_end:
-        query_str += " AND DATE(s.publish_date) <= DATE(:publish_date_end)"
+        query_str += " AND s.publish_date <= :publish_date_end"
         params["publish_date_end"] = publish_date_end
         
     if views_min is not None:
@@ -452,5 +459,8 @@ def get_custom_ranking(
             artists=producers,
             vocalists=vocalists
         ))
+
+    with cache_lock:
+        custom_ranking_cache[cache_key] = response
 
     return response

@@ -75,22 +75,34 @@ elif [ "$1" == "views-song" ]; then
     echo "[$TIMESTAMP | END] scripts/fetch_views.py --id $SONG_ID (Exit Code: $EXIT_CODE) - Time Elapsed: ${H}h ${M}m ${S}s" | tee -a "$LOG_FILE"
 
 elif [ "$1" == "rankings" ]; then
+    LOCK_FILE="/tmp/vocarank_rankings.lock"
+    exec 9>"$LOCK_FILE"
+    if ! flock -n 9; then
+        echo "[$TIMESTAMP | SKIP] scripts/calculate_rankings_cache.py already running, skipping." | tee -a "$LOG_FILE"
+        exit 0
+    fi
     SECONDS=0
     echo "[$TIMESTAMP | START] scripts/calculate_rankings_cache.py" | tee -a "$LOG_FILE"
     /usr/bin/python3 -u -m scripts.calculate_rankings_cache 2>&1 | tee -a "$LOG_FILE"
     EXIT_CODE=${PIPESTATUS[0]}
-    
+
     H=$((SECONDS/3600))
     M=$(((SECONDS%3600)/60))
     S=$((SECONDS%60))
     echo "[$TIMESTAMP | END] scripts/calculate_rankings_cache.py (Exit Code: $EXIT_CODE) - Time Elapsed: ${H}h ${M}m ${S}s" | tee -a "$LOG_FILE"
 
 elif [ "$1" == "vocaloid-stats" ]; then
+    LOCK_FILE="/tmp/vocarank_vocaloid_stats.lock"
+    exec 9>"$LOCK_FILE"
+    if ! flock -n 9; then
+        echo "[$TIMESTAMP | SKIP] scripts/calculate_vocaloid_stats_cache.py already running, skipping." | tee -a "$LOG_FILE"
+        exit 0
+    fi
     SECONDS=0
     echo "[$TIMESTAMP | START] scripts/calculate_vocaloid_stats_cache.py" | tee -a "$LOG_FILE"
     /usr/bin/python3 -u -m scripts.calculate_vocaloid_stats_cache 2>&1 | tee -a "$LOG_FILE"
     EXIT_CODE=${PIPESTATUS[0]}
-    
+
     H=$((SECONDS/3600))
     M=$(((SECONDS%3600)/60))
     S=$((SECONDS%60))

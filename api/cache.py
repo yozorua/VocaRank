@@ -23,6 +23,11 @@ TTL = 3600
 # 50 distinct combos × ~10 KB each ≈ <1 MB
 ranking_cache: TTLCache = TTLCache(maxsize=50, ttl=TTL)
 
+# Custom ranking cache: key = (limit, song_type, vocaloid_only, date_start, date_end, views_min, views_max, artist_ids, artist_exclusive, sort_by)
+# Trending page always calls with fixed params, so this avoids repeated full-table scans.
+# 100 distinct combos × ~20 KB each ≈ ~2 MB
+custom_ranking_cache: TTLCache = TTLCache(maxsize=100, ttl=TTL)
+
 # Song-dates (year-count histogram) cache: key = artist_id
 # ~5 000 distinct artists, each entry is tiny (20 year buckets)
 song_dates_cache: TTLCache = TTLCache(maxsize=5000, ttl=TTL)

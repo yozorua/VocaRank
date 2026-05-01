@@ -368,6 +368,8 @@ def main():
             """)
             conn.commit()
             log_message("SUCCESS", f"Daily snapshots saved for {today_date}.")
+            cursor.execute("ANALYZE daily_snapshots")
+            conn.commit()
         except Exception as e:
              log_message("ERROR", f"Failed to save snapshots: {e}")
 
