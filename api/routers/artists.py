@@ -73,6 +73,26 @@ def search_artists(
         
     return artists
 
+@router.get("/ids")
+def list_artist_ids(
+    limit: int = Query(5000, ge=1, le=20000),
+    db: Session = Depends(get_db),
+):
+    """Lightweight endpoint for sitemap generation — returns top artist IDs by total views."""
+    from sqlalchemy import text
+    rows = db.execute(text("""
+        SELECT a.id
+        FROM artists a
+        JOIN song_artists sa ON a.id = sa.artist_id
+        JOIN songs s ON sa.song_id = s.id
+        GROUP BY a.id
+        HAVING COALESCE(SUM(s.youtube_views + s.niconico_views), 0) > 0
+        ORDER BY SUM(s.youtube_views + s.niconico_views) DESC
+        LIMIT :limit
+    """), {"limit": limit}).fetchall()
+    return [row[0] for row in rows]
+
+
 @router.get("/graph", response_model=dict)
 def get_artist_graph(db: Session = Depends(get_db)):
     """

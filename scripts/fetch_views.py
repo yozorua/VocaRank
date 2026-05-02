@@ -167,15 +167,22 @@ def main():
             
             # Dynamically determine the primary PV IDs like the API does
             yt_id = None
+            yt_id_fallback = None
             nico_id = None
             try:
                 p = json.loads(pv_data_json)
                 if isinstance(p, list):
                     for pv in p:
                         srv = pv.get('service')
-                        if srv == 'Youtube' and not yt_id: yt_id = pv.get('pvId')
+                        if srv == 'Youtube':
+                            is_topic = (pv.get('author') or '').endswith('- Topic')
+                            if is_topic:
+                                if not yt_id_fallback: yt_id_fallback = pv.get('pvId')
+                            elif not yt_id:
+                                yt_id = pv.get('pvId')
                         elif srv == 'NicoNicoDouga' and not nico_id: nico_id = pv.get('pvId')
             except: pass
+            yt_id = yt_id or yt_id_fallback
             
             song_updates[song_id] = {
                 'nico_views': current_nico_views, 'yt_views': current_yt_views,

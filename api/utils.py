@@ -18,7 +18,7 @@ RANKING_SYNTH_TYPES = tuple(t for t in SYNTH_TYPES if t != 'OtherVoiceSynthesize
 
 def extract_pvs(pv_data_json: str):
     """Parses PV data and returns (youtube_id, niconico_id, niconico_thumb_url)."""
-    yt_id, nico_id, niconico_thumb_url = None, None, None
+    yt_id, yt_id_fallback, nico_id, niconico_thumb_url = None, None, None, None
     try:
         if not pv_data_json:
             return None, None, None
@@ -26,14 +26,20 @@ def extract_pvs(pv_data_json: str):
         if isinstance(pvs, list):
             for pv in pvs:
                 service = pv.get('service')
-                if service == 'Youtube' and not yt_id:
-                    yt_id = pv.get('pvId')
+                if service == 'Youtube':
+                    # Deprioritize YouTube Music auto-generated topic channels
+                    is_topic = (pv.get('author') or '').endswith('- Topic')
+                    if is_topic:
+                        if not yt_id_fallback:
+                            yt_id_fallback = pv.get('pvId')
+                    elif not yt_id:
+                        yt_id = pv.get('pvId')
                 elif service == 'NicoNicoDouga' and not nico_id:
                     nico_id = pv.get('pvId')
                     niconico_thumb_url = pv.get('thumbUrl')
     except:
         pass
-    return yt_id, nico_id, niconico_thumb_url
+    return yt_id or yt_id_fallback, nico_id, niconico_thumb_url
 
 def get_artists_for_songs(db: Session, song_ids: List[int]) -> Dict[int, Dict[str, List[Dict]]]:
     """
