@@ -28,6 +28,7 @@ class Song(Base):
     niconico_history = Column(Text) # JSON
     youtube_history = Column(Text) # JSON
     last_update_time = Column(String)
+    excluded_from_ranking = Column(Boolean, default=False)
 
     # Relationships
     artists = relationship("Artist", secondary=song_artists, back_populates="songs")

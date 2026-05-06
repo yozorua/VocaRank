@@ -63,9 +63,10 @@ def get_gain_ranking(db: Session, days_ago: int, limit: int, song_type: str, voc
         LEFT JOIN daily_snapshots past ON today.song_id = past.song_id AND past.date = :target_date
         JOIN songs s ON s.id = today.song_id
         WHERE today.date = :current_date
+        AND s.excluded_from_ranking = FALSE
         AND (past.song_id IS NOT NULL OR DATE(s.publish_date) >= DATE(:target_date))
         AND NOT (
-            past.song_id IS NOT NULL 
+            past.song_id IS NOT NULL
             AND (past.youtube_views + past.niconico_views) = 0
             AND (today.youtube_views + today.niconico_views) > 0
             AND DATE(s.publish_date) < DATE(:target_date)
@@ -140,7 +141,7 @@ def get_total_ranking(db: Session, limit: int, song_type: str, vocaloid_only: bo
             s.id, s.name_english, s.name_japanese, s.name_romaji,
             (s.youtube_views + s.niconico_views) as total_views,
             s.youtube_views, s.niconico_views, s.pv_data, s.song_type, s.publish_date
-        FROM songs s WHERE 1=1
+        FROM songs s WHERE s.excluded_from_ranking = FALSE
     """
     
     from sqlalchemy import bindparam

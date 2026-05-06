@@ -72,12 +72,13 @@ def get_gain_ranking(
         LEFT JOIN daily_snapshots past ON today.song_id = past.song_id AND past.date = :target_date
         JOIN songs s ON s.id = today.song_id
         WHERE today.date = :current_date
+        AND s.excluded_from_ranking = FALSE
         AND (
-            past.song_id IS NOT NULL 
+            past.song_id IS NOT NULL
             OR DATE(s.publish_date) >= DATE(:target_date)
         )
         AND NOT (
-            past.song_id IS NOT NULL 
+            past.song_id IS NOT NULL
             AND (past.youtube_views + past.niconico_views) = 0
             AND (today.youtube_views + today.niconico_views) > 0
             AND DATE(s.publish_date) < DATE(:target_date)
@@ -233,13 +234,13 @@ def get_total_ranking(
             s.song_type,
             s.publish_date
         FROM songs s
-        WHERE 1=1
+        WHERE s.excluded_from_ranking = FALSE
     """
-    
+
     from sqlalchemy import bindparam
-    
+
     params = {"limit": limit}
-    
+
     if song_type:
         types = [t.strip() for t in song_type.split(',')]
         if len(types) == 1:
@@ -248,29 +249,29 @@ def get_total_ranking(
         else:
             query_str += " AND s.song_type IN :song_types"
             params["song_types"] = types
-            
+
     if vocaloid_only:
         query_str += """ AND EXISTS (
-            SELECT 1 FROM song_artists sa 
-            JOIN artists a ON sa.artist_id = a.id 
+            SELECT 1 FROM song_artists sa
+            JOIN artists a ON sa.artist_id = a.id
             WHERE sa.song_id = s.id AND a.artist_type IN :synth_types
         )"""
         params["synth_types"] = list(RANKING_SYNTH_TYPES)
 
     query_str += f" ORDER BY {order_clause} LIMIT :limit"
-    
+
     sql = text(query_str)
-    
+
     if "song_types" in params:
         sql = sql.bindparams(bindparam('song_types', expanding=True))
     if "synth_types" in params:
         sql = sql.bindparams(bindparam('synth_types', expanding=True))
-        
+
     result = db.execute(sql, params).fetchall()
 
     song_ids = [row.id for row in result]
     artists_map = get_artists_for_songs(db, song_ids)
-    
+
     response = []
     for row in result:
         sid = row.id
@@ -346,13 +347,13 @@ def get_custom_ranking(
             s.song_type,
             s.publish_date
         FROM songs s
-        WHERE 1=1
+        WHERE s.excluded_from_ranking = FALSE
     """
-    
+
     from sqlalchemy import bindparam
-    
+
     params = {"limit": limit}
-    
+
     if song_type:
         types = [t.strip() for t in song_type.split(',')]
         if len(types) == 1:
@@ -361,11 +362,11 @@ def get_custom_ranking(
         else:
             query_str += " AND s.song_type IN :song_types"
             params["song_types"] = types
-            
+
     if vocaloid_only:
         query_str += """ AND EXISTS (
-            SELECT 1 FROM song_artists sa 
-            JOIN artists a ON sa.artist_id = a.id 
+            SELECT 1 FROM song_artists sa
+            JOIN artists a ON sa.artist_id = a.id
             WHERE sa.song_id = s.id AND a.artist_type IN :synth_types
         )"""
         params["synth_types"] = list(RANKING_SYNTH_TYPES)
