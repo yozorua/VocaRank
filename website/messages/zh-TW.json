@@ -473,5 +473,18 @@
     "donation_no_link_admin": "尚未設定 PayPal 連結。請在「開發者及貢獻者」區段中編輯以新增連結。",
     "donation_link_hint": "捐款連結 — 留空則隱藏捐款區段。",
     "navbar": "關於"
+  },
+  "Introduction": {
+    "title": "介紹",
+    "edit": "編輯介紹",
+    "add": "新增介紹",
+    "placeholder": "輸入介紹...",
+    "label_zh": "繁體中文（正本）",
+    "label_en": "英文",
+    "label_ja": "日文",
+    "auto_translate": "從繁體中文自動翻譯",
+    "translating": "翻譯中...",
+    "save": "儲存",
+    "cancel": "取消"
   }
 }

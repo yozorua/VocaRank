@@ -1,6 +1,14 @@
 from pydantic import BaseModel, validator
 from typing import List, Optional, Any
 
+class IntroductionEditorOut(BaseModel):
+    id: int
+    name: Optional[str] = None
+    picture_url: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
 # --- Artist Schemas ---
 class ArtistBase(BaseModel):
     id: int
@@ -24,6 +32,11 @@ class Artist(ArtistBase):
     last_song_date: Optional[str] = None
     
     is_favorite: Optional[bool] = False
+    introduction: Optional[str] = None
+    introduction_en: Optional[str] = None
+    introduction_ja: Optional[str] = None
+    introduction_editor: Optional[IntroductionEditorOut] = None
+    introduction_updated_at: Optional[str] = None
 
     @validator('external_links', pre=True)
     def parse_external_links(cls, v):
@@ -83,6 +96,11 @@ class SongDetail(SongBase):
     
     is_favorite: Optional[bool] = False
     mood_votes: Optional[dict] = {"joyful": 0, "depressed": 0, "love": 0, "chaos": 0, "chill": 0, "emotional": 0}
+    introduction: Optional[str] = None
+    introduction_en: Optional[str] = None
+    introduction_ja: Optional[str] = None
+    introduction_editor: Optional[IntroductionEditorOut] = None
+    introduction_updated_at: Optional[str] = None
 
     @validator('youtube_history', 'niconico_history', pre=True)
     def parse_history(cls, v):
@@ -133,6 +151,7 @@ class UserBase(BaseModel):
     age_range: Optional[str] = None
     last_login: Optional[str] = None
     is_admin: Optional[bool] = False
+    is_editor: Optional[bool] = False
 
     class Config:
         orm_mode = True
@@ -149,6 +168,11 @@ class Token(BaseModel):
 
 class GoogleLogin(BaseModel):
     id_token: str
+
+class IntroductionUpdate(BaseModel):
+    introduction: Optional[str] = None
+    introduction_en: Optional[str] = None
+    introduction_ja: Optional[str] = None
 
 # --- Input Schemas ---
 class SongVoteCreate(BaseModel):

@@ -105,7 +105,7 @@ export default function CommentsSection({ songId }: { songId: number }) {
     return (
         <div className="w-full flex flex-col gap-6 mt-8">
             <div className="flex items-center gap-3">
-                <h2 className="text-xl md:text-2xl font-black tracking-wider text-white">
+                <h2 className="text-xl md:text-2xl font-black tracking-wider text-gray-300">
                     {t('comments', { defaultMessage: 'Comments' })}
                 </h2>
             </div>
@@ -131,14 +131,14 @@ export default function CommentsSection({ songId }: { songId: number }) {
                                     {comment.user.picture_url ? (
                                         <img src={comment.user.picture_url} alt="Profile" className="w-10 h-10 object-cover rounded-full shadow-sm" />
                                     ) : (
-                                        <div className="w-10 h-10 rounded-full bg-[var(--hairline-strong)] flex items-center justify-center text-xs font-bold text-white uppercase">
+                                        <div className="w-10 h-10 rounded-full bg-[var(--hairline-strong)] flex items-center justify-center text-xs font-bold text-gray-300 uppercase">
                                             {comment.user.name ? comment.user.name.charAt(0) : '?'}
                                         </div>
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <span className="font-bold text-sm text-white">{comment.user.name || 'Anonymous'}</span>
+                                        <span className="font-bold text-sm text-gray-300">{comment.user.name || 'Anonymous'}</span>
                                         <span className="text-xs text-[var(--text-secondary)]">{formatDate(comment.created_at)}</span>
                                     </div>
                                     <p className="text-sm text-[#d4d4d4] whitespace-pre-wrap leading-relaxed">

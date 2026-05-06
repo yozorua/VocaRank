@@ -183,6 +183,22 @@ export const deleteReport = (id: number) =>
 export const updateFounder = (data: { contact_email?: string; social_x?: string; social_instagram?: string; social_facebook?: string; social_discord?: string; about_title?: string; paypal_url?: string }) =>
     fetcher('/about/founder', { method: 'PATCH', body: JSON.stringify(data) });
 
+// ── Introduction ──────────────────────────────────────────────────────────────
+
+interface IntroBody {
+    introduction?: string | null;
+    introduction_en?: string | null;
+    introduction_ja?: string | null;
+}
+
+export const updateSongIntroduction = (id: number, body: IntroBody) =>
+    fetcher(`/songs/${id}/introduction`, { method: 'PATCH', body: JSON.stringify(body) });
+
+export const updateArtistIntroduction = (id: number, body: IntroBody) =>
+    fetcher(`/artists/${id}/introduction`, { method: 'PATCH', body: JSON.stringify(body) });
+
+// ── About contributors ────────────────────────────────────────────────────────
+
 export const getContributors = () => fetcher('/about/contributors');
 export const createContributor = (data: { user_id: number; role?: string; display_order?: number }) =>
     fetcher('/about/contributors', { method: 'POST', body: JSON.stringify(data) });

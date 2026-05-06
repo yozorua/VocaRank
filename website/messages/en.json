@@ -469,5 +469,18 @@
     "donation_no_link_admin": "No PayPal link set. Edit the Developers & Contributors section to add one.",
     "donation_link_hint": "Donation link — leave empty to hide the donation section.",
     "navbar": "About"
+  },
+  "Introduction": {
+    "title": "Introduction",
+    "edit": "Edit Introduction",
+    "add": "Add Introduction",
+    "placeholder": "Write an introduction...",
+    "label_zh": "Traditional Chinese (canonical)",
+    "label_en": "English",
+    "label_ja": "Japanese",
+    "auto_translate": "Auto-translate from zh-TW",
+    "translating": "Translating...",
+    "save": "Save",
+    "cancel": "Cancel"
   }
 }

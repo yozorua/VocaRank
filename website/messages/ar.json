@@ -469,5 +469,18 @@
     "donation_no_link_admin": "لم يتم تعيين رابط PayPal. قم بتعديل قسم المطورين والمساهمين لإضافة رابط.",
     "donation_link_hint": "رابط التبرع — اتركه فارغًا لإخفاء قسم التبرع.",
     "navbar": "حولنا"
+  },
+  "Introduction": {
+    "title": "مقدمة",
+    "edit": "Edit Introduction",
+    "add": "Add Introduction",
+    "placeholder": "Write an introduction...",
+    "label_zh": "zh-TW",
+    "label_en": "English",
+    "label_ja": "日本語",
+    "auto_translate": "Auto-translate from zh-TW",
+    "translating": "Translating...",
+    "save": "Save",
+    "cancel": "Cancel"
   }
 }

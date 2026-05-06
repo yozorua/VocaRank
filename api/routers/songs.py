@@ -234,10 +234,10 @@ def get_song(song_id: int, db: Session = Depends(get_db)):
     """
     Get detailed information for a specific song.
     """
-    song = db.query(models.Song).filter(models.Song.id == song_id).first()
+    song = db.query(models.Song).options(joinedload(models.Song.introduction_editor)).filter(models.Song.id == song_id).first()
     if not song:
         raise HTTPException(status_code=404, detail="Song not found")
-        
+
     # Enrich with artist data
     artist_map = get_artists_for_songs(db, [song_id])
     am = artist_map.get(song_id, {'producers': [], 'vocalists': [], 'other_vocalists': []})
@@ -296,12 +296,44 @@ def get_song(song_id: int, db: Session = Depends(get_db)):
         niconico_thumb_url=nico_thumb,
         youtube_history=song.youtube_history,
         niconico_history=song.niconico_history,
-        mood_votes=mood_votes
+        mood_votes=mood_votes,
+        introduction=song.introduction,
+        introduction_en=song.introduction_en,
+        introduction_ja=song.introduction_ja,
+        introduction_editor=schemas.IntroductionEditorOut(
+            id=song.introduction_editor.id,
+            name=song.introduction_editor.name,
+            picture_url=song.introduction_editor.picture_url,
+        ) if song.introduction_editor else None,
+        introduction_updated_at=song.introduction_updated_at,
     )
 
-# --- Comments ---
+# --- Introduction ---
 
-from .auth import get_current_user
+from .auth import get_current_user, get_editor_user
+
+@router.patch("/{song_id}/introduction")
+def update_song_introduction(
+    song_id: int,
+    body: schemas.IntroductionUpdate,
+    db: Session = Depends(get_db),
+    editor: models.User = Depends(get_editor_user)
+):
+    song = db.query(models.Song).filter(models.Song.id == song_id).first()
+    if not song:
+        raise HTTPException(status_code=404, detail="Song not found")
+    if body.introduction is not None:
+        song.introduction = body.introduction or None
+    if body.introduction_en is not None:
+        song.introduction_en = body.introduction_en or None
+    if body.introduction_ja is not None:
+        song.introduction_ja = body.introduction_ja or None
+    song.introduction_editor_id = editor.id
+    song.introduction_updated_at = datetime.now(pytz.utc).isoformat()
+    db.commit()
+    return {"ok": True}
+
+# --- Comments ---
 from datetime import datetime
 import pytz
 

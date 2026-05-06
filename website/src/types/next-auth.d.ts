@@ -5,6 +5,7 @@ declare module "next-auth" {
         apiToken?: string;
         userId?: number;
         isAdmin?: boolean;
+        isEditor?: boolean;
     }
 }
 
@@ -13,5 +14,6 @@ declare module "next-auth/jwt" {
         apiToken?: string;
         userId?: number;
         isAdmin?: boolean;
+        isEditor?: boolean;
     }
 }

@@ -1,6 +1,5 @@
 import { SongDetail } from '@/types';
 import { useLocale, useTranslations } from 'next-intl';
-import ViewHistoryChart from './ViewHistoryChart';
 import FavoriteButton from './FavoriteButton';
 import AddToPlaylistButton from './AddToPlaylistButton';
 import MoodVoting from './MoodVoting';
@@ -25,7 +24,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
     };
 
     const getTypeColor = (type: string | null) => {
-        return 'text-white';
+        return 'text-gray-300';
     };
 
     // Format duration MM:SS
@@ -57,7 +56,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                 <div className="flex-1 min-w-0">
                     <div className="mb-10">
                         <div className="w-12 h-px bg-[var(--vermilion)] mb-6 opacity-80"></div>
-                        <h1 className="text-3xl lg:text-[2.5rem] font-black mb-6 tracking-[0.05em] text-white leading-none">
+                        <h1 className="text-3xl lg:text-[2.5rem] font-black mb-6 tracking-[0.05em] text-gray-300 leading-none">
                             {displayTitle}
                         </h1>
                         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
@@ -91,7 +90,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                             <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-secondary)] mb-2">
                                 {t('release_date')}
                             </span>
-                            <span className="font-sans text-xl font-bold text-white tracking-wider leading-none">{formatDate(song.publish_date)}</span>
+                            <span className="font-sans text-xl font-bold text-gray-300 tracking-wider leading-none">{formatDate(song.publish_date)}</span>
                         </div>
 
                         {/* Song Type Cell */}
@@ -107,7 +106,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                             <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-secondary)] mb-2">
                                 {t('duration')}
                             </span>
-                            <span className="font-sans text-xl font-bold text-white tracking-wider leading-none">{formatDuration(song.length_seconds)}</span>
+                            <span className="font-sans text-xl font-bold text-gray-300 tracking-wider leading-none">{formatDuration(song.length_seconds)}</span>
                         </div>
 
                         {/* Original Song Cell (Conditional) */}
@@ -118,7 +117,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                             {song.original_song ? (
                                 <a
                                     href={`/song/${song.original_song.id}`}
-                                    className="font-sans font-bold text-xl text-white truncate group-hover/orig:text-[var(--vermilion)] transition-colors leading-none"
+                                    className="font-sans font-bold text-xl text-gray-300 truncate group-hover/orig:text-[var(--vermilion)] transition-colors leading-none"
                                 >
                                     {getOriginalSongName()}
                                 </a>
@@ -156,7 +155,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                                     </a>
                                 ))
                             ) : (
-                                <span className="font-bold text-sm text-white tracking-widest">{song.vocaloid_string}</span>
+                                <span className="font-bold text-sm text-gray-300 tracking-widest">{song.vocaloid_string}</span>
                             )}
                         </div>
                     </div>
@@ -221,7 +220,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29.07 29.07 0 0 0 1 11.75a29.07 29.07 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29.07 29.07 0 0 0 .46-5.33 29.07 29.07 0 0 0-.46-5.33zM9.75 15.02l5.75-3.27-5.75-3.27v6.54z" /></svg>
                                     </div>
                                 </div>
-                                <p className="text-xl lg:text-2xl font-bold font-mono text-white tracking-widest break-all">
+                                <p className="text-xl lg:text-2xl font-bold font-mono text-gray-300 tracking-widest break-all">
                                     {(song.views_youtube !== undefined && song.views_youtube !== null) ? song.views_youtube.toLocaleString() : '-'}
                                 </p>
                             </div>
@@ -248,7 +247,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
                                     </div>
                                 </div>
-                                <p className="text-xl lg:text-2xl font-bold font-mono text-white tracking-widest break-all">
+                                <p className="text-xl lg:text-2xl font-bold font-mono text-gray-300 tracking-widest break-all">
                                     {(song.views_niconico !== undefined && song.views_niconico !== null) ? song.views_niconico.toLocaleString() : '-'}
                                 </p>
                             </div>
@@ -275,7 +274,7 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                                         </svg>
                                     </div>
                                 </div>
-                                <p className="text-xl lg:text-2xl font-bold font-mono text-white tracking-widest break-all">
+                                <p className="text-xl lg:text-2xl font-bold font-mono text-gray-300 tracking-widest break-all">
                                     ID {song.id}
                                 </p>
                             </div>
@@ -284,12 +283,6 @@ export default function SongInfo({ song }: { song: SongDetail }) {
                 </div>
             </div>
 
-            {/* View History Chart */}
-            <ViewHistoryChart
-                youtubeHistory={song.youtube_history}
-                niconicoHistory={song.niconico_history}
-                publishDate={song.publish_date}
-            />
         </div>
     );
 }

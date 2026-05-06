@@ -20,6 +20,11 @@ export interface Artist {
     last_song_date: string | null;
     external_links: { description: string; url: string }[] | null;
     is_favorite?: boolean;
+    introduction?: string | null;
+    introduction_en?: string | null;
+    introduction_ja?: string | null;
+    introduction_editor?: { id: number; name: string | null; picture_url: string | null } | null;
+    introduction_updated_at?: string | null;
 }
 
 export interface SongRanking {
@@ -56,6 +61,11 @@ export interface SongDetail extends SongRanking {
     niconico_history?: { date: string; views: number }[] | null;
     is_favorite?: boolean;
     mood_votes?: Record<string, number>;
+    introduction?: string | null;
+    introduction_en?: string | null;
+    introduction_ja?: string | null;
+    introduction_editor?: { id: number; name: string | null; picture_url: string | null } | null;
+    introduction_updated_at?: string | null;
 }
 
 export type RankingMode = 'daily' | 'weekly' | 'monthly' | 'total' | 'custom';

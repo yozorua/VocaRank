@@ -32,6 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 import { formatArtistType } from '@/lib/formatArtistType';
 import FavoriteButton from '@/components/FavoriteButton';
+import IntroductionSection from '@/components/IntroductionSection';
 
 export const dynamic = 'force-dynamic';
 
@@ -169,6 +170,16 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
                         <ArtistPublishHistogram yearCounts={songDates} />
                     </div>
                 </div>
+
+                <IntroductionSection
+                    entityType="artist"
+                    entityId={artistId}
+                    initialIntroZh={artist.introduction ?? null}
+                    initialIntroEn={artist.introduction_en ?? null}
+                    initialIntroJa={artist.introduction_ja ?? null}
+                    initialEditor={artist.introduction_editor ?? null}
+                    initialUpdatedAt={artist.introduction_updated_at ?? null}
+                />
 
                 {/* Songs List */}
                 <div className="pt-4">

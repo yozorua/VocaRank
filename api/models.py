@@ -29,9 +29,15 @@ class Song(Base):
     youtube_history = Column(Text) # JSON
     last_update_time = Column(String)
     excluded_from_ranking = Column(Boolean, default=False)
+    introduction = Column(Text)
+    introduction_en = Column(Text)
+    introduction_ja = Column(Text)
+    introduction_editor_id = Column(Integer, ForeignKey("users.id"))
+    introduction_updated_at = Column(Text)
 
     # Relationships
     artists = relationship("Artist", secondary=song_artists, back_populates="songs")
+    introduction_editor = relationship("User", foreign_keys=[introduction_editor_id])
 
 class Artist(Base):
     __tablename__ = "artists"
@@ -47,8 +53,14 @@ class Artist(Base):
     picture_url_original = Column(String)
     picture_url_thumb = Column(String)
     external_links = Column(Text) # JSON string
+    introduction = Column(Text)
+    introduction_en = Column(Text)
+    introduction_ja = Column(Text)
+    introduction_editor_id = Column(Integer, ForeignKey("users.id"))
+    introduction_updated_at = Column(Text)
 
     songs = relationship("Song", secondary=song_artists, back_populates="artists")
+    introduction_editor = relationship("User", foreign_keys=[introduction_editor_id])
 
 class User(Base):
     __tablename__ = "users"
@@ -62,6 +74,7 @@ class User(Base):
     age_range = Column(String)
     last_login = Column(String)
     is_admin = Column(Boolean, default=False)
+    is_editor = Column(Boolean, default=False)
     contact_email     = Column(String(255))
     social_x          = Column(String(500))
     social_instagram  = Column(String(500))

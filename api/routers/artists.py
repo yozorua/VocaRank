@@ -1,9 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from ..database import get_db
 from .. import models, schemas
 from ..cache import song_dates_cache, cache_lock
+from .auth import get_editor_user
 from typing import List, Optional
+from datetime import datetime
+import pytz
 
 router = APIRouter(
     prefix="/artists",
@@ -165,7 +168,7 @@ def get_artist(artist_id: int, db: Session = Depends(get_db)):
     """
     Get detailed information for a specific artist.
     """
-    artist = db.query(models.Artist).filter(models.Artist.id == artist_id).first()
+    artist = db.query(models.Artist).options(joinedload(models.Artist.introduction_editor)).filter(models.Artist.id == artist_id).first()
     if not artist:
         raise HTTPException(status_code=404, detail="Artist not found")
 
@@ -181,6 +184,27 @@ def get_artist(artist_id: int, db: Session = Depends(get_db)):
     artist.last_song_date = dates[1]
 
     return artist
+
+@router.patch("/{artist_id}/introduction")
+def update_artist_introduction(
+    artist_id: int,
+    body: schemas.IntroductionUpdate,
+    db: Session = Depends(get_db),
+    editor: models.User = Depends(get_editor_user)
+):
+    artist = db.query(models.Artist).filter(models.Artist.id == artist_id).first()
+    if not artist:
+        raise HTTPException(status_code=404, detail="Artist not found")
+    if body.introduction is not None:
+        artist.introduction = body.introduction or None
+    if body.introduction_en is not None:
+        artist.introduction_en = body.introduction_en or None
+    if body.introduction_ja is not None:
+        artist.introduction_ja = body.introduction_ja or None
+    artist.introduction_editor_id = editor.id
+    artist.introduction_updated_at = datetime.now(pytz.utc).isoformat()
+    db.commit()
+    return {"ok": True}
 
 @router.get("/{artist_id}/songs", response_model=List[schemas.SongRanking])
 def get_artist_songs(

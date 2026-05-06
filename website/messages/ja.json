@@ -473,5 +473,18 @@
     "donation_no_link_admin": "PayPalリンクが設定されていません。「開発者と貢献者」セクションを編集して追加してください。",
     "donation_link_hint": "寄付リンク — 空欄にすると寄付セクションが非表示になります。",
     "navbar": "概要"
+  },
+  "Introduction": {
+    "title": "紹介",
+    "edit": "紹介を編集",
+    "add": "紹介を追加",
+    "placeholder": "紹介を入力...",
+    "label_zh": "繁体字中国語（正本）",
+    "label_en": "英語",
+    "label_ja": "日本語",
+    "auto_translate": "繁体字中国語から自動翻訳",
+    "translating": "翻訳中...",
+    "save": "保存",
+    "cancel": "キャンセル"
   }
 }

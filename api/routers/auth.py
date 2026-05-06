@@ -51,6 +51,11 @@ def get_current_user_from_token(token: str = Depends(oauth2_scheme), db: Session
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user
 
+def get_editor_user(current_user: models.User = Depends(get_current_user_from_token)) -> models.User:
+    if not (getattr(current_user, 'is_editor', False) or getattr(current_user, 'is_admin', False)):
+        raise HTTPException(status_code=403, detail="Editor access required")
+    return current_user
+
 @router.post("/google", response_model=schemas.Token)
 def google_auth(login_data: schemas.GoogleLogin, db: Session = Depends(get_db)):
     if not GOOGLE_CLIENT_ID or not JWT_SECRET:

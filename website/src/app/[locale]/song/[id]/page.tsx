@@ -30,6 +30,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 import Link from 'next/link'; // Added Link import
 import CommentsSection from '@/components/song/CommentsSection';
+import IntroductionSection from '@/components/IntroductionSection';
+import ViewHistoryChart from '@/components/ViewHistoryChart';
 
 interface PageProps {
     params: Promise<{
@@ -54,6 +56,20 @@ export default async function SongDetailPage({ params }: PageProps) {
             <div className="max-w-[var(--max-width)] mx-auto px-6 pt-6 pb-8 md:py-8">
                 <SongPlayer youtubeId={song.youtube_id} niconicoId={song.niconico_id} />
                 <SongInfo song={song} />
+                <IntroductionSection
+                    entityType="song"
+                    entityId={song.id}
+                    initialIntroZh={song.introduction ?? null}
+                    initialIntroEn={song.introduction_en ?? null}
+                    initialIntroJa={song.introduction_ja ?? null}
+                    initialEditor={song.introduction_editor ?? null}
+                    initialUpdatedAt={song.introduction_updated_at ?? null}
+                />
+                <ViewHistoryChart
+                    youtubeHistory={song.youtube_history}
+                    niconicoHistory={song.niconico_history}
+                    publishDate={song.publish_date}
+                />
                 <CommentsSection songId={song.id} />
             </div>
         );
