@@ -146,7 +146,7 @@ export default function ViewHistoryChart({ youtubeHistory, niconicoHistory, publ
     const yTicks = [0, 0.5, 1].map(t => minViews + t * viewRange);
 
     return (
-        <div ref={containerRef} className="mt-10 border-t border-[var(--hairline)] pt-8">
+        <div ref={containerRef} className="mt-10 pt-8">
             {/* Section header */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">

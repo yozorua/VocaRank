@@ -322,12 +322,9 @@ def update_song_introduction(
     song = db.query(models.Song).filter(models.Song.id == song_id).first()
     if not song:
         raise HTTPException(status_code=404, detail="Song not found")
-    if body.introduction is not None:
-        song.introduction = body.introduction or None
-    if body.introduction_en is not None:
-        song.introduction_en = body.introduction_en or None
-    if body.introduction_ja is not None:
-        song.introduction_ja = body.introduction_ja or None
+    song.introduction = body.introduction or None
+    song.introduction_en = body.introduction_en or None
+    song.introduction_ja = body.introduction_ja or None
     song.introduction_editor_id = editor.id
     song.introduction_updated_at = datetime.now(pytz.utc).isoformat()
     db.commit()

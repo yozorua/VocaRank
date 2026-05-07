@@ -195,12 +195,9 @@ def update_artist_introduction(
     artist = db.query(models.Artist).filter(models.Artist.id == artist_id).first()
     if not artist:
         raise HTTPException(status_code=404, detail="Artist not found")
-    if body.introduction is not None:
-        artist.introduction = body.introduction or None
-    if body.introduction_en is not None:
-        artist.introduction_en = body.introduction_en or None
-    if body.introduction_ja is not None:
-        artist.introduction_ja = body.introduction_ja or None
+    artist.introduction = body.introduction or None
+    artist.introduction_en = body.introduction_en or None
+    artist.introduction_ja = body.introduction_ja or None
     artist.introduction_editor_id = editor.id
     artist.introduction_updated_at = datetime.now(pytz.utc).isoformat()
     db.commit()

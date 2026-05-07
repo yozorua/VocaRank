@@ -475,10 +475,10 @@
     "edit": "Edit Introduction",
     "add": "Add Introduction",
     "placeholder": "Write an introduction...",
-    "label_zh": "zh-TW",
+    "label_zh": "Traditional Chinese",
     "label_en": "English",
     "label_ja": "日本語",
-    "auto_translate": "Auto-translate from zh-TW",
+    "auto_translate": "Auto-translate from Traditional Chinese",
     "translating": "Translating...",
     "save": "Save",
     "cancel": "Cancel"

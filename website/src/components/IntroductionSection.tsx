@@ -21,14 +21,45 @@ interface Props {
     initialUpdatedAt?: string | null;
 }
 
-const MAX_CHARS = 5000;
+const MAX_CHARS = 10000;
+const TRANSLATE_CHUNK = 450;
 
-async function myMemoryTranslate(text: string, targetLang: 'en' | 'ja'): Promise<string> {
+async function translateChunk(chunk: string, targetLang: 'en' | 'ja'): Promise<string> {
+    if (!chunk.trim()) return chunk;
     const res = await fetch(
-        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=zh-TW%7C${targetLang}`
+        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=zh-TW%7C${targetLang}`
     );
     const data = await res.json();
-    return data.responseData?.translatedText ?? '';
+    return data.responseData?.translatedText ?? chunk;
+}
+
+async function myMemoryTranslate(text: string, targetLang: 'en' | 'ja'): Promise<string> {
+    const lines = text.split('\n');
+    const translatedLines: string[] = [];
+    for (const line of lines) {
+        if (!line.trim()) { translatedLines.push(line); continue; }
+        if (line.length <= TRANSLATE_CHUNK) {
+            translatedLines.push(await translateChunk(line, targetLang));
+        } else {
+            // Split long line at sentence boundaries then translate each sub-chunk
+            const subChunks: string[] = [];
+            let remaining = line;
+            while (remaining.length > TRANSLATE_CHUNK) {
+                let split = remaining.lastIndexOf('。', TRANSLATE_CHUNK);
+                if (split === -1) split = remaining.lastIndexOf('，', TRANSLATE_CHUNK);
+                if (split === -1) split = remaining.lastIndexOf('. ', TRANSLATE_CHUNK);
+                if (split === -1) split = remaining.lastIndexOf(' ', TRANSLATE_CHUNK);
+                if (split <= 0) split = TRANSLATE_CHUNK;
+                else split += 1;
+                subChunks.push(remaining.slice(0, split));
+                remaining = remaining.slice(split);
+            }
+            if (remaining) subChunks.push(remaining);
+            const parts = await Promise.all(subChunks.map(c => translateChunk(c, targetLang)));
+            translatedLines.push(parts.join(''));
+        }
+    }
+    return translatedLines.join('\n');
 }
 
 export default function IntroductionSection({
@@ -57,13 +88,13 @@ export default function IntroductionSection({
     const isEditor = (session as any)?.isEditor || (session as any)?.isAdmin;
 
     const displayIntro =
-        locale === 'ja' ? (introJa || introZh) :
+        locale === 'ja' ? introJa :
         locale === 'zh-TW' ? introZh :
-        (introEn || introZh);
+        introEn;
 
     const hasAnyIntro = !!(introZh || introEn || introJa);
 
-    if (!hasAnyIntro && !isEditor) return null;
+    if (!displayIntro && !isEditor) return null;
 
     const openModal = () => {
         setDraftZh(introZh);
@@ -125,7 +156,7 @@ export default function IntroductionSection({
 
     return (
         <>
-            <div className="my-8">
+            <div className="my-8 pb-8 border-b border-[var(--hairline)]">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl md:text-2xl font-black tracking-wider text-gray-300">{t('title')}</h2>

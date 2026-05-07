@@ -90,6 +90,10 @@ export default function VocaloidStatsClient() {
         return Object.values(map).sort((a, b) => a.date.localeCompare(b.date));
     }, [engineTimeline, timeUnit]);
 
+    const totalDistribution = useMemo(() =>
+        distribution.reduce((sum: number, d: any) => sum + d.value, 0),
+    [distribution]);
+
     // Attach asymmetric IQR error distances to each range row for the ErrorBar
     const ratioWithIQR = useMemo(() =>
         ratioByRange.map((d: any) => ({
@@ -288,14 +292,23 @@ export default function VocaloidStatsClient() {
                                     fontSize: '12px'
                                 }}
                                 itemStyle={{ color: '#fff' }}
-                                formatter={(value: any, name: any) => [`${value} ${t('songs')}`, formatArtistType(name)]}
+                                formatter={(value: any, name: any) => {
+                                    const pct = totalDistribution > 0 ? ((value / totalDistribution) * 100).toFixed(1) : '0.0';
+                                    return [`${value} ${t('songs')} (${pct}%)`, formatArtistType(name)];
+                                }}
                             />
                             <Legend
                                 verticalAlign="bottom"
-                                iconType="circle"
-                                iconSize={8}
-                                wrapperStyle={{ paddingTop: '16px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '4px 8px', fontSize: 'clamp(11px, 1vw, 13px)' }}
-                                formatter={(value: any) => <span className="text-white ml-1">{formatArtistType(value)}</span>}
+                                content={() => (
+                                    <div style={{ paddingTop: '16px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '4px 8px', fontSize: 'clamp(11px, 1vw, 13px)' }}>
+                                        {distribution.map((entry) => (
+                                            <div key={entry.name} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill={ENGINE_COLORS[entry.name] || '#00C49F'} /></svg>
+                                                <span style={{ color: '#fff' }}>{formatArtistType(entry.name)}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             />
                         </PieChart>
                     </ResponsiveContainer>
