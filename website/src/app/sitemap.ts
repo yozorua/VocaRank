@@ -56,8 +56,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                     languages: Object.fromEntries(LOCALES.map(l => [l, `${BASE_URL}/${l}/playlist/live/${live.slug}`])),
                 },
             }));
+        } else {
+            console.error(`[sitemap] official-lives API returned ${res.status}`);
         }
-    } catch { }
+    } catch (e) {
+        console.error('[sitemap] failed to fetch official-lives:', e);
+    }
 
     // Public playlist pages
     let playlistRoutes: MetadataRoute.Sitemap = [];
@@ -74,14 +78,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                     languages: Object.fromEntries(LOCALES.map(l => [l, `${BASE_URL}/${l}/playlist/${pl.id}`])),
                 },
             }));
+        } else {
+            console.error(`[sitemap] playlists API returned ${res.status}`);
         }
-    } catch { }
+    } catch (e) {
+        console.error('[sitemap] failed to fetch playlists:', e);
+    }
 
-    // Top 500 song pages — most-viewed songs are the primary SEO target
+    // Top 2000 song pages — most-viewed songs are the primary SEO target
     let songRoutes: MetadataRoute.Sitemap = [];
     try {
         const res = await fetch(
-            `${API}/rankings/total?limit=500&vocaloid_only=false&sort_by=total`,
+            `${API}/rankings/total?limit=2000&vocaloid_only=false&sort_by=total`,
             { cache: 'no-store' },
         );
         if (res.ok) {
@@ -95,8 +103,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                     languages: Object.fromEntries(LOCALES.map(l => [l, `${BASE_URL}/${l}/song/${song.id}`])),
                 },
             }));
+        } else {
+            console.error(`[sitemap] songs API returned ${res.status}`);
         }
-    } catch { }
+    } catch (e) {
+        console.error('[sitemap] failed to fetch songs:', e);
+    }
 
     // Artist pages
     let artistRoutes: MetadataRoute.Sitemap = [];
@@ -113,8 +125,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                     languages: Object.fromEntries(LOCALES.map(l => [l, `${BASE_URL}/${l}/artist/${id}`])),
                 },
             }));
+        } else {
+            console.error(`[sitemap] artists/ids API returned ${res.status}`);
         }
-    } catch { }
+    } catch (e) {
+        console.error('[sitemap] failed to fetch artist ids:', e);
+    }
 
     return [...staticRoutes, ...liveRoutes, ...playlistRoutes, ...songRoutes, ...artistRoutes];
 }

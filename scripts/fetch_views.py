@@ -282,6 +282,40 @@ def main():
                             except Exception as e:
                                 log_message("WARNING", f"Song {sid}: Failed to backfill snapshots: {e}")
                                 conn.rollback()
+                    nico_id = up['nico_id']
+                    if nico_id and nico_id not in up['temp_nico_views'] and up['temp_nico_views']:
+                        working_nico_pvs = [p for p in pvs
+                                            if p.get('service') == 'NicoNicoDouga'
+                                            and p.get('pvId') in up['temp_nico_views']]
+                        if working_nico_pvs:
+                            pre_correction_views = working_nico_pvs[0].get('views')
+                            dead_nico_pvs = [p for p in pvs
+                                             if p.get('service') == 'NicoNicoDouga'
+                                             and p.get('pvId') not in up['temp_nico_views']]
+                            other_pvs = [p for p in pvs if p.get('service') != 'NicoNicoDouga']
+                            pvs = working_nico_pvs + other_pvs + dead_nico_pvs
+                            new_primary = working_nico_pvs[0]['pvId']
+                            log_message("INFO", f"Song {sid}: Dead NicoNico primary {nico_id!r} → promoting {new_primary!r}")
+                            up['nico_id'] = new_primary
+                            pv_changed = True
+                            baseline = pre_correction_views if pre_correction_views is not None else up['temp_nico_views'].get(new_primary, 0)
+                            try:
+                                cursor.execute(
+                                    "UPDATE daily_snapshots SET niconico_views = %s WHERE song_id = %s AND date::date <= CURRENT_DATE",
+                                    (baseline, sid)
+                                )
+                                log_message("INFO", f"Song {sid}: Backfilled daily_snapshots niconico_views to {baseline} to prevent ranking jump")
+                            except Exception as e:
+                                log_message("WARNING", f"Song {sid}: Failed to backfill niconico snapshots: {e}")
+                                conn.rollback()
+                    if up['temp_nico_views']:
+                        for pv in pvs:
+                            if (pv.get('service') == 'NicoNicoDouga'
+                                    and pv.get('pvId') not in up['temp_nico_views']
+                                    and not pv.get('disabled')):
+                                pv['disabled'] = True
+                                pv_changed = True
+                                log_message("INFO", f"Song {sid}: Marking dead NicoNico PV {pv.get('pvId')!r} as disabled")
                     for pv in pvs:
                         service = pv.get('service')
                         pvid = pv.get('pvId')

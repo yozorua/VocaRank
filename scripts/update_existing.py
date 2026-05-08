@@ -28,11 +28,14 @@ def update_song_by_id(conn: psycopg2.extensions.connection, song_id: int):
         old_pv_data_str = existing[4] if existing[4] else None
 
     old_yt_views = {}
+    old_nico_disabled = set()
     if old_pv_data_str:
         try:
             for pv in json.loads(old_pv_data_str):
                 if pv.get('service') == 'Youtube':
                     old_yt_views[pv['pvId']] = pv.get('views')
+                elif pv.get('service') == 'NicoNicoDouga' and pv.get('disabled'):
+                    old_nico_disabled.add(pv['pvId'])
         except:
             pass
         
@@ -80,6 +83,23 @@ def update_song_by_id(conn: psycopg2.extensions.connection, song_id: int):
                                   and p.get('pvId') not in old_yt_views]
                         other = [p for p in new_pvs if p.get('service') != 'Youtube']
                         record[9] = json.dumps(alive_yt + new_yt + other + dead_yt)
+            except:
+                pass
+
+        if old_nico_disabled:
+            try:
+                new_pvs = json.loads(record[9])
+                if isinstance(new_pvs, list):
+                    alive_nico = [p for p in new_pvs
+                                  if p.get('service') == 'NicoNicoDouga'
+                                  and p.get('pvId') not in old_nico_disabled]
+                    dead_nico = [p for p in new_pvs
+                                 if p.get('service') == 'NicoNicoDouga'
+                                 and p.get('pvId') in old_nico_disabled]
+                    other = [p for p in new_pvs if p.get('service') != 'NicoNicoDouga']
+                    for p in dead_nico:
+                        p['disabled'] = True
+                    record[9] = json.dumps(alive_nico + other + dead_nico)
             except:
                 pass
 

@@ -4,6 +4,15 @@ import SongPlayer from '@/components/SongPlayer';
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import CommentsSection from '@/components/song/CommentsSection';
+import IntroductionSection from '@/components/IntroductionSection';
+import ViewHistoryChart from '@/components/ViewHistoryChart';
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://vocarank.live';
+const LOCALES = ['en', 'zh-TW', 'ja', 'ar'];
+
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; id: string }> }): Promise<Metadata> {
     const { locale, id } = await params;
@@ -23,15 +32,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
             description,
             openGraph: { title, description, images: thumb ? [{ url: thumb }] : [] },
             twitter: { card: 'summary_large_image', images: thumb ? [thumb] : [] },
+            alternates: {
+                canonical: `${BASE_URL}/${locale}/song/${songId}`,
+                languages: Object.fromEntries(LOCALES.map(l => [l, `${BASE_URL}/${l}/song/${songId}`])),
+            },
         };
     } catch {
         return {};
     }
 }
-import Link from 'next/link'; // Added Link import
-import CommentsSection from '@/components/song/CommentsSection';
-import IntroductionSection from '@/components/IntroductionSection';
-import ViewHistoryChart from '@/components/ViewHistoryChart';
 
 interface PageProps {
     params: Promise<{

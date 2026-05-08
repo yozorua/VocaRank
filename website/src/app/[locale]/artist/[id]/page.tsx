@@ -8,8 +8,17 @@ import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
+import { formatArtistType } from '@/lib/formatArtistType';
+import FavoriteButton from '@/components/FavoriteButton';
+import IntroductionSection from '@/components/IntroductionSection';
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://vocarank.live';
+const LOCALES = ['en', 'zh-TW', 'ja', 'ar'];
+
+export const revalidate = 3600;
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; id: string }> }): Promise<Metadata> {
-    const { id } = await params;
+    const { locale, id } = await params;
     const artistId = parseInt(id, 10);
     if (isNaN(artistId)) return {};
     try {
@@ -25,16 +34,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
                 description,
                 images: thumb ? [{ url: thumb }] : [],
             },
+            alternates: {
+                canonical: `${BASE_URL}/${locale}/artist/${artistId}`,
+                languages: Object.fromEntries(LOCALES.map(l => [l, `${BASE_URL}/${l}/artist/${artistId}`])),
+            },
         };
     } catch {
         return {};
     }
 }
-import { formatArtistType } from '@/lib/formatArtistType';
-import FavoriteButton from '@/components/FavoriteButton';
-import IntroductionSection from '@/components/IntroductionSection';
-
-export const dynamic = 'force-dynamic';
 
 interface ArtistPageProps {
     params: Promise<{ locale: string; id: string }>;
