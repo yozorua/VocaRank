@@ -61,7 +61,9 @@
     "title": "觀看紀錄",
     "tab_total": "總計",
     "tab_youtube": "YouTube",
-    "tab_niconico": "Niconico"
+    "tab_niconico": "Niconico",
+    "toggle_daily_gains": "每日觀看數",
+    "views": "次觀看"
   },
   "ArtistPublishHistogram": {
     "title": "歷年活動",
@@ -238,7 +240,7 @@
     "back_home": "返回首頁"
   },
   "Moods": {
-    "title": "社群氛圍",
+    "title": "歌曲氛圍",
     "already_voted": "您只能為這首歌投票一次！",
     "votes_total": "票",
     "joyful": "愉快",

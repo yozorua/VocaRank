@@ -7,6 +7,7 @@ from ..models import SiteView, StatisticCache
 from datetime import datetime
 import pytz
 import json
+import threading
 
 router = APIRouter(
     prefix="/statistics",
@@ -15,6 +16,8 @@ router = APIRouter(
 
 # In-memory application cache specifically for these heavy analytical queries
 STATS_CACHE = {}
+# Prevents multiple threads from running the same heavy computation simultaneously
+_site_stats_lock = threading.Lock()
 
 
 # ─────────────────────────────────────────────
@@ -56,45 +59,51 @@ def get_site_stats(db: Session = Depends(get_db)):
         if "site-stats" in STATS_CACHE:
             return STATS_CACHE["site-stats"]
 
-    from sqlalchemy import text as sql_text
+    with _site_stats_lock:
+        # Re-check after acquiring the computation lock — another thread may have just populated it
+        with cache_lock:
+            if "site-stats" in STATS_CACHE:
+                return STATS_CACHE["site-stats"]
 
-    SYNTH_IN = "('Vocaloid','UTAU','CeVIO','SynthesizerV','Neutrino','VoiSona','OtherVoiceSynthesizer')"
-    TYPE_IN  = "('Original','Remix','Remaster','Cover')"
-    PROD_IN  = "('Producer','Circle','OtherGroup')"
+        from sqlalchemy import text as sql_text
 
-    vocaloid_songs = db.execute(sql_text(f"""
-        SELECT COUNT(DISTINCT s.id) FROM songs s
-        WHERE s.song_type IN {TYPE_IN}
-          AND EXISTS (
-            SELECT 1 FROM song_artists sa
-            JOIN artists a ON sa.artist_id = a.id
-            WHERE sa.song_id = s.id AND a.artist_type IN {SYNTH_IN}
-          )
-    """)).scalar() or 0
+        SYNTH_IN = "('Vocaloid','UTAU','CeVIO','SynthesizerV','Neutrino','VoiSona','OtherVoiceSynthesizer')"
+        TYPE_IN  = "('Original','Remix','Remaster','Cover')"
+        PROD_IN  = "('Producer','Circle','OtherGroup')"
 
-    vocaloid_producers = db.execute(sql_text(f"""
-        SELECT COUNT(DISTINCT a.id) FROM artists a
-        WHERE a.artist_type IN {PROD_IN}
-          AND EXISTS (
-            SELECT 1 FROM song_artists sa
-            JOIN songs s ON sa.song_id = s.id
-            WHERE sa.artist_id = a.id
-              AND s.song_type IN {TYPE_IN}
+        vocaloid_songs = db.execute(sql_text(f"""
+            SELECT COUNT(DISTINCT s.id) FROM songs s
+            WHERE s.song_type IN {TYPE_IN}
               AND EXISTS (
-                SELECT 1 FROM song_artists sa2
-                JOIN artists a2 ON sa2.artist_id = a2.id
-                WHERE sa2.song_id = s.id AND a2.artist_type IN {SYNTH_IN}
+                SELECT 1 FROM song_artists sa
+                JOIN artists a ON sa.artist_id = a.id
+                WHERE sa.song_id = s.id AND a.artist_type IN {SYNTH_IN}
               )
-          )
-    """)).scalar() or 0
+        """)).scalar() or 0
 
-    result = {
-        "vocaloid_songs": int(vocaloid_songs),
-        "vocaloid_producers": int(vocaloid_producers),
-    }
+        vocaloid_producers = db.execute(sql_text(f"""
+            SELECT COUNT(DISTINCT a.id) FROM artists a
+            WHERE a.artist_type IN {PROD_IN}
+              AND EXISTS (
+                SELECT 1 FROM song_artists sa
+                JOIN songs s ON sa.song_id = s.id
+                WHERE sa.artist_id = a.id
+                  AND s.song_type IN {TYPE_IN}
+                  AND EXISTS (
+                    SELECT 1 FROM song_artists sa2
+                    JOIN artists a2 ON sa2.artist_id = a2.id
+                    WHERE sa2.song_id = s.id AND a2.artist_type IN {SYNTH_IN}
+                  )
+              )
+        """)).scalar() or 0
 
-    with cache_lock:
-        STATS_CACHE["site-stats"] = result
+        result = {
+            "vocaloid_songs": int(vocaloid_songs),
+            "vocaloid_producers": int(vocaloid_producers),
+        }
+
+        with cache_lock:
+            STATS_CACHE["site-stats"] = result
 
     return result
 

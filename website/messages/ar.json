@@ -57,7 +57,9 @@
     "title": "عرض التاريخ",
     "tab_total": "الإجمالي",
     "tab_youtube": "يوتيوب",
-    "tab_niconico": "نيكونيكو"
+    "tab_niconico": "نيكونيكو",
+    "toggle_daily_gains": "المشاهدات اليومية",
+    "views": "مشاهدة"
   },
   "ArtistPublishHistogram": {
     "title": "نشاطية الأغاني",
@@ -234,7 +236,7 @@
     "back_home": "العودة إلى الصفحة الرئيسية"
   },
   "Moods": {
-    "title": "تصويت المجتمع حول الأغنية",
+    "title": "أجواء الأغنية",
     "already_voted": "يمكنك التصويت مرة واحدة فقط لكل أغنية!",
     "votes_total": "إجمالي الأصوات",
     "joyful": "مبهج",

@@ -57,7 +57,9 @@
     "title": "View History",
     "tab_total": "Total",
     "tab_youtube": "YouTube",
-    "tab_niconico": "Niconico"
+    "tab_niconico": "Niconico",
+    "toggle_daily_gains": "Daily Views",
+    "views": "views"
   },
   "ArtistPublishHistogram": {
     "title": "Song Activity",
@@ -234,7 +236,7 @@
     "back_home": "Return to Home"
   },
   "Moods": {
-    "title": "Community Votes",
+    "title": "Song Vibes",
     "already_voted": "You can only vote once per song!",
     "votes_total": "Votes",
     "joyful": "Joyful",

@@ -12,7 +12,9 @@ SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://vocarank:passw
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
     pool_size=20,
-    max_overflow=0
+    max_overflow=20,
+    pool_pre_ping=True,
+    pool_recycle=1800,
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

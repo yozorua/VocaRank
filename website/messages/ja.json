@@ -61,7 +61,9 @@
     "title": "再生履歴",
     "tab_total": "合計",
     "tab_youtube": "YouTube",
-    "tab_niconico": "ニコニコ"
+    "tab_niconico": "ニコニコ",
+    "toggle_daily_gains": "日別再生数",
+    "views": "回再生"
   },
   "ArtistPublishHistogram": {
     "title": "楽曲の活動記録",
@@ -238,7 +240,7 @@
     "back_home": "ホームに戻る"
   },
   "Moods": {
-    "title": "コミュニティの雰囲気",
+    "title": "楽曲の雰囲気",
     "already_voted": "この楽曲には既に投票済みです！",
     "votes_total": "票",
     "joyful": "喜び",
