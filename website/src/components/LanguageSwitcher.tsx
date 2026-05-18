@@ -10,6 +10,7 @@ const languages = [
     { code: 'zh-TW', label: '繁中', full: '繁體中文' },
     { code: 'ja', label: '日本語', full: '日本語' },
     { code: 'ar', label: 'العربية', full: 'العربية' },
+    { code: 'es', label: 'ES', full: 'Español' },
 ];
 
 export default function LanguageSwitcher() {
