@@ -1,6 +1,6 @@
 {
   "Metadata": {
-    "title": "VocaRank - La Plataforma Definitiva de Ranking Vocaloid",
+    "title": "VocaRank - La Plataforma de Ranking Definitiva del Vocaloid",
     "description": "Descubre las canciones de Vocaloid más populares. Explora rankings en tiempo real, análisis profundo de estadísticas de sintetizadores de voz y crea tus propias listas de reproducción."
   },
   "Home": {
@@ -11,20 +11,20 @@
     "cta_signup": "Crea una cuenta — guarda favoritos y sigue los rankings",
     "stat_songs": "Canciones",
     "stat_producers": "Productores",
-    "preview_notice": "Este sitio está en desarrollo — algunas funciones pueden estar incompletas",
+    "preview_notice": "Este sitio web está en desarrollo — algunas funciones pueden estar incompletas",
     "section_top_movers": "Destacados",
     "top_movers_today": "Destacados del día",
     "top_movers_daily": "↑ Aumento de vistas",
     "top_movers_views": "Vistas",
     "top_movers_see_all": "Ver ranking completo",
-    "top_movers_loading": "Los rankings están siendo calculados. ¡Vuelve pronto!",
+    "top_movers_loading": "Los rankings están siendo calculados. ¡Vuelva pronto!",
     "section_features": "Explorar funciones",
     "feature_ranking_title": "Rankings",
     "feature_ranking_desc": "Rankings diarios, semanales y mensuales de canciones ordenados por aumento de vistas en YouTube y Niconico.",
     "feature_search_title": "Búsqueda",
     "feature_search_desc": "Encuentra cualquier canción o artista de Vocaloid en toda nuestra base de datos por nombre en inglés, japonés o romaji.",
     "feature_statistics_title": "Estadísticas",
-    "feature_statistics_desc": "Explora ratios de uso de sintetizadores de voz y tendencias de producción a lo largo del tiempo.",
+    "feature_statistics_desc": "Explora las proporciones de uso de sintetizadores de voz y tendencias de producción a lo largo del tiempo.",
     "feature_network_title": "Redes",
     "feature_network_desc": "Visualiza gráficos de colaboración entre productores y sintetizadores de voz.",
     "feature_player_title": "Reproductor de música",
@@ -34,7 +34,7 @@
     "feature_explore": "Explorar",
     "section_about": "Sobre VocaRank",
     "about_title": "¿Qué es VocaRank?",
-    "about_body": "VocaRank es una plataforma de rankings en tiempo real para canciones de Vocaloid. Al agregar conteos de vistas de YouTube y Niconico cada hora, te permite no solo descubrir las últimas tendencias en música Vocaloid, sino también rastrear el rendimiento histórico de cada canción desde el pasado hasta el presente.\n\nMás que un simple sitio de rankings, VocaRank se integra con la base de datos VocaDB impulsada por la comunidad, permitiendo a los usuarios explorar en profundidad la enorme comunidad de música Vocaloid. Además de las listas de tendencias recientes, el sitio ofrece análisis de datos a largo plazo, incluidas las tendencias de uso de sintetizadores de voz y gráficos de red interactivos que visualizan las colaboraciones entre creadores.\n\nCon nuestro hermoso reproductor de música integrado, puedes escuchar desde clásicos legendarios hasta los últimos éxitos en cualquier momento, así como crear y compartir tus propias listas de reproducción. VocaRank es la plataforma definitiva para todos los fans de Vocaloid para rastrear la historia, descubrir nuevas canciones y experimentar plenamente el encanto de la música Vocaloid.",
+    "about_body": "VocaRank es una plataforma de ranking en tiempo real para canciones de Vocaloid. Al agregar conteos de vistas de YouTube y Niconico cada hora, te permite no solo descubrir las últimas tendencias en música Vocaloid, sino también rastrear el rendimiento histórico de cada canción desde el pasado hasta el presente.\n\nMás que un simple sitio web de ranking, VocaRank se integra con la base de datos VocaDB impulsada por la comunidad, permitiendo a los usuarios explorar en profundidad la enorme comunidad de música Vocaloid. Además de las listas de tendencias recientes, el sitio web ofrece análisis de datos a largo plazo, incluyendo las tendencias de uso de sintetizadores de voz y gráficos de red interactivos que visualizan las colaboraciones entre creadores.\n\nCon nuestro elegante reproductor de música integrado, puedes escuchar desde clásicos legendarios hasta los últimos éxitos en cualquier momento, así como crear y compartir tus propias listas de reproducción. VocaRank es la mejor plataforma para todos los fans de Vocaloid, donde podrán explorar su historia, descubrir nuevas canciones y experimentar completamente el encanto de la música Vocaloid.",
     "about_placeholder_note": "Etapa de vista previa"
   },
   "LanguageSwitcher": {
@@ -49,7 +49,7 @@
     "sort_niconico": "Niconico",
     "show_more": "Mostrar más",
     "no_data_title": "Calculando ranking...",
-    "no_data_desc": "Actualmente estamos recopilando datos para este período. ¡Por favor, vuelve más tarde!",
+    "no_data_desc": "Actualmente estamos recopilando datos para este período. ¡Por favor, vuelva más tarde!",
     "no_custom_title": "No se encontraron resultados",
     "no_custom_desc": "Ninguna canción coincide con tus parámetros de filtro personalizados. Intenta ampliar tu búsqueda."
   },
@@ -85,7 +85,7 @@
   },
   "RankingPage": {
     "title": "Rankings de canciones",
-    "description": "Descubre las canciones de Vocaloid más populares ahora mismo",
+    "description": "Descubre las canciones de Vocaloid más populares del momento",
     "daily": "Diario",
     "weekly": "Semanal",
     "monthly": "Mensual",
@@ -95,7 +95,7 @@
     "sort_youtube": "Ranking YouTube",
     "sort_niconico": "Ranking Niconico",
     "ranking_method_hint": "Los rankings diario, semanal y mensual se basan en el aumento de vistas durante el período seleccionado. Solo se cuentan canciones de tipo Original, Remaster y Remix, y deben usar un sintetizador de voz: VOCALOID, UTAU, Synthesizer V, CeVIO, VoiSona, NEUTRINO, AIVOICE, VOICEVOX, VOICEROID, NewType, ACEVirtualSinger.",
-    "unstable_hint": "Las cifras semanales y mensuales pueden ser inexactas — recientemente ajustamos las reglas de clasificación de PV. Los datos se estabilizarán con el tiempo.",
+    "unstable_hint": "Las cifras semanales y mensuales pueden ser inexactas — recientemente ajustamos las reglas de ranking de PV. Los datos se estabilizarán con el tiempo.",
     "custom_apply_prompt": "Configura los filtros arriba y haz clic en Aplicar"
   },
   "SongDetail": {
@@ -116,7 +116,7 @@
   },
   "TrendingPage": {
     "title": "Tendencias",
-    "description": "Canciones de Vocaloid lanzadas recientemente y populares",
+    "description": "Canciones de Vocaloid populares lanzadas recientemente",
     "sort_by": "Ordenar por",
     "sort_total": "Vistas totales",
     "sort_youtube": "YouTube",
@@ -127,7 +127,7 @@
     "time_yesterday": "Ayer",
     "time_days_ago": "Hace {count}d",
     "meta_title": "Tendencias — VocaRank",
-    "meta_description": "Descubre las canciones de Vocaloid más nuevas y populares de los últimos 14 días, clasificadas por vistas."
+    "meta_description": "Descubre las nuevas canciones de Vocaloid más populares de los últimos 14 días, clasificadas por vistas."
   },
   "Navbar": {
     "ranking": "Ranking",
@@ -140,9 +140,9 @@
     "statistics": "Estadísticas",
     "statistics_producer_network": "Red de productores",
     "statistics_vocalist_network": "Red de sintetizadores",
-    "statistics_vocaloid": "Stats de Vocaloid",
+    "statistics_vocaloid": "Estadísticas de Vocaloid",
     "playlist": "Lista de reproducción",
-    "about": "Acerca de"
+    "about": "Info"
   },
   "SearchPage": {
     "title": "Búsqueda",
@@ -194,8 +194,8 @@
     "title": "Mi perfil",
     "loading": "Cargando perfil...",
     "settings": "Configuración de cuenta",
-    "name": "Nombre para mostrar",
-    "name_placeholder": "Ingresa tu nombre para mostrar...",
+    "name": "Nombre público",
+    "name_placeholder": "Ingresa tu nombre público...",
     "email": "Dirección de correo electrónico",
     "email_placeholder": "Ingresa tu dirección de correo electrónico...",
     "uid": "ID de usuario",
@@ -244,12 +244,12 @@
     "love": "Amor",
     "chaos": "Caos",
     "chill": "Relajado",
-    "emotional": "Emotivo",
+    "emotional": "Emocional",
     "vote_to_reveal": "¡Vota para ver los resultados!"
   },
   "Favorites": {
     "title": "Mis favoritos",
-    "description": "Gestiona tu contenido guardado",
+    "description": "Maneja tu contenido guardado",
     "songs": "Canciones",
     "artists": "Artistas",
     "playlists": "Listas de reproducción",
@@ -258,12 +258,12 @@
   "Graph": {
     "title": "Red de productores de Vocaloid",
     "description": "Explora la red de productores de Vocaloid basada en sus colaboraciones",
-    "caption": "Cada nodo representa un productor de Vocaloid. Las aristas conectan productores que han colaborado en al menos una canción juntos. El tamaño del nodo está determinado por la métrica de peso seleccionada (vistas totales o centralidad de colaboración)."
+    "caption": "Cada nodo representa un productor de Vocaloid. Las conexiones unen productores que han colaborado en al menos una canción juntos. El tamaño del nodo se determina según la métrica de peso seleccionada (vistas totales o centralidad de colaboración)."
   },
   "GraphVocalist": {
     "title": "Red de sintetizadores de Vocaloid",
     "description": "Explora la red de colaboración multi-sintetizador donde dos sintetizadores de voz aparecen juntos en la misma canción",
-    "caption": "Cada nodo representa un sintetizador de voz. Las aristas conectan sintetizadores que aparecen juntos en al menos una canción. El tamaño del nodo está determinado por la métrica de peso seleccionada."
+    "caption": "Cada nodo representa un sintetizador de voz. Las conexiones unen sintetizadores que aparecen juntos en al menos una canción. El tamaño del nodo se determina según la métrica de peso seleccionada."
   },
   "GraphPage": {
     "loading": "Cargando...",
@@ -281,19 +281,19 @@
     "title": "Tendencias de Vocaloid",
     "description": "Explora las tendencias históricas de publicación y el uso de sintetizadores de voz",
     "songs_over_time": "Canciones publicadas a lo largo del tiempo",
-    "voicebank_distribution": "Ratio de uso de sintetizadores de voz",
-    "engine_over_time": "Ratio de uso de sintetizadores de voz a lo largo del tiempo",
+    "voicebank_distribution": "Proporción de uso de sintetizadores de voz",
+    "engine_over_time": "Proporción de uso de sintetizadores de voz a lo largo del tiempo",
     "year": "Año",
     "month": "Mes",
     "switch_year": "Anual",
     "switch_month": "Mensual",
     "switch_count": "Cantidad",
-    "switch_percent": "Ratio %",
+    "switch_percent": "Proporción %",
     "song_count": "Canciones publicadas",
     "songs": "canciones",
     "caption": "Cubre canciones Original, Remix, Remaster y Cover que incluyen al menos un vocalista sintetizado — VOCALOID, UTAU, CeVIO, Synthesizer V, Neutrino, VoiSona u otros sintetizadores de voz. Datos obtenidos de la base de datos de VocaRank, sincronizada con VocaDB.",
-    "view_ratio_title": "Ratio de vistas YouTube vs NicoNico",
-    "view_ratio_caption": "Ratio de vistas YouTube-NicoNico agrupado por rango de vistas totales, para canciones de Vocaloid con conteos válidos en ambas plataformas. Cada barra muestra la mediana; la barra de error abarca P25–P75, lo que significa que el 50% medio de las canciones en ese rango cae dentro de esos límites. La línea roja muestra la media.",
+    "view_ratio_title": "Proporción de vistas YouTube vs NicoNico",
+    "view_ratio_caption": "Proporción de vistas YouTube-NicoNico agrupadas por rango de vistas totales, para canciones de Vocaloid con conteos válidos en ambas plataformas. Cada barra muestra la mediana de la proporción; la barra de error abarca P25–P75, lo que significa que el 50% central de las canciones en ese rango caen dentro de esos límites. La línea roja muestra la media.",
     "ratio_mean_label": "Media",
     "ratio_median_label": "Mediana",
     "ratio_songs_in_range": "Canciones",
@@ -325,7 +325,7 @@
     "create": "Crear lista",
     "edit": "Editar lista",
     "delete": "Eliminar lista",
-    "delete_confirm": "¿Estás seguro de que quieres eliminar esta lista de reproducción?",
+    "delete_confirm": "¿Estás seguro que deseas eliminar esta lista de reproducción?",
     "name_label": "Nombre",
     "name_placeholder": "Dale un nombre a tu lista...",
     "desc_label": "Descripción",
@@ -346,16 +346,16 @@
     "no_mine": "Aún no has creado ninguna lista de reproducción.",
     "login_to_create": "Inicia sesión para crear listas de reproducción",
     "favorite": "Guardar en favoritos",
-    "unfavorite": "Quitar de favoritos",
+    "unfavorite": "Remover de favoritos",
     "favorites": "favoritos",
     "cover_upload": "Subir portada",
     "cover_remove": "Eliminar portada",
     "cover_drag_drop": "Arrastra y suelta o",
-    "cover_browse": "examinar",
+    "cover_browse": "selecciona un archivo",
     "cover_change": "Cambiar",
     "cover_mosaic_hint": "Por defecto se usará una portada mosaico",
     "cover_undo": "Deshacer",
-    "cover_error_type": "Solo se admiten imágenes PNG, JPG y WEBP.",
+    "cover_error_type": "Solo se aceptan imágenes PNG, JPG y WEBP.",
     "cover_error_size": "El archivo debe ser menor de 5MB.",
     "title_too_long": "El título es demasiado largo ({current}/{max} caracteres)",
     "cover_crop_title": "Recortar portada",
@@ -370,7 +370,7 @@
     "at_least_one": "(al menos 1)",
     "loading_queue": "Cargando canciones de la cola del reproductor...",
     "official_lives": "Conciertos oficiales",
-    "official_lives_description": "Listas de canciones curadas de conciertos y eventos oficiales de Vocaloid.",
+    "official_lives_description": "Listas de canciones de conciertos y eventos oficiales de Vocaloid.",
     "official_lives_empty": "Aún no hay conciertos oficiales.",
     "add_live": "Añadir concierto",
     "edit_live": "Editar concierto",
@@ -386,14 +386,14 @@
     "live_cover_label": "Imagen de portada",
     "live_save_error": "Error al guardar.",
     "live_cover_removed": "La portada será eliminada",
-    "live_delete_confirm": "¿Eliminar \"{name}\"? Se borrarán todas las asignaciones de listas.",
+    "live_delete_confirm": "¿Eliminar \"{name}\"? Se borrarán todas las listas de reproducciones asignadas.",
     "show_more": "Mostrar más"
   },
   "Footer": {
     "footer_source": "Datos de canciones y artistas con el apoyo de <vocadb>VocaDB</vocadb>. Conteos de vistas recopilados de YouTube y Niconico.",
     "footer_contact": "Contacto",
     "homepage_views": "Vistas",
-    "footer_dev": "Este sitio está en desarrollo — algunas funciones pueden estar incompletas."
+    "footer_dev": "Este sitio web está en desarrollo — algunas funciones pueden estar incompletas."
   },
   "Song": {
     "comments": "Comentarios",
@@ -404,15 +404,15 @@
     "loading_comments": "Cargando comentarios...",
     "no_comments": "Aún no hay comentarios. ¡Sé el primero en compartir tus pensamientos!",
     "delete": "Eliminar comentario",
-    "confirm_delete_comment": "¿Estás seguro de que quieres eliminar este comentario?"
+    "confirm_delete_comment": "¿Estás seguro de que deseas eliminar este comentario?"
   },
   "About": {
-    "title": "Acerca de",
+    "title": "Info",
     "founder_section": "Desarrolladores y colaboradores",
     "contact_section": "Contacto",
     "announcements_section": "Anuncios",
-    "roadmap_section": "Cronograma",
-    "reports_section": "Informes de errores y solicitudes de funciones",
+    "roadmap_section": "Historia",
+    "reports_section": "Reporte de errores y solicitudes de funciones",
     "no_announcements": "No hay anuncios aún.",
     "no_roadmap_items": "No hay eventos aún.",
     "event_date_label": "Fecha",
@@ -426,11 +426,11 @@
     "status_open": "Abierto",
     "status_resolved": "Resuelto",
     "status_closed": "Cerrado",
-    "bug": "Informe de error",
+    "bug": "Reporte de error",
     "feature": "Solicitud de función",
     "submit_report": "Enviar",
     "submitting": "Enviando...",
-    "login_to_submit": "Inicia sesión para enviar un informe de error o solicitud de función.",
+    "login_to_submit": "Inicia sesión para enviar un reporte de error o solicitud de función.",
     "report_type_label": "Tipo",
     "report_title_label": "Título",
     "report_title_placeholder": "Descripción breve...",
@@ -449,10 +449,10 @@
     "announcement_content_placeholder": "Contenido del anuncio...",
     "roadmap_title_placeholder": "Título de función o hito...",
     "roadmap_desc_placeholder": "Descripción (opcional)...",
-    "confirm_delete": "¿Estás seguro de que quieres eliminar esto?",
+    "confirm_delete": "¿Estás seguro que deseas eliminar esto?",
     "mark_as": "Marcar como",
     "all": "Todos",
-    "filter_bugs": "Informes de errores",
+    "filter_bugs": "Reportes de errores",
     "filter_features": "Solicitudes de funciones",
     "submitted_by": "por",
     "updated": "Actualizado",
@@ -466,11 +466,11 @@
     "contributor_user_id_placeholder": "Ingresa el ID de usuario...",
     "contributor_role_placeholder": "Rol (ej. Diseñador de logo)...",
     "donation_section": "Apoya VocaRank",
-    "donation_description": "Si disfrutas VocaRank y deseas apoyar su desarrollo, ¡cualquier contribución es muy apreciada! Todas las donaciones irán directamente al mantenimiento del servidor, tarifas de dominio y desarrollo continuo del sitio.",
+    "donation_description": "Si disfrutas VocaRank y deseas apoyar su desarrollo, ¡cualquier contribución es muy apreciada! Todas las donaciones irán directamente al mantenimiento del servidor, tarifas de dominio y desarrollo continuo del sitio web.",
     "donation_button": "PayPal",
     "donation_no_link_admin": "No se ha configurado ningún enlace de PayPal. Edita la sección de Desarrolladores y colaboradores para añadir uno.",
     "donation_link_hint": "Enlace de donación — déjalo vacío para ocultar la sección de donaciones.",
-    "navbar": "Acerca de"
+    "navbar": "Info"
   },
   "Introduction": {
     "title": "Introducción",
