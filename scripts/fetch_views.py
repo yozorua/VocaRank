@@ -125,9 +125,9 @@ def main():
     
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     query = "SELECT id, pv_data, niconico_history, youtube_history, niconico_views, youtube_views FROM songs WHERE 1=1"
-    
+
     if args.id:
         log_message("INFO", f"Mode: SPECIFIC ID ({args.id})")
         query += f" AND id = {args.id}"
@@ -143,19 +143,31 @@ def main():
 
     key_manager = KeyManager(keys)
     query += " ORDER BY last_update_time ASC"
-    
-    cursor.execute(query)
-    rows = cursor.fetchall()
-    log_message("INFO", f"Found {len(rows)} songs to process.")
-    
+
+    count_query = query.replace(
+        "SELECT id, pv_data, niconico_history, youtube_history, niconico_views, youtube_views FROM songs",
+        "SELECT COUNT(*) FROM songs"
+    )
+    cursor.execute(count_query)
+    total_songs = cursor.fetchone()[0]
+    log_message("INFO", f"Found {total_songs} songs to process.")
+
     CHUNK_SIZE = 100
     count_processed = 0
     total_yt_updates = 0
     total_nico_updates = 0
     yt_quota_active = False
-    
-    for i in range(0, len(rows), CHUNK_SIZE):
-        chunk = rows[i:i+CHUNK_SIZE]
+
+    # Use a server-side (named) cursor to stream rows in chunks rather than
+    # fetching all ~900K rows into Python memory at once (which causes OOM).
+    stream_cursor = conn.cursor('fetch_views_stream')
+    stream_cursor.itersize = CHUNK_SIZE
+    stream_cursor.execute(query)
+
+    while True:
+        chunk = stream_cursor.fetchmany(CHUNK_SIZE)
+        if not chunk:
+            break
         yt_ids_to_song = {} 
         nico_ids_to_song = {} 
         song_updates = {}
@@ -390,10 +402,11 @@ def main():
 
         conn.commit()
         count_processed += len(chunk)
-        log_message("INFO", f"Fetching views: {count_processed}/{len(rows)} songs... ( Niconico: {batch_nico_updates} | YouTube: {batch_yt_updates})")
+        log_message("INFO", f"Fetching views: {count_processed}/{total_songs} songs... ( Niconico: {batch_nico_updates} | YouTube: {batch_yt_updates})")
         time.sleep(0.5)
 
-    log_message("SUCCESS", f"Finished checking {len(rows)} songs. Total Updates Found -> Niconico: {total_nico_updates} | YouTube: {total_yt_updates}.")
+    stream_cursor.close()
+    log_message("SUCCESS", f"Finished checking {total_songs} songs. Total Updates Found -> Niconico: {total_nico_updates} | YouTube: {total_yt_updates}.")
     log_message("INFO", "Note: The Niconico Snapshot Search API only updates data once per day (5:00 AM JST). Niconico updates will correctly be 0 if running multiple times per day.")
 
     if args.mode == 'all':
