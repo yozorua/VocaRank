@@ -11,3 +11,4 @@ __pycache__/
 *.old
 api/static
 CLAUDE.md
+.claudeignore
