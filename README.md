@@ -1,432 +1,179 @@
 # VocaRank
-雑魚
 
-## Database Updater
-The `src/update_db.py` script is the core updater for the VocaRank database. It handles fetching new songs from VocaDB and refreshing existing ones while preserving local view counts.
+**VocaRank** is the most comprehensive and modern ranking platform for Vocaloid music — tracking real-time view counts across NicoNico and YouTube, aggregating daily snapshots, and delivering up-to-date rankings for songs featuring Vocaloid, SynthesizerV, UTAU, CeVIO, and every major vocal synthesizer. Built with a full data pipeline, multi-locale support, and a rich community layer, VocaRank is the most advanced Vocaloid ranking website available today.
 
-### Usage
+Live site: **[vocarank.live](https://vocarank.live)**
 
-**1. Standard Update (Cron Mode)**
-Fetches new songs and refreshes a batch of old songs (default 10,000).
-```bash
-python3 src/update_db.py
-# or explicitly
-python3 src/update_db.py --cron
+<table>
+  <tr>
+    <td><img src="docs/screenshots/s1.png"/></td>
+    <td><img src="docs/screenshots/s2.png"/></td>
+    <td><img src="docs/screenshots/s3.png"/></td>
+    <td><img src="docs/screenshots/s4.png"/></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/s5.png"/></td>
+    <td><img src="docs/screenshots/s6.png"/></td>
+    <td><img src="docs/screenshots/s7.png"/></td>
+    <td><img src="docs/screenshots/s8.png"/></td>
+  </tr>
+</table>
+
+---
+
+## Features
+
+- **Rankings** — Daily, weekly, and monthly gain rankings; all-time rankings; filterable by vocalist type
+- **Trending** — Rising songs with accelerating view growth
+- **Song & Artist pages** — Metadata, view history charts, mood voting, comments, and PV embeds
+- **Statistics** — Vocaloid ecosystem analytics, producer collaboration network, vocalist network graph
+- **Playlists** — User-created playlists; curated Official Lives collections (admin)
+- **Favorites** — Bookmark songs and artists to your profile
+- **Search** — Full-text search across songs and artists
+- **Player** — Queue-based YouTube player in a dedicated tab
+- **Reports & Roadmap** — Community bug reports and feature requests with upvoting
+- **User profiles** — Google OAuth sign-in, avatar upload, social links, editor roles
+- **Internationalization** — English, 繁體中文, 日本語, العربية, Español
+
+---
+
+## Tech Stack
+
+[![Tech Stack](https://skillicons.dev/icons?i=nextjs,react,ts,tailwind,fastapi,py,postgres)](https://skillicons.dev)
+
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS, next-intl |
+| Backend | FastAPI (Python), Uvicorn |
+| Database | PostgreSQL 16 |
+| Auth | Google OAuth (NextAuth) + FastAPI JWT (7-day tokens) |
+| Charts | Recharts, D3-force, react-player |
+| Data pipeline | Python + psycopg2, VocaDB API, YouTube Data API v3 |
+
+---
+
+## Repository Structure
+
 ```
-*   **Fetches New:** Gets the latest songs added to VocaDB.
-*   **Refreshes Old:** Automatically picks the 10,000 songs that haven't been updated for the longest time and refreshes their metadata from VocaDB.
-
-**2. Update Specific Song**
-Force update a single song by its VocaDB ID.
-```bash
-python3 src/update_db.py --song <ID>
-# Example: python3 src/update_db.py --song 12345
-```
-
-**3. Custom Refresh Limit**
-Control how many old songs are refreshed in a single run.
-```bash
-python3 src/update_db.py --limit 5000
-```
-
-## API
-To launch the API, run the following command:
-```bash
-uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
-```
-And access the API at http://localhost:8000/docs
-
-## Environment Configuration
-VocaRank requires some environment variables to connect to third-party services like Google OAuth.
-
-**1. Copy the example file:**
-```bash
-cp .env.example .env
-```
-
-**2. Fill in the Auth Credentials:**
-Open `.env` and configure the following keys for the Account System:
-
-*   `AUTH_GOOGLE_ID`: Your Google OAuth Client ID (from [Google Cloud Console](https://console.cloud.google.com/)).
-    *   *Note: Ensure your Authorized JavaScript origin is `https://vocarank.live` and your Authorized redirect URI is `https://vocarank.live/api/auth/callback/google`.*
-*   `AUTH_GOOGLE_SECRET`: Your Google OAuth Client Secret.
-*   `AUTH_SECRET`: Used by NextAuth to sign session tokens. Generate a random 32-character string using `openssl rand -base64 32`.
-*   `JWT_SECRET`: Used by FastAPI to sign VocaRank API tokens. Generate another random 32-character string using `openssl rand -base64 32`.
-
-## Re-open process
-```bash
-fuser -k 3000/tcp; fuser -k 8000/tcp
-npm run dev
-uvicorn api.main:app --reload --port 8000
+VocaRank/
+├── api/                  # FastAPI backend
+│   ├── main.py           # App entry point, router registration
+│   ├── models.py         # SQLAlchemy ORM models
+│   ├── routers/          # songs, artists, rankings, auth, favorites,
+│   │                     #   votes, statistics, playlists, official_lives, about
+│   ├── cache.py          # In-memory TTLCache singletons (1-hour TTL)
+│   └── utils.py          # SYNTH_TYPES, shared helpers
+├── scripts/              # Data pipeline (run as Python modules from root)
+│   ├── core.py           # Shared DB connection, VocaDB API helpers
+│   ├── fetch_new.py      # Pull new songs/artists from VocaDB
+│   ├── update_existing.py# Rolling metadata refresh
+│   ├── fetch_views.py    # YouTube + NicoNico view counts + daily snapshots
+│   ├── calculate_rankings_cache.py        # Pre-warm ranking_cache table
+│   ├── calculate_vocaloid_stats_cache.py  # Pre-warm statistic_cache table
+│   └── calculate_network_graph.py         # Producer/vocalist collaboration graphs
+├── website/              # Next.js frontend
+│   ├── src/app/[locale]/ # Pages: ranking, search, song, artist, player,
+│   │                     #        favorites, playlist, profile, statistic,
+│   │                     #        trending, about, login
+│   ├── src/lib/api.ts    # All FastAPI call wrappers
+│   ├── src/i18n/         # next-intl routing + request helpers
+│   └── messages/         # Translation files (en, zh-TW, ja, ar, es)
+├── docs/                 # Detailed guides
+│   ├── deployment.md     # Production setup (Ubuntu, systemd, NGINX, cron)
+│   ├── database.md       # Schema, size estimates, tuning, backups
+│   └── admin.md          # Admin/editor roles, Official Lives
+├── run_vocarank.sh       # Wrapper for all data pipeline commands
+├── database_backup.sh    # PostgreSQL dump + rotation script
+├── crontab.example       # Reference crontab for production
+└── .env.example          # Environment variable template
 ```
 
 ---
 
-## Deployment (Ubuntu VM)
+## Local Development
 
-This section covers a fresh production deployment on Ubuntu 24.04.
+### Prerequisites
 
-### 1. System Packages
+- Python 3.11+, Node.js 20+, PostgreSQL 16
+- A `.env` file at the repo root (copy from `.env.example`)
 
-```bash
-sudo apt update && sudo apt upgrade -y
-
-# Python, pip, venv
-sudo apt install -y python3 python3-pip python3-venv python3-dev
-
-# Node.js 20+ (via NodeSource)
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs
-
-# PostgreSQL 16
-sudo apt install -y postgresql postgresql-contrib
-
-# NGINX
-sudo apt install -y nginx
-
-# Build tools (needed for some Python packages)
-sudo apt install -y build-essential libpq-dev
-```
-
-### 2. Clone the Repository
+### Setup
 
 ```bash
-git clone <repo-url> /opt/vocarank
-cd /opt/vocarank
-```
-
-### 3. Environment Configuration
-
-```bash
+git clone <repo-url> VocaRank
+cd VocaRank
 cp .env.example .env
+# Fill in all values (see Environment Configuration below)
+
+# Python dependencies
+pip3 install -r requirements.txt
+pip3 install Pillow
+
+# Frontend dependencies
+cd website && npm install && ln -sf ../.env .env.local && cd ..
 ```
 
-Open `.env` and fill in all values:
+### Start services
 
-| Key | Description |
-|-----|-------------|
+```bash
+# Terminal 1 — FastAPI (http://localhost:8000/docs)
+uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+
+# Terminal 2 — Next.js (http://localhost:3000)
+cd website && npm run dev
+```
+
+Kill and restart both: `fuser -k 3000/tcp; fuser -k 8000/tcp`
+
+---
+
+## Environment Configuration
+
+| Variable | Description |
+|---|---|
 | `DATABASE_URL` | `postgresql://vocarank:<password>@localhost/vocarank` |
 | `AUTH_GOOGLE_ID` | Google OAuth Client ID |
 | `AUTH_GOOGLE_SECRET` | Google OAuth Client Secret |
-| `AUTH_SECRET` | Random 32-char string — `openssl rand -base64 32` |
-| `JWT_SECRET` | Random 32-char string — `openssl rand -base64 32` |
-| `NEXTAUTH_URL` | `https://vocarank.live` |
-| `YOUTUBE_KEYS_GENERAL` | Comma-separated YouTube API keys (general updates) |
-| `YOUTUBE_KEYS_POPULAR` | Comma-separated YouTube API keys (popular songs) |
+| `AUTH_SECRET` | 32-char random string — `openssl rand -base64 32` (NextAuth) |
+| `JWT_SECRET` | 32-char random string — `openssl rand -base64 32` (FastAPI JWT) |
+| `NEXTAUTH_URL` | Base URL of the site (e.g. `https://vocarank.live`) |
+| `YOUTUBE_KEYS_GENERAL` | Comma-separated YouTube Data API v3 keys (all-song updates) |
+| `YOUTUBE_KEYS_POPULAR` | Comma-separated YouTube API keys (frequent popular-song updates) |
 
-### 4. Database Setup
+Google OAuth: set the Authorized JavaScript origin to your domain and the redirect URI to `<domain>/api/auth/callback/google`.
 
-**Create the PostgreSQL user and database:**
+---
 
-```bash
-sudo -u postgres psql <<'EOF'
-CREATE USER vocarank WITH PASSWORD '<your_password>';
-CREATE DATABASE vocarank OWNER vocarank;
-\q
-EOF
-```
+## Data Pipeline
 
-**Initialize the schema** (creates all tables via SQLAlchemy):
+All commands log to `logs/cron.log`. Run from the repo root.
 
 ```bash
-python3 - <<'EOF'
-from api.database import engine, Base
-import api.models
-Base.metadata.create_all(bind=engine)
-print("Schema created.")
-EOF
-```
-
-> If restoring from a dump instead, use:
-> ```bash
-> pg_restore -d vocarank -U vocarank -h localhost /path/to/vocarank_backup.dump
-> ```
-
-### 5. Python Backend Setup
-
-```bash
-pip3 install -r requirements.txt
-pip3 install Pillow   # used by api/routers/auth.py (not in requirements.txt)
-```
-
-### 6. Frontend Setup
-
-```bash
-cd website
-npm install
-npm run build
-
-# Symlink .env.local → root .env (if not already present)
-ln -sf ../.env .env.local
-
-cd ..
-```
-
-### 7. Systemd Services
-
-Create service files so both processes start on boot and restart automatically.
-
-**FastAPI backend — `/etc/systemd/system/vocarank-api.service`:**
-
-```ini
-[Unit]
-Description=VocaRank FastAPI Backend
-After=network.target postgresql.service
-
-[Service]
-Type=simple
-User=<your-user>
-WorkingDirectory=/opt/vocarank
-ExecStart=/usr/bin/python3 -m uvicorn api.main:app --host 127.0.0.1 --port 8000
-Restart=on-failure
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-```
-
-**Next.js frontend — `/etc/systemd/system/vocarank-web.service`:**
-
-```ini
-[Unit]
-Description=VocaRank Next.js Frontend
-After=network.target vocarank-api.service
-
-[Service]
-Type=simple
-User=<your-user>
-WorkingDirectory=/opt/vocarank/website
-ExecStart=/usr/bin/node node_modules/.bin/next start --port 3000
-Restart=on-failure
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Enable and start both:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable --now vocarank-api vocarank-web
-```
-
-### 8. NGINX Configuration
-
-Create `/etc/nginx/sites-available/vocarank`:
-
-```nginx
-server {
-    listen 80;
-    server_name vocarank.live www.vocarank.live;
-    return 301 https://$host$request_uri;
-}
-
-server {
-    listen 443 ssl;
-    server_name vocarank.live www.vocarank.live;
-
-    # SSL certificates (e.g. from Certbot)
-    ssl_certificate     /etc/letsencrypt/live/vocarank.live/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/vocarank.live/privkey.pem;
-
-    client_max_body_size 10M;
-
-    # Proxy everything to Next.js (which internally proxies /api/* to FastAPI)
-    location / {
-        proxy_pass         http://127.0.0.1:3000;
-        proxy_http_version 1.1;
-        proxy_set_header   Upgrade $http_upgrade;
-        proxy_set_header   Connection 'upgrade';
-        proxy_set_header   Host $host;
-        proxy_set_header   X-Real-IP $remote_addr;
-        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header   X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
-
-Enable it:
-
-```bash
-sudo ln -s /etc/nginx/sites-available/vocarank /etc/nginx/sites-enabled/
-sudo nginx -t && sudo systemctl reload nginx
-```
-
-**SSL certificate** (via Certbot):
-
-```bash
-sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d vocarank.live -d www.vocarank.live
-```
-
-### 9. Cron Jobs (Data Pipeline)
-
-Add to crontab (`crontab -e`) for automated data updates:
-
-```cron
-# Fetch new songs from VocaDB — once daily at 3:00 AM
-0 3 * * * cd /opt/vocarank && ./run_vocarank.sh fetch-new
-
-# Refresh existing song metadata — once daily at 4:00 AM
-0 4 * * * cd /opt/vocarank && ./run_vocarank.sh update-existing --songs 10000
-
-# Fetch view counts for all songs — once daily at 5:00 AM
-0 5 * * * cd /opt/vocarank && ./run_vocarank.sh views all
-
-# Pre-warm ranking cache — once daily at 7:00 AM (after views fetch completes)
-0 7 * * * cd /opt/vocarank && ./run_vocarank.sh rankings
-
-# Pre-warm vocaloid stats cache — once daily at 7:30 AM
-30 7 * * * cd /opt/vocarank && ./run_vocarank.sh vocaloid-stats
-
-# Daily database backup — midnight, keep 14 days
-0 0 * * * cd /opt/vocarank && ./database_backup.sh --daily-dump /opt/vocarank-backups
-```
-
-### 10. PostgreSQL Tuning
-
-PostgreSQL ships with conservative defaults tuned for minimal hardware. For production use, write a drop-in config so the main `postgresql.conf` stays untouched:
-
-```bash
-sudo nano /etc/postgresql/16/main/conf.d/vocarank.conf
-```
-
-Paste the settings below for your RAM tier, then restart PostgreSQL:
-
-```bash
-sudo systemctl restart postgresql
-```
-
-**Settings by RAM tier (SSD assumed; 16-core+ CPU):**
-
-| Setting | 16 GB RAM | 64 GB RAM | Notes |
-|---|---|---|---|
-| `shared_buffers` | `4GB` | `16GB` | 25% of RAM. PostgreSQL's own buffer pool — the #1 setting. Without this, every parallel worker re-reads the same data through the OS page cache. **Requires restart.** |
-| `effective_cache_size` | `12GB` | `48GB` | 75% of RAM. Planner hint only — no memory is allocated. Influences index vs. seq scan decisions. |
-| `work_mem` | `32MB` | `64MB` | Memory per sort/hash op per worker. Peak usage = `max_parallel_workers × 2 ops × work_mem`. |
-| `maintenance_work_mem` | `512MB` | `2GB` | Used by VACUUM, CREATE INDEX, `pg_dump`. |
-| `wal_buffers` | `64MB` | `64MB` | Diminishing returns above 64 MB. |
-| `max_worker_processes` | `8` | `16` | Total background + parallel workers. **Requires restart.** |
-| `max_parallel_workers` | `4` | `8` | Hard system-wide cap on parallel query workers. Prevents cron jobs from spawning unbounded workers during heavy ranking queries. |
-| `max_parallel_workers_per_gather` | `2` | `4` | Workers per single query plan node. |
-| `checkpoint_completion_target` | `0.9` | `0.9` | Spreads checkpoint I/O over 90% of the interval, reducing spikes. |
-| `max_wal_size` | `2GB` | `4GB` | Reduces checkpoint frequency under write load. |
-| `min_wal_size` | `128MB` | `256MB` | |
-| `random_page_cost` | `1.1` | `1.1` | Default 4.0 is for spinning disk. SSD random reads ≈ sequential — lower value encourages index use. Set to `4.0` if using HDD. |
-| `effective_io_concurrency` | `200` | `200` | Parallel prefetch for bitmap scans. Use `1` for HDD. |
-
-**16 GB config:**
-
-```conf
-shared_buffers = 4GB
-effective_cache_size = 12GB
-work_mem = 32MB
-maintenance_work_mem = 512MB
-wal_buffers = 64MB
-max_worker_processes = 8
-max_parallel_workers = 4
-max_parallel_workers_per_gather = 2
-checkpoint_completion_target = 0.9
-max_wal_size = 2GB
-min_wal_size = 128MB
-random_page_cost = 1.1
-effective_io_concurrency = 200
-```
-
-**64 GB config:**
-
-```conf
-shared_buffers = 16GB
-effective_cache_size = 48GB
-work_mem = 64MB
-maintenance_work_mem = 2GB
-wal_buffers = 64MB
-max_worker_processes = 16
-max_parallel_workers = 8
-max_parallel_workers_per_gather = 4
-checkpoint_completion_target = 0.9
-max_wal_size = 4GB
-min_wal_size = 256MB
-random_page_cost = 1.1
-effective_io_concurrency = 200
-```
-
-**Verify settings loaded after restart:**
-
-```bash
-sudo -u postgres psql -c "SHOW shared_buffers; SHOW work_mem; SHOW max_parallel_workers;"
-```
-
-> **Connecting as the vocarank user** requires `-h localhost` to force TCP (password auth) since peer auth checks the Linux username:
-> ```bash
-> psql -U vocarank -d vocarank -h localhost -c "SHOW shared_buffers;"
-> ```
-
-### 11. Verify Deployment
-
-```bash
-# Check services are running
-sudo systemctl status vocarank-api vocarank-web
-
-# Test API health
-curl http://127.0.0.1:8000/health
-
-# Check logs
-journalctl -u vocarank-api -f
-journalctl -u vocarank-web -f
+./run_vocarank.sh fetch-new                             # Pull new songs/artists from VocaDB
+./run_vocarank.sh update-existing --songs 20000         # Refresh old song metadata (rolling)
+./run_vocarank.sh update-existing --newest-songs 20000  # Refresh recently-added songs
+./run_vocarank.sh update-existing --artists 10000       # Refresh artist profiles (rolling)
+./run_vocarank.sh update-existing --song <id>           # Force-update a single song
+./run_vocarank.sh views all                             # Fetch all-song views + daily snapshot
+./run_vocarank.sh views popular                         # Fetch popular-song views only
+./run_vocarank.sh views-song <id>                       # Fetch views for one song
+./run_vocarank.sh rankings                              # Pre-warm ranking_cache table
+./run_vocarank.sh vocaloid-stats                        # Pre-warm statistic_cache table
 ```
 
 ---
 
-## Admin Setup
+## Further Reading
 
-### Granting Admin Access
+- [Deployment Guide](docs/deployment.md) — Ubuntu setup, systemd services, NGINX, SSL, cron jobs
+- [Database](docs/database.md) — Schema, size & growth estimates, PostgreSQL tuning, backups
+- [Admin & Editor Guide](docs/admin.md) — Granting roles, Official Lives, announcements
+- [VocaDB](https://vocadb.net) — Song and artist metadata is sourced from VocaDB, a community-maintained Vocaloid music database
 
-The `is_admin` flag on the `users` table controls access to Official Lives management and playlist assignment on the site.
+---
 
-**1. Find your user record:**
+## Contact
 
-```bash
-psql -U vocarank -d vocarank -h localhost -c \
-  "SELECT id, email, name FROM users ORDER BY created_at LIMIT 10;"
-```
+For contributions, research inquiries, or data collaboration, reach out at:
 
-**2. Grant admin rights to an account:**
-
-```bash
-psql -U vocarank -d vocarank -h localhost -c \
-  "UPDATE users SET is_admin = true WHERE email = 'your@email.com';"
-```
-
-**3. Sign out and sign back in** — the `isAdmin` flag is baked into the NextAuth JWT at login time, so an active session won't pick up the change until re-authentication.
-
-> **Note:** The `-h localhost` flag forces TCP connection (password auth). Without it, `psql` uses peer auth and will reject the `vocarank` user. You will be prompted for the DB password from `.env`.
-
-### What admins can do
-
-- **Official Lives** — Create, edit, delete curated concert/event collections on the Playlist page
-- **Assign playlists** — Link any public playlist to an Official Live from the live's detail page
-- **Unassign playlists** — Remove a playlist from a live (playlist remains public in Browse)
-
-### Running the Official Lives migration (already applied)
-
-If setting up from scratch on a new DB, run this after `Base.metadata.create_all`:
-
-```sql
-ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;
-
-CREATE TABLE IF NOT EXISTS official_lives (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(200) NOT NULL,
-    slug VARCHAR(200) UNIQUE NOT NULL,
-    description TEXT,
-    cover_url VARCHAR(500),
-    display_order INTEGER DEFAULT 0,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-ALTER TABLE playlists ADD COLUMN IF NOT EXISTS live_id INTEGER
-    REFERENCES official_lives(id) ON DELETE SET NULL;
-```
+**vocaloid.rankings@gmail.com**
