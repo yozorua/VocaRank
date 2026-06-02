@@ -91,6 +91,18 @@ elif [ "$1" == "rankings" ]; then
     S=$((SECONDS%60))
     echo "[$TIMESTAMP | END] scripts/calculate_rankings_cache.py (Exit Code: $EXIT_CODE) - Time Elapsed: ${H}h ${M}m ${S}s" | tee -a "$LOG_FILE"
 
+elif [ "$1" == "export-users" ]; then
+    SECONDS=0
+    shift
+    echo "[$TIMESTAMP | START] scripts/export_users.py $*" | tee -a "$LOG_FILE"
+    /usr/bin/python3 -u -m scripts.export_users "$@" 2>&1 | tee -a "$LOG_FILE"
+    EXIT_CODE=${PIPESTATUS[0]}
+
+    H=$((SECONDS/3600))
+    M=$(((SECONDS%3600)/60))
+    S=$((SECONDS%60))
+    echo "[$TIMESTAMP | END] scripts/export_users.py (Exit Code: $EXIT_CODE) - Time Elapsed: ${H}h ${M}m ${S}s" | tee -a "$LOG_FILE"
+
 elif [ "$1" == "vocaloid-stats" ]; then
     LOCK_FILE="/tmp/vocarank_vocaloid_stats.lock"
     exec 9>"$LOCK_FILE"
@@ -109,6 +121,6 @@ elif [ "$1" == "vocaloid-stats" ]; then
     echo "[$TIMESTAMP | END] scripts/calculate_vocaloid_stats_cache.py (Exit Code: $EXIT_CODE) - Time Elapsed: ${H}h ${M}m ${S}s" | tee -a "$LOG_FILE"
 
 else
-    echo "Usage: $0 {fetch-new|update-existing|views|rankings|vocaloid-stats} [args...]"
+    echo "Usage: $0 {fetch-new|update-existing|views|rankings|vocaloid-stats|export-users} [args...]"
     exit 1
 fi

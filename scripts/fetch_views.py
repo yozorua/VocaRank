@@ -123,8 +123,13 @@ def main():
     parser.add_argument("--id", type=int, help="Fetch view counts for a specific song ID.")
     args = parser.parse_args()
     
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    # Two connections: read_conn streams rows via a named cursor (must never be
+    # committed mid-loop or PostgreSQL will destroy the server-side cursor);
+    # write_conn handles all UPDATEs and is committed after each batch.
+    read_conn = get_db_connection()
+    write_conn = get_db_connection()
+    conn = write_conn          # alias so existing code below keeps working
+    cursor = write_conn.cursor()
 
     query = "SELECT id, pv_data, niconico_history, youtube_history, niconico_views, youtube_views FROM songs WHERE 1=1"
 
@@ -147,7 +152,7 @@ def main():
     count_query = query.replace(
         "SELECT id, pv_data, niconico_history, youtube_history, niconico_views, youtube_views FROM songs",
         "SELECT COUNT(*) FROM songs"
-    )
+    ).replace(" ORDER BY last_update_time ASC", "")
     cursor.execute(count_query)
     total_songs = cursor.fetchone()[0]
     log_message("INFO", f"Found {total_songs} songs to process.")
@@ -160,7 +165,9 @@ def main():
 
     # Use a server-side (named) cursor to stream rows in chunks rather than
     # fetching all ~900K rows into Python memory at once (which causes OOM).
-    stream_cursor = conn.cursor('fetch_views_stream')
+    # Must use a dedicated read_conn that is never committed mid-loop, because
+    # committing kills the PostgreSQL server-side cursor.
+    stream_cursor = read_conn.cursor('fetch_views_stream')
     stream_cursor.itersize = CHUNK_SIZE
     stream_cursor.execute(query)
 
@@ -427,7 +434,8 @@ def main():
         except Exception as e:
              log_message("ERROR", f"Failed to save snapshots: {e}")
 
-    conn.close()
+    read_conn.close()
+    write_conn.close()
 
 if __name__ == "__main__":
     main()
