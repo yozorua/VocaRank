@@ -1,6 +1,8 @@
 # VocaRank
 
-**VocaRank** is the most comprehensive and modern ranking platform for Vocaloid music — tracking real-time view counts across NicoNico and YouTube, aggregating daily snapshots, and delivering up-to-date rankings for songs featuring Vocaloid, SynthesizerV, UTAU, CeVIO, and every major vocal synthesizer. Built with a full data pipeline, multi-locale support, and a rich community layer, VocaRank is the most advanced Vocaloid ranking website available today.
+**English** | [日本語](README.ja.md)
+
+**VocaRank** is the most comprehensive and modern ranking platform for Vocaloid music — tracking real-time view counts across NicoNico and YouTube, aggregating daily snapshots, and delivering up-to-date rankings for songs featuring VOCALOID, SynthesizerV, UTAU, CeVIO, VoiSona, and every major vocal synthesizer. Built with a full data pipeline, multi-locale support, and a rich community layer, VocaRank is the most advanced Vocaloid ranking website available today.
 
 Live site: **[vocarank.live](https://vocarank.live)**
 
